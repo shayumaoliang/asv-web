@@ -52,20 +52,49 @@ export const asyncRouterMap = [
     path: '/example',
     component: Layout,
     redirect: 'noredirect',
-    name: 'Example',
+    name: '服务器配置',
     icon: 'zujian',
     children: [
-      { path: 'index', component: Form, name: 'Form', icon: 'zonghe' }
+      { path: 'index', component: Form, name: '服务器', icon: 'zujian' },
+      { path: 'index', component: Form, name: '授权', icon: 'zujian' }
     ]
-  },
 
+  },
   {
     path: '/table',
     component: Layout,
-    redirect: '/table/index',
-    icon: 'tubiao',
-    noDropdown: true,
-    children: [{ path: 'index', component: Table, name: 'Table', meta: { role: ['admin'] }}]
+    redirect: 'noredirect',
+    name: '声纹库管理',
+    icon: 'zujian',
+    children: [
+      { path: '', component: Table, name: '声纹库', meta: { role: ['admin'] }},
+      { path: '', component: Table, name: '自动备份设置', meta: { role: ['admin'] }}
+    ]
+  },
+  {
+    path: '/table',
+    component: Layout,
+    redirect: 'noredirect',
+    name: '场景管理',
+    icon: 'zujian',
+    children: [
+      { path: '', component: Table, name: '参数配置', meta: { role: ['admin'] }},
+      { path: '', component: Table, name: '场景配置', meta: { role: ['admin'] }}
+    ]
+  },
+  {
+    path: '/table',
+    component: Layout,
+    redirect: 'noredirect',
+    name: '设置',
+    icon: 'zujian',
+    children: [
+      { path: '', component: Table, name: '账号管理', meta: { role: ['admin'] }},
+      { path: '', component: Table, name: '报警设置', meta: { role: ['admin'] }},
+      { path: '', component: Table, name: '登陆日志', meta: { role: ['admin'] }},
+      { path: '', component: Table, name: '操作日志', meta: { role: ['admin'] }},
+      { path: '', component: Table, name: '技术支持', meta: { role: ['admin'] }}
+    ]
   },
 
   { path: '*', redirect: '/404', hidden: true }

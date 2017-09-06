@@ -1,29 +1,29 @@
 <template>
-  <div class="login-container">
-    <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
-      class="card-box login-form">
-      <h3 class="title">系统登录</h3>
-       <el-form-item prop="username">
-        <span class="svg-container svg-container_login">
-          <icon-svg icon-class="yonghuming" />
-        </span>
-        <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="邮箱" />
-      </el-form-item>
-      <el-form-item prop="password">
-        <span class="svg-container">
-          <icon-svg icon-class="mima" ></icon-svg>
-        </span>
-        <el-input name="password" type="password" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
-          placeholder="密码"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
-          登录
-        </el-button>
-      </el-form-item>
-      <div class='tips'>账号:admin 密码随便填</div>
-      <div class='tips'>账号:editor  密码随便填</div>
-    </el-form>
+  <div class="login-bg">
+    <el-card class="login-container">
+      <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
+        class="card-box login-form">
+        <h3 class="title">声纹运维系统登录</h3>
+        <el-form-item prop="username">
+          <span class="svg-container svg-container_login">
+            <icon-svg icon-class="yonghuming" />
+          </span>
+          <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="用户名" />
+        </el-form-item>
+        <el-form-item prop="password">
+          <span class="svg-container">
+            <icon-svg icon-class="mima" ></icon-svg>
+          </span>
+          <el-input name="password" type="password" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+            placeholder="密码"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
+            登录
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
@@ -85,11 +85,18 @@ export default {
   $bg:#2d3a4b;
   $dark_gray:#889aa4;
   $light_gray:#eee;
-
+  .login-bg {
+    background-color: $light_gray;
+    height: 100%;
+  }
   .login-container {
     @include relative;
-    height: 100vh;
+    height: 300px;
+    width: 28%;
     background-color: $bg;
+    margin-left: 35%;
+    margin-right: 35%;
+    margin-top: 12%;
     input:-webkit-autofill {
       -webkit-box-shadow: 0 0 0px 1000px #293444 inset !important;
       -webkit-text-fill-color: #fff !important;
@@ -101,11 +108,11 @@ export default {
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
       color: $light_gray;
-      height: 47px;
+      height: 36px;
     }
     .el-input {
       display: inline-block;
-      height: 47px;
+      height: 36px;
       width: 85%;
     }
     .tips {
@@ -127,7 +134,7 @@ export default {
       font-size: 26px;
       font-weight: 400;
       color: $light_gray;
-      margin: 0px auto 40px auto;
+      margin: 5px auto 10px auto;
       text-align: center;
       font-weight: bold;
     }
@@ -135,9 +142,9 @@ export default {
       position: absolute;
       left: 0;
       right: 0;
-      width: 400px;
-      padding: 35px 35px 15px 35px;
-      margin: 120px auto;
+      width: 350px;
+      padding: 10px 35px 15px 35px;
+      margin: 0px auto;
     }
     .el-form-item {
       border: 1px solid rgba(255, 255, 255, 0.1);
