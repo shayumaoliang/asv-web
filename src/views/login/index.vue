@@ -1,29 +1,31 @@
 <template>
-  <div class="login-bg">
-    <el-card class="login-container">
-      <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
-        class="card-box login-form">
-        <h3 class="title">声纹运维系统登录</h3>
-        <el-form-item prop="username">
-          <span class="svg-container svg-container_login">
-            <icon-svg icon-class="yonghuming" />
-          </span>
-          <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="用户名" />
-        </el-form-item>
-        <el-form-item prop="password">
-          <span class="svg-container">
-            <icon-svg icon-class="mima" ></icon-svg>
-          </span>
-          <el-input name="password" type="password" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
-            placeholder="密码"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
-            登录
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+  <div class="login-container">
+    <el-form autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left" label-width="0px"
+      class="card-box login-form">
+      <h3 class="title">声纹运维系统登录</h3>
+
+      <el-form-item prop="username">
+        <span class="svg-container svg-container_login">
+          <icon-svg icon-class="yonghuming" />
+        </span>
+        <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="用户名" />
+      </el-form-item>
+
+      <el-form-item prop="password">
+        <span class="svg-container">
+          <icon-svg icon-class="mima" ></icon-svg>
+        </span>
+        <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on"
+          placeholder="密码"></el-input>
+        <span class='show-pwd' @click='showPwd'><icon-svg icon-class="yanjing" /></span>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" style="width:100%;" :loading="loading" @click.native.prevent="handleLogin">
+          登录
+        </el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
@@ -56,10 +58,19 @@ export default {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
-      loading: false
+      pwdType: 'password',
+      loading: false,
+      showDialog: false
     }
   },
   methods: {
+    showPwd() {
+      if (this.pwdType === 'password') {
+        this.pwdType = ''
+      } else {
+        this.pwdType = 'password'
+      }
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
@@ -82,21 +93,13 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss">
   @import "src/styles/mixin.scss";
-  $bg:#2d3a4b;
+  $bg:#324157;
   $dark_gray:#889aa4;
   $light_gray:#eee;
-  .login-bg {
-    background-color: $light_gray;
-    height: 100%;
-  }
   .login-container {
     @include relative;
-    height: 300px;
-    width: 28%;
+    height: 100vh;
     background-color: $bg;
-    margin-left: 35%;
-    margin-right: 35%;
-    margin-top: 12%;
     input:-webkit-autofill {
       -webkit-box-shadow: 0 0 0px 1000px #293444 inset !important;
       -webkit-text-fill-color: #fff !important;
@@ -144,7 +147,7 @@ export default {
       right: 0;
       width: 350px;
       padding: 10px 35px 15px 35px;
-      margin: 0px auto;
+      margin: 185px auto;
     }
     .el-form-item {
       border: 1px solid rgba(255, 255, 255, 0.1);

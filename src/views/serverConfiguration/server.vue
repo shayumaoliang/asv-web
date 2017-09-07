@@ -1,20 +1,15 @@
 <template>
   <div class="dashboard-container">
-    <h1>服务器详情</h1>
-    <div class='dashboard-text'>name:{{name}}</div>
-    <div class='dashboard-text'>role:<span v-for='role in roles' :key='role'>{{role}}</span></div>
-    <el-tooltip :content="'服务器状态: ' + switchValue" placement="top">
-      <el-switch
-        v-model="switchValue"
-        on-color="#13ce66"
-        off-color="#ff4949"
-        on-value="开启"
-        off-value="关闭"
-        on-text="on"
-        off-text="off"
-        @change="switchChange">
-      </el-switch>
-    </el-tooltip>
+    <div class="overview">
+      <p><icon-svg icon-class="vertical"></icon-svg>服务器列表</p>
+      <el-card></el-card>
+    </div>
+    <div class="detail">
+      <p><icon-svg icon-class="vertical"></icon-svg>详情</p>
+        <el-card class="bigCard">
+          <p><icon-svg icon-class="server"></icon-svg> 服务器：{{allServer}}</p>
+        </el-card>
+    </div>
   </div>
 </template>
 
@@ -30,7 +25,10 @@ export default {
   },
   data() {
     return {
-      switchValue: ''
+      switchValue: '',
+      allServer: 100,
+      running: 10,
+      alarm: 1
     }
   },
   methods: {
@@ -50,5 +48,25 @@ export default {
     font-size: 30px;
     line-height: 46px;
   }
+}
+.overview {
+  margin-bottom: 5px;
+}
+.card-group {
+  margin-bottom: 5px;
+}
+.card-list {
+  width: 31%;
+  height: 100px;
+  float: left;
+}
+.detail {
+  margin-top: 10px;
+  float: left;
+  width: 100%
+}
+.bigCard {
+  width: 93%;
+  height: 500px;
 }
 </style>

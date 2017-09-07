@@ -61,7 +61,7 @@ export const constantRouterMap = [
 ]
 
 export default new Router({
-  // mode: 'history', //后端支持可开
+  mode: 'history', // 后端支持可开
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
@@ -72,7 +72,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: 'noredirect',
     name: '服务器配置',
-    icon: 'zujian',
+    icon: 'server',
     children: [
       { path: 'server', component: server, name: '服务器', icon: 'zujian' },
       { path: 'authorize', component: authorize, name: '授权', icon: 'zujian' }
@@ -84,7 +84,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: 'noredirect',
     name: '声纹库管理',
-    icon: 'zujian',
+    icon: 'tubiao',
     children: [
       { path: 'voiceprintDatabase', component: voiceprintDatabase, name: '声纹库', meta: { role: ['admin'] }},
       { path: 'automaticBackup', component: automaticBackup, name: '自动备份设置', meta: { role: ['admin'] }}
@@ -106,7 +106,7 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: 'noredirect',
     name: '设置',
-    icon: 'zonghe',
+    icon: 'setting',
     children: [
       { path: 'accountManagement', component: accountManagement, name: '账号管理', meta: { role: ['admin'] }},
       { path: 'alarmSetting', component: alarmSetting, name: '报警设置', meta: { role: ['admin'] }},
