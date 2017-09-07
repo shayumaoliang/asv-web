@@ -2,12 +2,22 @@
   <div class="dashboard-container">
     <div class="overview">
       <p><icon-svg icon-class="vertical"></icon-svg>服务器列表</p>
-      <el-card></el-card>
+      <el-card>
+          <div v-for="(server, index) in alarmServers" :key="index" class="stoped item" @click="showDetail(index)">
+            <a><icon-svg icon-class="warning" ></icon-svg>{{ server.ip }}</a>
+          </div>
+          <div v-for="(server,index) in runningServers" :key="index" class="item" @click="showDetail(index)">
+            <a><icon-svg icon-class="on" ></icon-svg>{{ server.ip }}</a>
+          </div>
+          <div v-for="(server, index) in stopedServers" :key="index" class="item" @click="showDetail(index)">
+            <a><icon-svg icon-class="off" ></icon-svg>{{ server.ip }}</a>
+          </div>
+      </el-card>
     </div>
     <div class="detail">
       <p><icon-svg icon-class="vertical"></icon-svg>详情</p>
-        <el-card class="bigCard">
-          <p><icon-svg icon-class="server"></icon-svg> 服务器：{{allServer}}</p>
+        <el-card>
+          <p>ip: {{ ip }}</p>
         </el-card>
     </div>
   </div>
@@ -25,15 +35,61 @@ export default {
   },
   data() {
     return {
-      switchValue: '',
-      allServer: 100,
-      running: 10,
-      alarm: 1
+      ip: null,
+      runningServers: [
+        {
+          ip: '192.168.11.1'
+        },
+        {
+          ip: '192.168.11.14'
+        }
+      ],
+      stopedServers: [
+        {
+          ip: '192.168.11.13'
+        },
+        {
+          ip: '192.168.11.12'
+        },
+        {
+          ip: '192.168.11.16'
+        },
+        {
+          ip: '192.168.11.16'
+        },
+        {
+          ip: '192.168.11.17'
+        },
+        {
+          ip: '192.168.11.18'
+        },
+        {
+          ip: '192.168.11.19'
+        },
+        {
+          ip: '192.168.11.101'
+        },
+        {
+          ip: '192.168.11.100'
+        },
+        {
+          ip: '192.168.11.103'
+        },
+        {
+          ip: '192.168.11.113'
+        }
+      ],
+      alarmServers: [
+        {
+          ip: '192.168.11.11'
+        }
+      ]
     }
   },
   methods: {
-    switchChange() {
-
+    showDetail(index) {
+      this.ip = this.stopedServers[index].ip
+      console.log(this.stopedServers[index].ip)
     }
   }
 }
@@ -51,22 +107,16 @@ export default {
 }
 .overview {
   margin-bottom: 5px;
-}
-.card-group {
-  margin-bottom: 5px;
-}
-.card-list {
-  width: 31%;
-  height: 100px;
+  width: 30%;
   float: left;
+  height: auto;
 }
 .detail {
-  margin-top: 10px;
   float: left;
-  width: 100%
+  width: 68%;
+  height: auto;
 }
-.bigCard {
-  width: 93%;
-  height: 500px;
+.item {
+  padding: 5px 10px;
 }
 </style>

@@ -36,24 +36,24 @@
           <div slot="header" class="clearfix">
             <span class="line"><icon-svg icon-class="running"></icon-svg> 运行中：{{ running }}</span>
           </div>
-          <div v-for="runningServer in runningServers" :key="runningServer.name" class="running item">
-            <router-link to="serverConfiguration/server"><icon-svg icon-class="on"></icon-svg>{{ runningServer.ip }}</router-link>
+          <div v-for="(server, index) in runningServers" :key="index" class="running item">
+            <router-link to="serverConfiguration/server"><icon-svg icon-class="on"></icon-svg>{{ server.ip }}</router-link>
           </div>
         </el-card>
         <el-card class="bigCard">
           <div slot="header" class="clearfix">
             <span class="line"><icon-svg icon-class="stop"></icon-svg> 已停止：{{ stoped }}</span>
           </div>
-          <div v-for="runningServer in stopedServers" :key="runningServer.name" class="stoped item">
-            <router-link to="serverConfiguration/server"><icon-svg icon-class="off"></icon-svg>{{ runningServer.ip }}</router-link>
+          <div v-for="(server, index) in stopedServers" :key="index" class="stoped item">
+            <router-link to="serverConfiguration/server"><icon-svg icon-class="off"></icon-svg>{{ server.ip }}</router-link>
           </div>
         </el-card>
         <el-card class="bigCard">
           <div slot="header" class="clearfix">
             <span class="line"><icon-svg icon-class="alarm"></icon-svg> 报警中：{{ alarm }}</span>
           </div>
-          <div v-for="runningServer in alarmServers" :key="runningServer.name" class="stoped item">
-            <router-link to="serverConfiguration/server"><icon-svg icon-class="warning"></icon-svg>{{ runningServer.ip }}</router-link>
+          <div v-for="(server, index) in alarmServers" :key="index" class="stoped item">
+            <router-link to="serverConfiguration/server"><icon-svg icon-class="warning"></icon-svg>{{ server.ip }}</router-link>
           </div>
         </el-card>
     </div>
