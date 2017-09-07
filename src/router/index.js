@@ -12,6 +12,25 @@ const Login = _import('login/index')
 /* dashboard */
 const dashboard = _import('dashboard/index')
 
+// serverConfiguration
+const server = _import('serverConfiguration/server')
+const authorize = _import('serverConfiguration/authorize')
+
+// voiceprintManagement
+const voiceprintDatabase = _import('voiceprintManagement/voiceprintDatabase')
+const automaticBackup = _import('voiceprintManagement/automaticBackup')
+
+// sceneManagement
+const parameterConfiguration = _import('sceneManagement/parameterConfiguration')
+const sceneConfiguration = _import('sceneManagement/sceneConfiguration')
+
+// setting
+const accountManagement = _import('setting/accountManagement')
+const alarmSetting = _import('setting/alarmSetting')
+const loginLog = _import('setting/loginLog')
+const operationLog = _import('setting/operationLog')
+const technicalSupport = _import('setting/technicalSupport')
+
 /* error page */
 const Err404 = _import('404')
 
@@ -35,7 +54,7 @@ export const constantRouterMap = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    name: 'Home',
+    name: '服务器概览',
     hidden: true,
     children: [{ path: 'dashboard', component: dashboard }]
   }
@@ -49,51 +68,51 @@ export default new Router({
 
 export const asyncRouterMap = [
   {
-    path: '/example',
+    path: '/serverConfiguration',
     component: Layout,
     redirect: 'noredirect',
     name: '服务器配置',
     icon: 'zujian',
     children: [
-      { path: 'index', component: Form, name: '服务器', icon: 'zujian' },
-      { path: 'index', component: Form, name: '授权', icon: 'zujian' }
+      { path: 'server', component: server, name: '服务器', icon: 'zujian' },
+      { path: 'authorize', component: authorize, name: '授权', icon: 'zujian' }
     ]
 
   },
   {
-    path: '/table',
+    path: '/voiceprintManagement',
     component: Layout,
     redirect: 'noredirect',
     name: '声纹库管理',
     icon: 'zujian',
     children: [
-      { path: '', component: Table, name: '声纹库', meta: { role: ['admin'] }},
-      { path: '', component: Table, name: '自动备份设置', meta: { role: ['admin'] }}
+      { path: 'voiceprintDatabase', component: voiceprintDatabase, name: '声纹库', meta: { role: ['admin'] }},
+      { path: 'automaticBackup', component: automaticBackup, name: '自动备份设置', meta: { role: ['admin'] }}
     ]
   },
   {
-    path: '/table',
+    path: '/sceneManagement',
     component: Layout,
     redirect: 'noredirect',
     name: '场景管理',
     icon: 'zujian',
     children: [
-      { path: '', component: Table, name: '参数配置', meta: { role: ['admin'] }},
-      { path: '', component: Table, name: '场景配置', meta: { role: ['admin'] }}
+      { path: 'parameterConfiguration', component: parameterConfiguration, name: '参数配置', meta: { role: ['admin'] }},
+      { path: 'sceneConfiguration', component: sceneConfiguration, name: '场景配置', meta: { role: ['admin'] }}
     ]
   },
   {
-    path: '/table',
+    path: '/setting',
     component: Layout,
     redirect: 'noredirect',
     name: '设置',
-    icon: 'zujian',
+    icon: 'zonghe',
     children: [
-      { path: '', component: Table, name: '账号管理', meta: { role: ['admin'] }},
-      { path: '', component: Table, name: '报警设置', meta: { role: ['admin'] }},
-      { path: '', component: Table, name: '登陆日志', meta: { role: ['admin'] }},
-      { path: '', component: Table, name: '操作日志', meta: { role: ['admin'] }},
-      { path: '', component: Table, name: '技术支持', meta: { role: ['admin'] }}
+      { path: 'accountManagement', component: accountManagement, name: '账号管理', meta: { role: ['admin'] }},
+      { path: 'alarmSetting', component: alarmSetting, name: '报警设置', meta: { role: ['admin'] }},
+      { path: 'loginLog', component: loginLog, name: '登陆日志', meta: { role: ['admin'] }},
+      { path: 'operationLog', component: operationLog, name: '操作日志', meta: { role: ['admin'] }},
+      { path: 'technicalSupport', component: technicalSupport, name: '技术支持', meta: { role: ['admin'] }}
     ]
   },
 
