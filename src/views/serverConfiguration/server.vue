@@ -3,13 +3,13 @@
     <div class="overview">
       <p><icon-svg icon-class="vertical"></icon-svg>服务器列表</p>
       <el-card>
-          <div v-for="(server, index) in alarmServers" :key="index" class="stoped item" @click="showDetail(index)">
+          <div v-for="(server, index) in alarmServers" :key="index" class="item" @click="showAlarmServers(index)">
             <a><icon-svg icon-class="warning" ></icon-svg>{{ server.ip }}</a>
           </div>
-          <div v-for="(server,index) in runningServers" :key="index" class="item" @click="showDetail(index)">
+          <div v-for="(server,index) in runningServers" :key="index" class="item" @click="showRunningServers(index)">
             <a><icon-svg icon-class="on" ></icon-svg>{{ server.ip }}</a>
           </div>
-          <div v-for="(server, index) in stopedServers" :key="index" class="item" @click="showDetail(index)">
+          <div v-for="(server, index) in stopedServers" :key="index" class="item" @click="showStopedServers(index)">
             <a><icon-svg icon-class="off" ></icon-svg>{{ server.ip }}</a>
           </div>
       </el-card>
@@ -87,9 +87,14 @@ export default {
     }
   },
   methods: {
-    showDetail(index) {
+    showAlarmServers(index) {
+      this.ip = this.alarmServers[index].ip
+    },
+    showRunningServers(index) {
+      this.ip = this.runningServers[index].ip
+    },
+    showStopedServers(index) {
       this.ip = this.stopedServers[index].ip
-      console.log(this.stopedServers[index].ip)
     }
   }
 }
