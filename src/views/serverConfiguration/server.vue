@@ -1,8 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="overview">
-      <p>
-        <icon-svg icon-class="vertical"></icon-svg>服务器列表</p>
+      <h4><icon-svg icon-class="vertical"></icon-svg>服务器列表</h4>
       <el-card>
         <div v-for="(server, index) in alarmServers" :key="index" class="item" @click="showAlarmServers(index)">
           <a>
@@ -19,35 +18,64 @@
       </el-card>
     </div>
     <div class="detail">
-      <p>
-        <icon-svg icon-class="vertical"></icon-svg>详情</p>
+      <h4><icon-svg icon-class="vertical"></icon-svg>详情</h4>
       <el-card>
-        <p>状态：<icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg><icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg>{{ status }}</p>
-        <p>ip地址： {{ ip }}</p>
-        <p>配置</p>
-        <p>CPU：{{ cpu }}核</p>
-        <p>内存：{{ memory }}G</p>
-        <p>操作系统：{{ OS }}核</p>
-        <p>磁盘：{{ disk }}TB</p>
-        <p>监控</p>
-        <div class="chart-list">
-          <div class="echarts">
-            <IEcharts :option="cpuStatus"></IEcharts>
-            <p class="title">CPU</p>
-          </div>
-          <div class="echarts">
-            <IEcharts :option="memoryStatus"></IEcharts>
-            <p class="title">内存</p>
-          </div>
-          <div class="echarts">
-            <IEcharts :option="diskStatus"></IEcharts>
-            <p class="title">磁盘</p>
-          </div>
-        </div>
-        <!-- <div>
-          <span>进程 进程数：{{ process }}</span>
-          <p>授权 最大并发：{{ maxConcurrency }} 授权到期时间：{{ ExpireDate }}</p>
-        </div> -->
+        <el-form ref="serverStatus" :model="serverStatus" label-width="70px">
+          <el-form-item label="状态">
+            <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg><icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg><icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
+          </el-form-item>
+          <el-form-item label="ip地址">
+            {{ ip }}
+          </el-form-item>
+          <el-form-item label="配置">
+            <el-form-item label="CPU" label-width="80px">
+              {{ cpu }}核
+            </el-form-item>
+            <el-form-item label="内存" label-width="80px">
+              {{ memory }}G
+            </el-form-item>
+            <el-form-item label="操作系统" label-width="80px">
+              {{ OS }}
+            </el-form-item>
+            <el-form-item label="磁盘" label-width="80px">
+              {{ disk }}TB
+            </el-form-item>
+          </el-form-item>
+          <el-form-item label="监控" label-width="70px">
+            <div class="chart-list">
+              <div class="echarts">
+                <IEcharts :option="cpuStatus"></IEcharts>
+                <p class="title">CPU</p>
+              </div>
+              <div class="echarts">
+                <IEcharts :option="memoryStatus"></IEcharts>
+                <p class="title">内存</p>
+              </div>
+              <div class="echarts">
+                <IEcharts :option="diskStatus"></IEcharts>
+                <p class="title">磁盘</p>
+              </div>
+            </div>
+          </el-form-item>
+          <el-form-item label="进程" label-width="70px" style="margin-top: 50px;">
+            <span>进程数{{ process }}</span>
+            <el-button type="text" style="float: right; margin-right:80%;" @click="showDetail = true">查看详情</el-button>
+          </el-form-item>
+          <el-dialog title="所有进程" :visible.sync="showDetail">
+              <el-table :data="allProcess">
+                <el-table-column width="80" property="PID" label="PID"></el-table-column>
+                <el-table-column width="100" property="USER" label="USER"></el-table-column>
+                <el-table-column width="80" property="CPU" label="CPU"></el-table-column>
+                <el-table-column width="80" property="EME" label="EME"></el-table-column>
+                <el-table-column width="100" property="START" label="START"></el-table-column>
+                <el-table-column width="100" property="TIME" label="TIME"></el-table-column>
+                <el-table-column property="COMMAND" label="COMMAND"></el-table-column>
+              </el-table>
+          </el-dialog>
+          <el-form-item label="监控" label-width="70px">
+            <span>最大并发：{{ maxConcurrency }}</span><span style="float: right; margin-right:70%;">授权到期时间：{{ ExpireDate }}</span>
+          </el-form-item>
+        </el-form>
       </el-card>
     </div>
   </div>
@@ -66,6 +94,27 @@ export default {
   },
   data() {
     return {
+      showDetail: false,
+      allProcess: [
+        {
+          PID: null,
+          USER: null,
+          CPU: null,
+          EME: null,
+          START: null,
+          TIME: null,
+          COMMAND: null
+        },
+        {
+          PID: null,
+          USER: null,
+          CPU: null,
+          EME: null,
+          START: null,
+          TIME: null,
+          COMMAND: null
+        }
+      ],
       cpuStatus: {
         title: {
           show: false,
@@ -84,7 +133,7 @@ export default {
             label: {
               normal: {
                 show: true,
-                position: 'outside'
+                position: 'inner'
               },
               emphasis: {
                 show: false,
@@ -100,8 +149,8 @@ export default {
               }
             },
             data: [
-              { value: 80, name: '已使用' },
-              { value: 20, name: '未使用' }
+              { value: 80.2, name: '已使用' },
+              { value: 19.8, name: '未使用' }
 
             ]
           }
@@ -125,7 +174,7 @@ export default {
             label: {
               normal: {
                 show: true,
-                position: 'outside'
+                position: 'inner'
               },
               emphasis: {
                 show: false,
@@ -167,7 +216,7 @@ export default {
             label: {
               normal: {
                 show: true,
-                position: 'outside'
+                position: 'inner'
               },
               emphasis: {
                 show: false,
@@ -199,6 +248,14 @@ export default {
       process: null,
       maxConcurrency: null,
       ExpireDate: null,
+      serverStatus: {
+        status: '运行中',
+        ip: '192.168.10.10',
+        cpu: 8,
+        memory: 40,
+        OS: 'centos7',
+        disk: 12.3
+      },
       runningServers: [
         {
           ip: '192.168.11.1'
@@ -266,7 +323,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard {
   &-container {
-    margin: 30px;
+    margin: 10px;
   }
   &-text {
     font-size: 30px;
@@ -293,9 +350,9 @@ export default {
 
 .echarts {
   float: left;
-  margin-right: 1%;
+  margin-right: 0;
   margin-left: 0;
-  width: 32%;
+  width: 20%;
   height: 160px;
 }
 .chart-list {
