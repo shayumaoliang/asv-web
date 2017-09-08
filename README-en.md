@@ -1,15 +1,10 @@
 # vueAdmin-template
 
-> A vue admin template with Element UI & axios & iconfont & permission control & lint
-
-**Live demo:** http://panjiachen.github.io/vueAdmin-template
+> 声纹识别运维系统前端
 
 ## Build Setup
 
 ``` bash
-
-# Clone project
-git clone https://github.com/PanJiaChen/vueAdmin-template.git
 
 # Install dependencies
 npm install
@@ -26,5 +21,4 @@ npm run build
 # build for production and view the bundle analyzer report
 npm run build --report
 ```
-## Demo
-![demo](https://github.com/PanJiaChen/PanJiaChen.github.io/blob/master/images/demo.gif)
+
