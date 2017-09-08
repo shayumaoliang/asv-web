@@ -1,9 +1,9 @@
 {
-  "name": "vue-admin-template",
+  "name": "web",
   "version": "1.0.0",
   "license": "MIT",
   "description": "A vue admin template with Element UI & axios & iconfont & permission control & lint",
-  "author": "Pan <panfree23@gmail.com>",
+  "author": "shayu",
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "axios": "0.16.2",
+    "echarts": "^3.6.2",
     "element-ui": "1.4.3",
     "js-cookie": "2.1.4",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
     "vue": "2.4.2",
+    "vue-echarts-v3": "^1.0.5",
     "vue-router": "2.7.0",
     "vuex": "2.3.1"
   },
