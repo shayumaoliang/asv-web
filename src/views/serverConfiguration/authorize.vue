@@ -32,7 +32,6 @@
               :disabled="true"
               type="textarea"
               :autosize="{ minRows: 4, maxRows: 6}"
-              placeholder="请输入内容"
               v-model="server.log">
             </el-input>
           </el-form-item>
