@@ -29,14 +29,12 @@
           </el-form-item>
           <el-form-item label="LOG">
             <el-input
+              :disabled="true"
               type="textarea"
               :autosize="{ minRows: 4, maxRows: 6}"
               placeholder="请输入内容"
               v-model="server.log">
             </el-input>
-            <!-- <el-card class="log">
-              <div>{{ server.log }}</div>
-            </el-card> -->
           </el-form-item>
           <el-form-item>
             <el-input placeholder="请输入验证信息" v-model="verification">
