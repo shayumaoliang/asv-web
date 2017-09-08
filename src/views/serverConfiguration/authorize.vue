@@ -28,9 +28,15 @@
             </el-form-item>
           </el-form-item>
           <el-form-item label="LOG">
-            <el-card class="log">
+            <el-input
+              type="textarea"
+              :autosize="{ minRows: 4, maxRows: 6}"
+              placeholder="请输入内容"
+              v-model="server.log">
+            </el-input>
+            <!-- <el-card class="log">
               <div>{{ server.log }}</div>
-            </el-card>
+            </el-card> -->
           </el-form-item>
           <el-form-item>
             <el-input placeholder="请输入验证信息" v-model="verification">
@@ -64,7 +70,7 @@ export default {
           memory: 40,
           OS: 'centos7',
           disk: 12.3,
-          log: ''
+          log: '天上白玉京，十二楼五城。仙人抚我顶，结发受长生。 误逐世间乐，颇穷理乱情。九十六圣君，浮云挂空名。'
         },
         {
           status: '报警中',
@@ -91,7 +97,7 @@ export default {
           memory: 40,
           OS: 'centos7',
           disk: 12.3,
-          log: 'asdfasdfasdfasdfasdfasdfasidhfasdjfasidjfpadfi阿德法撒旦法hjapsoidjf'
+          log: '金樽清酒斗十千，玉盘珍馐直万钱。停杯投箸不能食，拔剑四顾心茫然。欲渡黄河冰塞川，将登太行雪暗天。闲来垂钓坐溪上，忽复乘舟梦日边。行路难，行路难，多歧路，今安在。长风破浪会有时，直挂云帆济沧海。'
         }
       ]
     }
@@ -126,6 +132,6 @@ export default {
 }
 
 .log {
-  height: 100px;
+  height: 150px;
 }
 </style>
