@@ -1,28 +1,32 @@
 <template>
   <div class="dashboard-container">
     <div class="overview">
-      <h4><icon-svg icon-class="vertical"></icon-svg>服务器列表</h4>
+      <h4>
+        <icon-svg icon-class="vertical"></icon-svg>服务器列表</h4>
       <el-card>
         <div v-for="(server, index) in alarmServers" :key="index" class="item" @click="showAlarmServers(index)">
           <a>
-            <icon-svg icon-class="warning"></icon-svg>{{ server.ip }}</a>
+            <icon-svg icon-class="warning"></icon-svg>{{ server }}</a>
         </div>
         <div v-for="(server,index) in runningServers" :key="index" class="item" @click="showRunningServers(index)">
           <a>
-            <icon-svg icon-class="on"></icon-svg>{{ server.ip }}</a>
+            <icon-svg icon-class="on"></icon-svg>{{ server }}</a>
         </div>
         <div v-for="(server, index) in stopedServers" :key="index" class="item" @click="showStopedServers(index)">
           <a>
-            <icon-svg icon-class="off"></icon-svg>{{ server.ip }}</a>
+            <icon-svg icon-class="off"></icon-svg>{{ server }}</a>
         </div>
       </el-card>
     </div>
     <div class="detail">
-      <h4><icon-svg icon-class="vertical"></icon-svg>详情</h4>
+      <h4>
+        <icon-svg icon-class="vertical"></icon-svg>详情</h4>
       <el-card>
         <el-form ref="serverStatus" :model="serverStatus" label-width="70px">
           <el-form-item label="状态">
-            <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg><icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg><icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
+            <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg>
+            <icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg>
+            <icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
           </el-form-item>
           <el-form-item label="ip地址">
             {{ ip }}
@@ -32,7 +36,7 @@
               {{ cpu }}核
             </el-form-item>
             <el-form-item label="内存" label-width="80px">
-              {{ memory }}G
+              {{ memory }}
             </el-form-item>
             <el-form-item label="操作系统" label-width="80px">
               {{ OS }}
@@ -58,22 +62,23 @@
             </div>
           </el-form-item>
           <el-form-item label="进程" label-width="70px" style="margin-top: 50px;">
-            <span>进程数{{ process }}</span>
-            <el-button type="text" style="float: right; margin-right:80%;" @click="showDetail = true">查看详情</el-button>
+            <span>进程数 {{ process }}</span>
+            <el-button type="text" style="float: right; margin-right:80%;" @click="showallProscess">查看详情</el-button>
           </el-form-item>
           <el-dialog title="所有进程" :visible.sync="showDetail">
-              <el-table :data="allProcess">
-                <el-table-column width="80" property="PID" label="PID"></el-table-column>
-                <el-table-column width="100" property="USER" label="USER"></el-table-column>
-                <el-table-column width="80" property="CPU" label="CPU"></el-table-column>
-                <el-table-column width="80" property="EME" label="EME"></el-table-column>
-                <el-table-column width="100" property="START" label="START"></el-table-column>
-                <el-table-column width="100" property="TIME" label="TIME"></el-table-column>
-                <el-table-column property="COMMAND" label="COMMAND"></el-table-column>
-              </el-table>
+            <el-table :data="allProcess" height="500">
+              <el-table-column width="100" prop="pid" label="PID"></el-table-column>
+              <el-table-column width="80" prop="user" label="USER"></el-table-column>
+              <el-table-column width="80" prop="cpu" label="CPU"></el-table-column>
+              <el-table-column width="80" prop="mem" label="MEM"></el-table-column>
+              <el-table-column width="90" prop="start" label="START"></el-table-column>
+              <el-table-column width="80" prop="time" label="TIME"></el-table-column>
+              <el-table-column prop="command" label="COMMAND"></el-table-column>
+            </el-table>
           </el-dialog>
           <el-form-item label="监控" label-width="70px">
-            <span>最大并发：{{ maxConcurrency }}</span><span style="float: right; margin-right:70%;">授权到期时间：{{ ExpireDate }}</span>
+            <span>最大并发：{{ maxConcurrency }}</span>
+            <span style="float: right; margin-right:60%;">授权到期时间：{{ ExpireDate }}</span>
           </el-form-item>
         </el-form>
       </el-card>
@@ -95,26 +100,7 @@ export default {
   data() {
     return {
       showDetail: false,
-      allProcess: [
-        {
-          PID: null,
-          USER: null,
-          CPU: null,
-          EME: null,
-          START: null,
-          TIME: null,
-          COMMAND: null
-        },
-        {
-          PID: null,
-          USER: null,
-          CPU: null,
-          EME: null,
-          START: null,
-          TIME: null,
-          COMMAND: null
-        }
-      ],
+      allProcess: [],
       cpuStatus: {
         title: {
           show: false,
@@ -256,66 +242,70 @@ export default {
         OS: 'centos7',
         disk: 12.3
       },
-      runningServers: [
-        {
-          ip: '192.168.11.1'
-        },
-        {
-          ip: '192.168.11.14'
-        }
-      ],
-      stopedServers: [
-        {
-          ip: '192.168.11.13'
-        },
-        {
-          ip: '192.168.11.12'
-        },
-        {
-          ip: '192.168.11.16'
-        },
-        {
-          ip: '192.168.11.16'
-        },
-        {
-          ip: '192.168.11.17'
-        },
-        {
-          ip: '192.168.11.18'
-        },
-        {
-          ip: '192.168.11.19'
-        },
-        {
-          ip: '192.168.11.101'
-        },
-        {
-          ip: '192.168.11.100'
-        },
-        {
-          ip: '192.168.11.103'
-        },
-        {
-          ip: '192.168.11.113'
-        }
-      ],
-      alarmServers: [
-        {
-          ip: '192.168.11.11'
-        }
-      ]
+      runningServers: [],
+      stopedServers: [],
+      alarmServers: []
     }
   },
   methods: {
-    showAlarmServers(index) {
-      this.ip = this.alarmServers[index].ip
+    async getServerList() {
+      const res = await this.$http.get('http://192.168.1.16:9090/servicesinfo')
+      this.runningServers = res.data.active_services
+      this.stopedServers = res.data.inactive_services
+      console.log(this.runningServers)
+      // this.alarmServers = res.data.alarmServers
     },
-    showRunningServers(index) {
-      this.ip = this.runningServers[index].ip
+    async showAlarmServers(index) {
+      this.ip = this.alarmServers[index]
+      this.status = '报警中'
+      await this.showInfo()
     },
-    showStopedServers(index) {
-      this.ip = this.stopedServers[index].ip
+    async showRunningServers(index) {
+      this.ip = this.runningServers[index]
+      this.status = '运行中'
+      await this.showInfo()
+    },
+    async showStopedServers(index) {
+      this.ip = this.stopedServers[index]
+      this.status = '已停止'
+      await this.showInfo()
+    },
+    async showInfo() {
+      const info = await this.$http.get('http://' + this.ip + ':1999/deviceinfos')
+      const authorizeInfo = await this.$http.get('http://' + this.ip + ':1999/devicelicenceinfo')
+      const authorize = authorizeInfo.data
+      this.ExpireDate = authorize.exp
+      this.maxConcurrency = authorize.max_con
+      const serverInfo = info.data
+      this.cpu = serverInfo.cpu_info.cpu_number
+      this.memory = serverInfo.memory_info.mem_total
+      this.OS = serverInfo.os
+      this.process = serverInfo.proc_num
+      this.cpuStatus.series[0].data[0].value = parseFloat(serverInfo.cpu_info.cpu_busy) * 100
+      this.cpuStatus.series[0].data[1].value = parseFloat(serverInfo.cpu_info.cpu_idle) * 100
+      this.memoryStatus.series[0].data[0].value = parseFloat(serverInfo.memory_info.mem_used) * 100
+      this.memoryStatus.series[0].data[1].value = parseFloat(serverInfo.memory_info.mem_free) * 100
+    },
+    async showallProscess() {
+      const info = await this.$http.get('http://' + this.ip + ':1999/procinfo')
+      this.allProcess = info.data
+      this.showDetail = true
+    },
+    async showCurrentServer() {
+      if (this.runningServers.length !== 0) {
+        this.ip = this.runningServers[0]
+        this.status = '运行中'
+      } else {
+        this.ip = this.stopedServers[0]
+        this.status = '已停止'
+      }
+      console.log(this.runningServers)
+      await this.showInfo()
     }
+  },
+  async mounted() {
+    await this.getServerList()
+    this.showCurrentServer()
   }
 }
 </script>
@@ -355,15 +345,18 @@ export default {
   width: 20%;
   height: 160px;
 }
+
 .chart-list {
   margin-top: 20px;
   width: 100%;
   margin-bottom: 20px;
 }
+
 .p {
   margin-top: 2px;
   padding: 1px;
 }
+
 .title {
   margin-left: 45%;
   margin-bottom: 20px;

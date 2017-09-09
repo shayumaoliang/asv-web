@@ -31,14 +31,14 @@
             <el-input
               :disabled="true"
               type="textarea"
-              :autosize="{ minRows: 4, maxRows: 6}"
+              :autosize="{ minRows: 1, maxRows: 1}"
               v-model="server.log">
             </el-input>
           </el-form-item>
           <el-form-item>
-            <el-input placeholder="请输入验证信息" v-model="verification">
-              <el-button type="primary" slot="append" @click="authorize">导入</el-button>
+            <el-input type="textarea" placeholder="请输入验证信息" v-model="verification">
             </el-input>
+            <el-button type="primary" @click="authorize">导入</el-button>
           </el-form-item>
         </el-form>
       </el-card>
