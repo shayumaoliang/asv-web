@@ -18,7 +18,7 @@
               {{ server.cpu }}核
             </el-form-item>
             <el-form-item label="内存" label-width="80px">
-              {{ server.memory }}G
+              {{ server.memory }}
             </el-form-item>
             <el-form-item label="操作系统" label-width="80px">
               {{ server.OS }}
@@ -28,11 +28,7 @@
             </el-form-item>
           </el-form-item>
           <el-form-item label="LOG">
-            <el-input
-              :disabled="true"
-              type="textarea"
-              :autosize="{ minRows: 1, maxRows: 1}"
-              v-model="server.log">
+            <el-input :disabled="true" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" v-model="server.log">
             </el-input>
           </el-form-item>
           <el-form-item>
@@ -59,44 +55,7 @@ export default {
   data() {
     return {
       verification: null,
-      servers: [
-        {
-          status: '运行中',
-          ip: '192.168.10.10',
-          cpu: 8,
-          memory: 40,
-          OS: 'centos7',
-          disk: 12.3,
-          log: '天上白玉京，十二楼五城。仙人抚我顶，结发受长生。 误逐世间乐，颇穷理乱情。九十六圣君，浮云挂空名。'
-        },
-        {
-          status: '报警中',
-          ip: '192.168.10.10',
-          cpu: 8,
-          memory: 40,
-          OS: 'centos7',
-          disk: 12.3,
-          log: 'asdfasdfasdfasd'
-        },
-        {
-          status: '已停止',
-          ip: '192.168.10.10',
-          cpu: 8,
-          memory: 40,
-          OS: 'centos7',
-          disk: 12.3,
-          log: 'as'
-        },
-        {
-          status: '运行中',
-          ip: '192.168.10.10',
-          cpu: 8,
-          memory: 40,
-          OS: 'centos7',
-          disk: 12.3,
-          log: '金樽清酒斗十千，玉盘珍馐直万钱。停杯投箸不能食，拔剑四顾心茫然。欲渡黄河冰塞川，将登太行雪暗天。闲来垂钓坐溪上，忽复乘舟梦日边。行路难，行路难，多歧路，今安在。长风破浪会有时，直挂云帆济沧海。'
-        }
-      ]
+      servers: []
     }
   },
   methods: {
@@ -105,7 +64,39 @@ export default {
         type: 'success',
         message: '导入成功!'
       })
+    },
+    async getUnauthorizedServer() {
+      const res = await this.$http.get('http://192.168.1.16:9090/unauthservicesinfo')
+      const serverList = res.data.unauth_services
+      const serversInfo = []
+      for (const ip of serverList) {
+        const authorizeServerInfo = await this.$http.get('http://' + ip + ':1999/deviceinfos')
+        const statusInfo = await this.$http.get('http://' + ip + ':1999/asv/status')
+        const authorizeInfo = await this.$http.get('http://' + ip + ':1999/devicelicenceinfo')
+        const rpcStatus = statusInfo.data.asvrpc.status
+        const serverStatus = statusInfo.data.asvserver.status
+        let realStatus
+        if (rpcStatus === 'active' && serverStatus === 'active') {
+          realStatus = '运行中'
+        } else {
+          realStatus = '已停止'
+        }
+        const serverInfo = {}
+        serverInfo['status'] = realStatus
+        serverInfo['ip'] = ip
+        serverInfo['cpu'] = authorizeServerInfo.data.cpu_info.cpu_number
+        serverInfo['memory'] = authorizeServerInfo.data.memory_info.mem_total
+        serverInfo['OS'] = authorizeServerInfo.data.os
+        serverInfo['log'] = authorizeInfo.data.print
+        // serverInfo['disk'] = authorizeInfo.data
+        serversInfo.push(serverInfo)
+        console.log(serversInfo)
+      }
+      this.servers = serversInfo
     }
+  },
+  async mounted() {
+    await this.getUnauthorizedServer()
   }
 }
 </script>

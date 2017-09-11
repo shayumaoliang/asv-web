@@ -1,8 +1,83 @@
 <template>
   <div class="dashboard-container">
-    <h1>自动备份页面</h1>
-    <div class='dashboard-text'>name:{{name}}</div>
-    <div class='dashboard-text'>role:<span v-for='role in roles' :key='role'>{{role}}</span></div>
+    <h4>
+      <icon-svg icon-class="vertical"></icon-svg>自动备份设置</h4>
+    <el-tabs>
+      <el-tab-pane label="自动备份设置">
+        <el-table :data="allBackupRules" height="500">
+          <el-table-column width="100" prop="company" label="公司"></el-table-column>
+          <el-table-column width="100" prop="business" label="业务"></el-table-column>
+          <el-table-column width="100" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column width="150" prop="backupName" label="备份名称"></el-table-column>
+          <el-table-column width="100" prop="backupTime" label="备份时间"></el-table-column>
+          <el-table-column width="100" prop="backupDate" label="备份日期"></el-table-column>
+          <el-table-column width="150" prop="backupNum" label="备份最大副本数量"></el-table-column>
+          <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
+          <el-table-column prop="command" label="操作">
+            <template scope="scope">
+              <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.onOff }}</el-button>
+              <el-button type="text" size="small">编辑</el-button>
+              <el-button type="text" size="small">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="查看备份" @click="showAllBackup">
+        <el-table :data="allBackup" height="500">
+          <el-table-column width="100" prop="company" label="公司"></el-table-column>
+          <el-table-column width="100" prop="business" label="业务"></el-table-column>
+          <el-table-column width="100" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column width="120" prop="backupName" label="备份名称"></el-table-column>
+          <el-table-column width="100" prop="backupTime" label="备份时间"></el-table-column>
+          <el-table-column width="100" prop="backupType" label="备份类型"></el-table-column>
+          <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
+          <el-table-column prop="command" label="操作">
+            <template scope="scope">
+              <el-button type="text" size="small">回滚</el-button>
+              <el-button type="text" size="small">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane disabled>
+        <template slot="label">
+          <el-button size="small" @click="createBackup">创建新的自动备份规则</el-button>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
+    <el-dialog title="备份声纹库" :visible.sync="newBackup">
+      <el-form :model="backupData" label-width="130px">
+        <el-form-item label="备份名称">
+          <el-input v-model="backupData.backupName"></el-input>
+        </el-form-item>
+        <el-form-item label="备份时间">
+          <el-time-picker v-model="backupData.backupTime" placeholder="请选择备份时间">
+          </el-time-picker>
+        </el-form-item>
+        <el-form-item label="备份日期">
+          <!-- <el-date-picker v-model="backupData.backupDate" type="date" placeholder="选择备份日期" :picker-options="pickerOptions0">
+                                 </el-date-picker> -->
+          <el-select v-model="backupData.backupDate" clearable placeholder="请选择备份日期">
+            <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备份最大副本数量">
+          <el-select v-model="backupData.copyNum" clearable placeholder="请选择保留最大副本数量">
+            <el-option v-for="item in copyOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备份对象">
+          <el-transfer v-model="checkedVoiceprintDb" filterable :titles="['所有声纹库', '已选声纹库']" :button-texts="['移除', '添加']" @change="handleChange" :data="allVoiceprintDb">
+          </el-transfer>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="newBackup = false">取 消</el-button>
+        <el-button type="primary" @click="createNewBackup">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -15,6 +90,165 @@ export default {
       'name',
       'roles'
     ])
+  },
+  data() {
+    // const generateData = _ => {
+    //   const data = []
+    //   for (let i = 1; i <= 15; i++) {
+    //     data.push({
+    //       key: i,
+    //       label: `备选项 ${i}`,
+    //       disabled: i % 4 === 0
+    //     })
+    //   }
+    //   return data
+    // }
+    return {
+      newBackup: false,
+      backupRule: {
+
+      },
+      backupName: null,
+      backupData: {
+        backupName: null,
+        backupTime: new Date(),
+        backupDate: null,
+        copyNum: null
+      },
+      allVoiceprintDb: [
+        {
+          key: 1,
+          label: '平安银行，贷款，一号阿萨德发撒旦'
+        },
+        {
+          key: 2,
+          label: '平安银行，贷款，四号'
+        },
+        {
+          key: 3,
+          label: '平安银行，贷款，三号'
+        }
+      ],
+      checkedVoiceprintDb: [],
+      dateOptions: [
+        {
+          value: 1,
+          label: '星期一'
+        },
+        {
+          value: 2,
+          label: '星期二'
+        },
+        {
+          value: 3,
+          label: '星期三'
+        },
+        {
+          value: 4,
+          label: '星期四'
+        },
+        {
+          value: 5,
+          label: '星期五'
+        },
+        {
+          value: 6,
+          label: '星期六'
+        },
+        {
+          value: 7,
+          label: '星期日'
+        }
+      ],
+      copyOptions: [
+        {
+          value: 1,
+          label: '一份'
+        },
+        {
+          value: 2,
+          label: '两份'
+        },
+        {
+          value: 3,
+          label: '三份'
+        }
+      ],
+      allBackupRules: [
+        {
+          company: '平安银行',
+          business: '贷款',
+          voiceprintDataName: '三号库',
+          backupName: '每天三点备份',
+          backupTime: '8:30',
+          backupDate: '08-23',
+          backupNum: 2,
+          backupStatus: '运行中',
+          onOff: '关闭'
+        },
+        {
+          company: '普惠',
+          business: '贷款',
+          voiceprintDataName: '三号库',
+          backupName: '每天三点备份',
+          backupTime: '8:30',
+          backupDate: '08-23',
+          backupNum: 2,
+          backupStatus: '暂停中',
+          onOff: '开启'
+        }
+      ],
+      allBackup: [
+        {
+          company: '平安银行',
+          business: '贷款',
+          voiceprintDataName: '三号库',
+          backupName: '每天三点备份',
+          backupTime: '8:30',
+          backupType: '手动备份',
+          backupStatus: '已完成'
+        },
+        {
+          company: '普惠',
+          business: '贷款',
+          voiceprintDataName: '三号库',
+          backupName: '每天三点备份',
+          backupTime: '8:30',
+          backupType: '自动备份',
+          backupStatus: '正在备份'
+        }
+      ]
+    }
+  },
+  methods: {
+    handleOnOff(scope) {
+      if (scope.row.onOff === '关闭') {
+        this.$message({
+          showClose: true,
+          message: '已关闭备份'
+        })
+      } else {
+        this.$message({
+          showClose: true,
+          message: '已开启备份'
+        })
+      }
+    },
+    showAllBackup() {
+      this.$message({
+        showClose: true,
+        message: '查看备份'
+      })
+    },
+    createBackup() {
+      this.newBackup = true
+    },
+    createNewBackup() {
+      this.newBackup = false
+    },
+    handleChange(value, direction, movedKeys) {
+      console.log(value, direction, movedKeys)
+    }
   }
 }
 </script>
@@ -22,7 +256,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard {
   &-container {
-    margin: 30px;
+    margin: 10px;
   }
   &-text {
     font-size: 30px;

@@ -234,14 +234,7 @@ export default {
       process: null,
       maxConcurrency: null,
       ExpireDate: null,
-      serverStatus: {
-        status: '运行中',
-        ip: '192.168.10.10',
-        cpu: 8,
-        memory: 40,
-        OS: 'centos7',
-        disk: 12.3
-      },
+      serverStatus: {},
       runningServers: [],
       stopedServers: [],
       alarmServers: []
