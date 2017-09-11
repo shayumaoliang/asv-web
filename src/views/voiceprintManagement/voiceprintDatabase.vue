@@ -3,57 +3,9 @@
     <div class="overview">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
-      <!-- <el-menu unique-opened mode="vertical" class="el-menu" @open="handleOpen" @close="handleClose">
-                    <el-submenu index="1">
-                      <template slot="title">
-                        <i class="el-icon-menu"></i>平安集团</template>
-                      <el-submenu index="1-1">
-                        <template slot="title">
-                          平安银行
-                          <el-button class="button-mini" type="primary" icon="delete" size="mini"></el-button>
-                          <el-button class="button-mini" type="primary" icon="edit" size="mini"></el-button>
-                          <el-button class="button-mini" type="primary" icon="plus" size="mini"></el-button>
-                        </template>
-                        <el-submenu index="1-1-1">
-                          <template slot="title">
-                            贷款业务
-                            <el-button class="button-mini" type="primary" icon="delete" size="mini"></el-button>
-                            <el-button class="button-mini" type="primary" icon="edit" size="mini"></el-button>
-                            <el-button class="button-mini" type="primary" icon="plus" size="mini"></el-button>
-                          </template>
-                          <el-menu-item index="1-1-1-1">
-                            声纹库
-                            <el-button class="button-m" type="primary" icon="delete" size="mini"></el-button>
-                            <el-button class="button-m" type="primary" icon="edit" size="mini"></el-button>
-                            <el-button class="button-m" type="primary" icon="plus" size="mini"></el-button>
-                          </el-menu-item>
-                          <el-menu-item index="1-1-1-2">
-                            声纹库1
-                            <el-button class="button-m" type="primary" icon="delete" size="mini"></el-button>
-                            <el-button class="button-m" type="primary" icon="edit" size="mini"></el-button>
-                            <el-button class="button-m" type="primary" icon="plus" size="mini"></el-button>
-                          </el-menu-item>
-                        </el-submenu>
-                        <el-submenu index="1-1-2">
-                          <template slot="title">
-                            借款业务
-                            <el-button class="button-mini" type="primary" icon="delete" size="mini"></el-button>
-                            <el-button class="button-mini" type="primary" icon="edit" size="mini"></el-button>
-                            <el-button class="button-mini" type="primary" icon="plus" size="mini"></el-button>
-                          </template>
-                          <el-menu-item index="1-1-2-1">
-                            声纹库
-                            <el-button class="button-m" type="primary" icon="delete" size="mini"></el-button>
-                            <el-button class="button-m" type="primary" icon="edit" size="mini"></el-button>
-                            <el-button class="button-m" type="primary" icon="plus" size="mini"></el-button>
-                          </el-menu-item>
-                        </el-submenu>
-                      </el-submenu>
-                    </el-submenu>
-                  </el-menu> -->
       <h4>
         <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
-      <el-tree :data="data" :props="defaultProps" accordion @node-click="handleNodeClick">
+      <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick">
       </el-tree>
     </div>
     <div class="detail">
@@ -97,6 +49,7 @@
 </template>
 
 <script>
+let id = 1000
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -114,58 +67,33 @@ export default {
       backupNum: null,
       cancelBackup: false,
       voiceprintData: {},
-      // voiceprntDatabase: [
-      //   {
-      //     companyName: '平安银行',
-      //     business: [
-      //       {
-      //         businessName: '贷款',
-      //         database: [
-      //           '一号',
-      //           '二号'
-      //         ]
-      //       },
-      //       {
-      //         businessName: '借款',
-      //         database: [
-      //           '一号',
-      //           '二号'
-      //         ]
-      //       }
-      //     ]
-      //   },
-      //   {
-      //     companyName: '不安银行',
-      //     business: [
-      //       {
-      //         businessName: '贷款',
-      //         database: [
-      //           '一号',
-      //           '二号'
-      //         ]
-      //       },
-      //       {
-      //         businessName: '借款',
-      //         database: [
-      //           '一号',
-      //           '二号'
-      //         ]
-      //       }
-      //     ]
-      //   }
-      // ],
-      data: [
+      voiceprintDb: [
         {
-          id: 1,
           label: '平安银行',
           children: [{
-            id: 2,
             label: '贷款业务',
             children: [{
-              id: 3,
               label: '一号库'
             }, {
-              id: 5,
+              label: '二号库'
+            }]
+          }]
+        },
+        {
+          label: '普惠',
+          children: [{
+            label: '贷款业务',
+            children: [{
+              label: '一号库'
+            }, {
+              label: '二号库'
+            }]
+          },
+          {
+            label: '借款业务',
+            children: [{
+              label: '一号库'
+            }, {
               label: '二号库'
             }]
           }]
@@ -189,8 +117,29 @@ export default {
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath)
-    }, handleNodeClick(data) {
+    },
+    handleNodeClick(data) {
       console.log(data)
+    },
+    append(store, data) {
+      store.append({ id: id++, label: 'testtest', children: [] }, data)
+    },
+
+    remove(store, data) {
+      store.remove(data)
+    },
+
+    renderContent(h, { node, data, store }) {
+      // return (
+      //   <span>
+      //     <span>
+      //       <span>{node.label}</span>
+      //     </span>
+      //     <span style='float: right; margin-right: 20px'>
+      //       <el-button size='mini' on-click={() => this.append(store, data)}>Append</el-button>
+      //       <el-button size='mini' on-click={() => this.remove(store, data)}>Delete</el-button>
+      //     </span>
+      //   </span>)
     }
   }
 }
@@ -244,7 +193,8 @@ export default {
   float: left;
   margin-left: 5%;
 }
+
 .box-card {
-  margin-top: 10px;
+  margin-top: 60px;
 }
 </style>

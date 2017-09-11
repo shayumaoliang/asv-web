@@ -1,8 +1,7 @@
 <template>
   <div class="dashboard-container">
-    <h1>参数配置页面</h1>
-    <div class='dashboard-text'>name:{{name}}</div>
-    <div class='dashboard-text'>role:<span v-for='role in roles' :key='role'>{{role}}</span></div>
+    <h4>
+      <icon-svg icon-class="vertical"></icon-svg>自动备份设置</h4>
   </div>
 </template>
 
@@ -22,7 +21,7 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard {
   &-container {
-    margin: 30px;
+    margin: 10px;
   }
   &-text {
     font-size: 30px;
