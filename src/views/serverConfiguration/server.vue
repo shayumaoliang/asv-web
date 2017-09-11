@@ -27,6 +27,8 @@
             <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg>
             <icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg>
             <icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
+            <el-button class="onOff-button" @click="onOffServer">
+              <icon-svg icon-class="onOff"></icon-svg> {{ onOff }}</el-button>
           </el-form-item>
           <el-form-item label="ip地址">
             {{ ip }}
@@ -88,7 +90,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-
 export default {
   name: 'dashboard',
   computed: {
@@ -101,6 +102,7 @@ export default {
     return {
       showDetail: false,
       allProcess: [],
+      onOff: '开启服务',
       cpuStatus: {
         title: {
           show: false,
@@ -241,6 +243,21 @@ export default {
     }
   },
   methods: {
+    onOffServer() {
+      if (this.onOff === '关闭服务') {
+        this.$message({
+          showClose: true,
+          type: 'success',
+          message: '服务已关闭'
+        })
+      } else {
+        this.$message({
+          showClose: true,
+          type: 'success',
+          message: '服务已开启'
+        })
+      }
+    },
     async getServerList() {
       const res = await this.$http.get('http://192.168.1.16:9090/servicesinfo')
       this.runningServers = res.data.active_services
@@ -251,16 +268,19 @@ export default {
     async showAlarmServers(index) {
       this.ip = this.alarmServers[index]
       this.status = '报警中'
+      // this.onOff = ''
       await this.showInfo()
     },
     async showRunningServers(index) {
       this.ip = this.runningServers[index]
       this.status = '运行中'
+      this.onOff = '关闭服务'
       await this.showInfo()
     },
     async showStopedServers(index) {
       this.ip = this.stopedServers[index]
       this.status = '已停止'
+      this.onOff = '开启服务'
       await this.showInfo()
     },
     async showInfo() {
@@ -288,9 +308,11 @@ export default {
       if (this.runningServers.length !== 0) {
         this.ip = this.runningServers[0]
         this.status = '运行中'
+        this.onOff = '关闭服务'
       } else {
         this.ip = this.stopedServers[0]
         this.status = '已停止'
+        this.onOff = '开启服务'
       }
       console.log(this.runningServers)
       await this.showInfo()
@@ -353,5 +375,9 @@ export default {
 .title {
   margin-left: 45%;
   margin-bottom: 20px;
+}
+
+.onOff-button {
+  margin-left: 10%;
 }
 </style>
