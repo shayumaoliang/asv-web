@@ -2,7 +2,7 @@
   <div class="dashboard-container">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>未授权服务器</h4>
-    <div v-for="(server, index) of servers" :key="server">
+    <div v-for="(server, index) of servers" :key="server.ip">
       <el-card class="servers">
         <el-form label-width="70px">
           <el-form-item label="状态">
@@ -32,9 +32,9 @@
             </el-input>
           </el-form-item>
           <el-form-item>
-            <el-input type="textarea" placeholder="请输入验证信息" v-model="verification">
+            <el-input type="textarea" placeholder="请输入验证信息" v-model="server.lic">
             </el-input>
-            <el-button type="primary" @click="authorize">导入</el-button>
+            <el-button type="primary" @click="authorize(index)" class="import-button">授权</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -59,11 +59,40 @@ export default {
     }
   },
   methods: {
-    authorize() {
-      this.$message({
-        type: 'success',
-        message: '导入成功!'
+    async authorize(index) {
+      const body = {
+        key: 'lic',
+        value: `${this.servers[index].lic}`
+      }
+      const res = await this.$http.post('http://' + this.servers[index].ip + ':1999/setlicence', body, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
       })
+      if (this.servers[index].lic.length !== 0) {
+        if (res.data.code === 606) {
+          this.$message({
+            type: 'error',
+            message: '授权码有误，请检查'
+          })
+        }
+        if (res.data.code === 607) {
+          this.$message({
+            type: 'error',
+            message: 'asvrpc 服务未启动'
+          })
+        } else {
+          this.$message({
+            type: 'success',
+            message: '授权成功'
+          })
+        }
+      } else {
+        this.$message({
+          type: 'error',
+          message: '验证信息不能为空'
+        })
+      }
     },
     async getUnauthorizedServer() {
       const res = await this.$http.get('http://192.168.1.16:9090/unauthservicesinfo')
@@ -88,9 +117,9 @@ export default {
         serverInfo['memory'] = authorizeServerInfo.data.memory_info.mem_total
         serverInfo['OS'] = authorizeServerInfo.data.os
         serverInfo['log'] = authorizeInfo.data.print
+        serverInfo['lic'] = ''
         // serverInfo['disk'] = authorizeInfo.data
         serversInfo.push(serverInfo)
-        console.log(serversInfo)
       }
       this.servers = serversInfo
     }
@@ -121,5 +150,11 @@ export default {
 
 .log {
   height: 150px;
+}
+
+.import-button {
+  margin-top: 10px;
+  margin-right: 10%;
+  float: right;
 }
 </style>

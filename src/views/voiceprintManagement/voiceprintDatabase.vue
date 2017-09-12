@@ -3,9 +3,9 @@
     <div class="overview">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
-      <h4>
-        <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
-      <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick">
+      <!-- <h4>
+        <icon-svg icon-class="homepage"></icon-svg>平安集团</h4> -->
+      <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
       </el-tree>
     </div>
     <div class="detail">
@@ -49,7 +49,6 @@
 </template>
 
 <script>
-let id = 1000
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -69,32 +68,27 @@ export default {
       voiceprintData: {},
       voiceprintDb: [
         {
-          label: '平安银行',
+          label: '平安集团',
           children: [{
-            label: '贷款业务',
+            label: '平安银行',
             children: [{
-              label: '一号库'
-            }, {
-              label: '二号库'
-            }]
-          }]
-        },
-        {
-          label: '普惠',
-          children: [{
-            label: '贷款业务',
-            children: [{
-              label: '一号库'
-            }, {
-              label: '二号库'
+              label: '贷款业务',
+              children: [{
+                label: '一号库'
+              }, {
+                label: '二号库'
+              }]
             }]
           },
           {
-            label: '借款业务',
+            label: '普惠',
             children: [{
-              label: '一号库'
-            }, {
-              label: '二号库'
+              label: '贷款业务',
+              children: [{
+                label: '一号库'
+              }, {
+                label: '二号库'
+              }]
             }]
           }]
         }
@@ -122,7 +116,8 @@ export default {
       console.log(data)
     },
     append(store, data) {
-      store.append({ id: id++, label: 'testtest', children: [] }, data)
+      store.append({ label: 'testtest', children: [] }, data)
+      console.log(data)
     },
 
     remove(store, data) {
@@ -130,16 +125,17 @@ export default {
     },
 
     renderContent(h, { node, data, store }) {
-      // return (
-      //   <span>
-      //     <span>
-      //       <span>{node.label}</span>
-      //     </span>
-      //     <span style='float: right; margin-right: 20px'>
-      //       <el-button size='mini' on-click={() => this.append(store, data)}>Append</el-button>
-      //       <el-button size='mini' on-click={() => this.remove(store, data)}>Delete</el-button>
-      //     </span>
-      //   </span>)
+      return (
+        <span>
+          <span>
+            <span>{node.label}</span>
+          </span>
+          <span style='float: right; margin-right: 20px'>
+            <el-button size='mini' on-click={() => this.append(store, data)}>修改</el-button>
+            <el-button size='mini' on-click={() => this.append(store, data)}>添加</el-button>
+            <el-button size='mini' on-click={() => this.remove(store, data)}>删除</el-button>
+          </span>
+        </span>)
     }
   }
 }
@@ -195,6 +191,6 @@ export default {
 }
 
 .box-card {
-  margin-top: 60px;
+  // margin-top: 60px;
 }
 </style>

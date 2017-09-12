@@ -243,19 +243,29 @@ export default {
     }
   },
   methods: {
-    onOffServer() {
+    async onOffServer() {
       if (this.onOff === '关闭服务') {
+        const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=stop')
+        const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=stop')
+        await this.showCurrentServer()
+        console.log(rpcRes, serverRes)
         this.$message({
           showClose: true,
           type: 'success',
           message: '服务已关闭'
         })
+        location.reload()
       } else {
+        const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=start')
+        const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=start')
+        await this.showCurrentServer()
+        console.log(rpcRes, serverRes)
         this.$message({
           showClose: true,
           type: 'success',
           message: '服务已开启'
         })
+        location.reload()
       }
     },
     async getServerList() {

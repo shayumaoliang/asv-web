@@ -56,7 +56,7 @@
         </el-form-item>
         <el-form-item label="备份日期">
           <!-- <el-date-picker v-model="backupData.backupDate" type="date" placeholder="选择备份日期" :picker-options="pickerOptions0">
-                                 </el-date-picker> -->
+                                     </el-date-picker> -->
           <el-select v-model="backupData.backupDate" clearable placeholder="请选择备份日期">
             <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -224,15 +224,22 @@ export default {
     handleOnOff(scope) {
       if (scope.row.onOff === '关闭') {
         this.$message({
+          type: 'success',
           showClose: true,
           message: '已关闭备份'
         })
       } else {
         this.$message({
+          type: 'success',
           showClose: true,
           message: '已开启备份'
         })
       }
+    },
+    async showAllBackupRule() {
+      const res = await this.$http.get('http://192.168.1.16:9090/api/backups')
+      const backup = {}
+      console.log(res)
     },
     showAllBackup() {
       this.$message({
@@ -249,6 +256,9 @@ export default {
     handleChange(value, direction, movedKeys) {
       console.log(value, direction, movedKeys)
     }
+  },
+  async mounted() {
+    await this.showAllBackupRule()
   }
 }
 </script>
