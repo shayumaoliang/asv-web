@@ -1,12 +1,17 @@
 import fetch from '@/utils/fetch'
+const qs = require('qs')
 
 export function login(username, password) {
   return fetch({
-    url: '/user/login',
+    url: '/login',
+    // url: '/user/login',
     method: 'post',
-    data: {
+    data: qs.stringify({
       username,
       password
+    }),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
     }
   })
 }

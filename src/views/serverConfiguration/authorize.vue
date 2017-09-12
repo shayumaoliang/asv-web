@@ -43,6 +43,7 @@
 </template>
 
 <script>
+var querystring = require('querystring')
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -60,14 +61,20 @@ export default {
   },
   methods: {
     async authorize(index) {
-      const body = {
-        key: 'lic',
-        value: `${this.servers[index].lic}`
-      }
-      const res = await this.$http.post('http://' + this.servers[index].ip + ':1999/setlicence', body, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        }
+      // const body = {
+      //   key: 'lic',
+      //   value: `${this.servers[index].lic}`
+      // }
+      // const res = await this.$http.post('http://' + this.servers[index].ip + ':1999/setlicence', body, {
+      //   headers: {
+      //     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      //   }
+      // })
+      const res = await this.$http({
+        method: 'POST',
+        url: 'http://' + this.servers[index].ip + ':1999/setlicence',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        data: querystring.stringify({ lic: this.servers[index].lic })
       })
       if (this.servers[index].lic.length !== 0) {
         if (res.data.code === 606) {

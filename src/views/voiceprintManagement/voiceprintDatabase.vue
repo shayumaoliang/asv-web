@@ -4,9 +4,43 @@
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
       <!-- <h4>
-        <icon-svg icon-class="homepage"></icon-svg>平安集团</h4> -->
-      <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
-      </el-tree>
+                <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
+          <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
+          </el-tree> -->
+      <el-menu unique-opened mode="vertical" class="el-menu" @open="handleOpen" @close="handleClose" @select="handleSelect">
+        <el-submenu index="0">
+          <template slot="title">
+            <i class="el-icon-menu"></i>平安集团</template>
+          <div v-for="(company, index) of companys" :key="index">
+            <el-submenu :index="`0-${index}`">
+              <template slot="title">
+                {{ company.companyName }}
+                <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
+                <el-button class="button-mini" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
+                <el-button class="button-mini" type="primary" icon="plus" size="mini" @click="addCompany(index)"></el-button>
+              </template>
+              <div v-for="(business, businessIndex) of companys[index].business" :key="businessIndex">
+                <el-submenu :index="`0-${index}-${businessIndex}`">
+                  <template slot="title">
+                    {{ business.businessName }}
+                    <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
+                    <el-button class="button-mini" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
+                    <el-button class="button-mini" type="primary" icon="plus" size="mini" @click="addBusiness(businessIndex)"></el-button>
+                  </template>
+                  <div v-for="(voiceprintDb, dbIndex) of companys[index].business[businessIndex].voiceprintDb" :key="dbIndex">
+                    <el-menu-item :index="`0-${index}-${businessIndex}-${dbIndex}`">
+                      {{ voiceprintDb.voiceprintDataName }}
+                      <el-button class="button-m" type="primary" icon="delete" size="mini" @click="deleteDb(dbIndex)"></el-button>
+                      <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
+                      <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button>
+                    </el-menu-item>
+                  </div>
+                </el-submenu>
+              </div>
+            </el-submenu>
+          </div>
+        </el-submenu>
+      </el-menu>
     </div>
     <div class="detail">
       <h4>
@@ -49,6 +83,7 @@
 </template>
 
 <script>
+const id = 1000
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -60,46 +95,100 @@ export default {
   },
   data() {
     return {
+      index: 2,
       voiceprintName: '一号备份库',
       backup: false,
       backupName: null,
       backupNum: null,
       cancelBackup: false,
       voiceprintData: {},
-      voiceprintDb: [
+      companys: [
         {
-          label: '平安集团',
-          children: [{
-            label: '平安银行',
-            children: [{
-              label: '贷款业务',
-              children: [{
-                label: '一号库'
-              }, {
-                label: '二号库'
-              }]
-            }]
-          },
-          {
-            label: '普惠',
-            children: [{
-              label: '贷款业务',
-              children: [{
-                label: '一号库'
-              }, {
-                label: '二号库'
-              }]
-            }]
-          }]
+          companyName: '平安银行',
+          business: [
+            {
+              businessName: '贷款',
+              voiceprintDb: [
+                {
+                  voiceprintDataName: '一号库'
+                },
+                {
+                  voiceprintDataName: '二号库'
+                }
+              ]
+            }
+          ]
+        },
+        {
+          companyName: '普惠',
+          business: [
+            {
+              businessName: '借款',
+              voiceprintDb: [
+                {
+                  voiceprintDataName: '三号库'
+                },
+                {
+                  voiceprintDataName: '八号库'
+                }
+              ]
+            }
+          ]
         }
       ],
+      allBusiness: [
+        {
+          businessName: '贷款业务'
+        },
+        {
+          businessName: '借款业务'
+        }
+      ],
+      voiceprintDb: [{
+        id: 1,
+        label: '平安集团',
+        children: [{
+          id: 4,
+          label: '平安银行',
+          children: [{
+            id: 9,
+            label: '贷款业务',
+            children: [{
+              id: 6,
+              label: '三号库'
+            }]
+          }, {
+            id: 10,
+            label: '借款业务',
+            children: [{
+              id: 6,
+              label: '三号库'
+            }]
+          }]
+        }]
+      }],
       defaultProps: {
         children: 'children',
         label: 'label'
       }
     }
   },
+  // computed: {
+  //   indexOfCompanys() {
+  //     return '1' + '-' + 'index'
+  //   },
+  //   indexOfBusiness() {
+  //     return '1' + '-' + 'index' + 'businessIndex'
+  //   },
+  //   indexOfDb() {
+  //     return '1' + '-' + 'index' + 'businessIndex' + 'dbIndex'
+  //   }
+  // },
   methods: {
+    async getAllcompany() {
+      const res = await this.$http.get('http://192.168.1.16:9090/api/getallcompanys')
+      console.log(res.data)
+    },
     startBackup() {
       this.backup = true
     },
@@ -112,31 +201,64 @@ export default {
     handleClose(key, keyPath) {
       console.log(key, keyPath)
     },
-    handleNodeClick(data) {
-      console.log(data)
+    handleSelect(key, keyPath) {
+      console.log(key, keyPath)
     },
-    append(store, data) {
-      store.append({ label: 'testtest', children: [] }, data)
-      console.log(data)
-    },
+    deleteCompany(index) {
 
-    remove(store, data) {
-      store.remove(data)
     },
+    editCompany(index) {
 
-    renderContent(h, { node, data, store }) {
-      return (
-        <span>
-          <span>
-            <span>{node.label}</span>
-          </span>
-          <span style='float: right; margin-right: 20px'>
-            <el-button size='mini' on-click={() => this.append(store, data)}>修改</el-button>
-            <el-button size='mini' on-click={() => this.append(store, data)}>添加</el-button>
-            <el-button size='mini' on-click={() => this.remove(store, data)}>删除</el-button>
-          </span>
-        </span>)
+    },
+    addCompany(index) {
+
+    },
+    deleteBusiness(businessIndex) {
+
+    },
+    editBusiness(businessIndex) {
+
+    },
+    addBusiness(businessIndex) {
+
+    },
+    deleteDb(dbIndex) {
+
+    },
+    editDb(dbIndex) {
+
+    },
+    addDb(dbIndex) {
+
     }
+    // handleNodeClick(data) {
+    //   console.log(data)
+    // },
+    // append(store, data) {
+    //   store.append({ id: id++, label: 'testtest', children: [] }, data)
+    //   console.log(data)
+    // },
+
+    // remove(store, data) {
+    //   store.remove(data)
+    // },
+
+    // renderContent(h, { node, data, store }) {
+    //   return (
+    //     <span>
+    //       <span>
+    //         <span>{node.label}</span>
+    //       </span>
+    //       <span style='float: right; margin-right: 20px'>
+    //         <el-button size='mini' on-click={() => this.append(store, data)}>修改</el-button>
+    //         <el-button size='mini' on-click={() => this.append(store, data)}>添加</el-button>
+    //         <el-button size='mini' on-click={() => this.remove(store, data)}>删除</el-button>
+    //       </span>
+    //     </span>)
+    // }
+  },
+  async mounted() {
+    await this.getAllcompany()
   }
 }
 </script>

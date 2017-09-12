@@ -56,7 +56,7 @@
         </el-form-item>
         <el-form-item label="备份日期">
           <!-- <el-date-picker v-model="backupData.backupDate" type="date" placeholder="选择备份日期" :picker-options="pickerOptions0">
-                                     </el-date-picker> -->
+                                             </el-date-picker> -->
           <el-select v-model="backupData.backupDate" clearable placeholder="请选择备份日期">
             <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -237,15 +237,43 @@ export default {
       }
     },
     async showAllBackupRule() {
+      const res = await this.$http.get('http://192.168.1.16:9090/api/autobackups')
+      const backupRule = {}
+      for (let i = 0; i < res.data.autoBackuprRuleInfos.length; i++) {
+        backupRule['company'] = res.data.autoBackuprRuleInfos[i].company_name
+        backupRule['business'] = res.data.autoBackuprRuleInfos[i].business_name
+        backupRule['voiceprintDataName'] = res.data.autoBackuprRuleInfos[i].lib_name
+        backupRule['backupName'] = res.data.autoBackuprRuleInfos[i].auto_backup_rule_name
+        backupRule['backupTime'] = res.data.autoBackuprRuleInfos[i].auto_backup_start_hour
+        backupRule['backupDate'] = res.data.autoBackuprRuleInfos[i].auto_backup_repeat_weekday
+        backupRule['backupNum'] = res.data.autoBackuprRuleInfos[i].auto_backup_max_duplicates
+        if (res.data.autoBackuprRuleInfos[i].auto_backup_run_status === '运行') {
+          backupRule['backupStatus'] = '运行中'
+          backupRule['onOff'] = '关闭'
+        } else {
+          backupRule['backupStatus'] = '暂停中'
+          backupRule['onOff'] = '开启'
+        }
+      }
+      this.allBackupRules.push(backupRule)
+    },
+    async showAllBackup() {
       const res = await this.$http.get('http://192.168.1.16:9090/api/backups')
       const backup = {}
-      console.log(res)
-    },
-    showAllBackup() {
-      this.$message({
-        showClose: true,
-        message: '查看备份'
-      })
+      for (let i = 0; i < res.data.allbackups.length; i++) {
+        backup['company'] = res.data.allbackups[i].company_name
+        backup['business'] = res.data.allbackups[i].business_name
+        backup['voiceprintDataName'] = res.data.allbackups[i].lib_name
+        backup['backupName'] = res.data.allbackups[i].backup_name
+        backup['backupTime'] = res.data.allbackups[i].backup_time
+        backup['backupType'] = res.data.allbackups[i].backup_type
+        backup['backupStatus'] = res.data.allbackups[i].backup_status
+      }
+      this.allBackup.push(backup)
+      // this.$message({
+      //   showClose: true,
+      //   message: '查看备份'
+      // })
     },
     createBackup() {
       this.newBackup = true
@@ -258,7 +286,8 @@ export default {
     }
   },
   async mounted() {
-    await this.showAllBackupRule()
+    // await this.showAllBackupRule()
+    // await this.showAllBackup()
   }
 }
 </script>
