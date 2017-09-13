@@ -1,21 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <!-- <h1>服务器详情</h1>
-      <div class='dashboard-text'>name:{{name}}</div>
-      <div class='dashboard-text'>role:<span v-for='role in roles' :key='role'>{{role}}</span></div>
-      <el-tooltip :content="'服务器状态: ' + switchValue" placement="top">
-        <el-switch
-          v-model="switchValue"
-          on-color="#13ce66"
-          off-color="#ff4949"
-          on-value="开启"
-          off-value="关闭"
-          on-text="on"
-          off-text="off"
-          @change="switchChange">
-        </el-switch>
-      </el-tooltip>
-      <icon-svg icon-class="setting"></icon-svg> -->
     <div class="overview">
       <p class="title">
         <icon-svg icon-class="vertical"></icon-svg>综述</p>
@@ -84,10 +68,10 @@ export default {
   data() {
     return {
       switchValue: '',
-      allServer: 0,
-      running: 0,
-      alarm: 0,
-      stoped: 11,
+      allServer: null,
+      running: null,
+      alarm: null,
+      stoped: null,
       runningServers: [],
       stopedServers: [],
       alarmServers: []
@@ -103,7 +87,6 @@ export default {
       this.running = res.data.active_total
       this.stoped = res.data.inactive_total
       this.runningServers = res.data.active_services
-      console.log(res.data.active_services)
       this.stopedServers = res.data.inactive_services
     }
   },

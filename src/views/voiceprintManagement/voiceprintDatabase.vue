@@ -4,32 +4,32 @@
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
       <!-- <h4>
-                <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
-          <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
-          </el-tree> -->
-      <el-menu unique-opened mode="vertical" class="el-menu" @open="handleOpen" @close="handleClose" @select="handleSelect">
+                              <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
+                        <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
+                        </el-tree> -->
+      <el-menu mode="vertical" class="el-menu" @open="handleOpen" @close="handleClose" @select="getCurrentDb">
         <el-submenu index="0">
           <template slot="title">
             <i class="el-icon-menu"></i>平安集团</template>
-          <div v-for="(company, index) of companys" :key="index">
-            <el-submenu :index="`0-${index}`">
+          <div v-for="(company, index) of companys" :key="company.company_name">
+            <el-submenu :index="`${index}`">
               <template slot="title">
-                {{ company.companyName }}
+                {{ company.company_name }}
                 <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
-                <el-button class="button-mini" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
-                <el-button class="button-mini" type="primary" icon="plus" size="mini" @click="addCompany(index)"></el-button>
+                <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
+                <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addCompany(index)"></el-button>
               </template>
-              <div v-for="(business, businessIndex) of companys[index].business" :key="businessIndex">
-                <el-submenu :index="`0-${index}-${businessIndex}`">
+              <div v-for="(business, businessIndex) of companys[index].businesses" :key="businessIndex">
+                <el-submenu :index="`${index}-${businessIndex}`">
                   <template slot="title">
-                    {{ business.businessName }}
+                    {{ business.business_name }}
                     <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
-                    <el-button class="button-mini" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
-                    <el-button class="button-mini" type="primary" icon="plus" size="mini" @click="addBusiness(businessIndex)"></el-button>
+                    <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
+                    <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(businessIndex)"></el-button>
                   </template>
-                  <div v-for="(voiceprintDb, dbIndex) of companys[index].business[businessIndex].voiceprintDb" :key="dbIndex">
-                    <el-menu-item :index="`0-${index}-${businessIndex}-${dbIndex}`">
-                      {{ voiceprintDb.voiceprintDataName }}
+                  <div v-for="(voiceprintDb, dbIndex) of companys[index].businesses[businessIndex].libs" :key="voiceprintDb">
+                    <el-menu-item :index="`${index}-${businessIndex}-${dbIndex}`">
+                      {{ voiceprintDb }}
                       <el-button class="button-m" type="primary" icon="delete" size="mini" @click="deleteDb(dbIndex)"></el-button>
                       <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
                       <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button>
@@ -52,19 +52,19 @@
           </div>
           <div class="form">
             <el-form-item label="子公司">
-              {{ '平安银行' }}
+              {{ voiceprintData.companyName }}
             </el-form-item>
             <el-form-item label="业务">
-              {{ '贷款' }}
+              {{ voiceprintData.businessName }}
             </el-form-item>
             <el-form-item label="声纹库">
-              {{ voiceprintName }}
+              {{ voiceprintData.DbName }}
             </el-form-item>
             <el-form-item label="声纹库标识符">
-              {{ '0000000000' }}
+              {{ voiceprintData.DbId }}
             </el-form-item>
             <el-form-item label="声纹库规模">
-              {{ '1000' }}
+              {{ voiceprintData.DbCount }}
             </el-form-item>
           </div>
           <el-dialog size="tiny" title="备份声纹库" :visible.sync="backup">
@@ -83,7 +83,7 @@
 </template>
 
 <script>
-const id = 1000
+// const id = 1000
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -102,92 +102,35 @@ export default {
       backupNum: null,
       cancelBackup: false,
       voiceprintData: {},
-      companys: [
-        {
-          companyName: '平安银行',
-          business: [
-            {
-              businessName: '贷款',
-              voiceprintDb: [
-                {
-                  voiceprintDataName: '一号库'
-                },
-                {
-                  voiceprintDataName: '二号库'
-                }
-              ]
-            }
-          ]
-        },
-        {
-          companyName: '普惠',
-          business: [
-            {
-              businessName: '借款',
-              voiceprintDb: [
-                {
-                  voiceprintDataName: '三号库'
-                },
-                {
-                  voiceprintDataName: '八号库'
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      allBusiness: [
-        {
-          businessName: '贷款业务'
-        },
-        {
-          businessName: '借款业务'
-        }
-      ],
-      voiceprintDb: [{
-        id: 1,
-        label: '平安集团',
-        children: [{
-          id: 4,
-          label: '平安银行',
-          children: [{
-            id: 9,
-            label: '贷款业务',
-            children: [{
-              id: 6,
-              label: '三号库'
-            }]
-          }, {
-            id: 10,
-            label: '借款业务',
-            children: [{
-              id: 6,
-              label: '三号库'
-            }]
-          }]
-        }]
-      }],
+      companys: [],
       defaultProps: {
         children: 'children',
         label: 'label'
       }
     }
   },
-  // computed: {
-  //   indexOfCompanys() {
-  //     return '1' + '-' + 'index'
-  //   },
-  //   indexOfBusiness() {
-  //     return '1' + '-' + 'index' + 'businessIndex'
-  //   },
-  //   indexOfDb() {
-  //     return '1' + '-' + 'index' + 'businessIndex' + 'dbIndex'
-  //   }
-  // },
   methods: {
     async getAllcompany() {
       const res = await this.$http.get('http://192.168.1.16:9090/api/getallcompanys')
-      console.log(res.data)
+      const allCompanys = res.data.companys
+      this.companys = allCompanys
+    },
+    async getCurrentDb(key) {
+      const any = key.split('-')
+      const conmpantIndex = Number(any[0])
+      const businessIndex = Number(any[1])
+      const dbIndex = Number(any[2])
+      const companyName = this.companys[conmpantIndex].company_name
+      const businessName = this.companys[conmpantIndex].businesses[businessIndex].business_name
+      const db = this.companys[conmpantIndex].businesses[businessIndex].libs[dbIndex]
+      const res = await this.$http.get('http://192.168.1.16:9090/lib/' + companyName + '/' + businessName + '/' + db)
+      const voiceprintData = {}
+      voiceprintData.companyName = companyName
+      voiceprintData.businessName = businessName
+      voiceprintData.DbName = db
+      voiceprintData.DbId = res.data.libNodeId
+      voiceprintData.DbCount = res.data.count
+      this.voiceprintData = voiceprintData
     },
     startBackup() {
       this.backup = true
@@ -280,13 +223,13 @@ export default {
 
 .button-mini {
   float: right;
-  margin-right: 5%;
+  margin-right: 13px;
   margin-top: 5%;
 }
 
 .button-m {
   float: right;
-  margin-right: 0px;
+  margin-right: 1px;
   margin-top: 5%;
 }
 

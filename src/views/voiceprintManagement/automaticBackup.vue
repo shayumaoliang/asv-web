@@ -55,8 +55,6 @@
           </el-time-picker>
         </el-form-item>
         <el-form-item label="备份日期">
-          <!-- <el-date-picker v-model="backupData.backupDate" type="date" placeholder="选择备份日期" :picker-options="pickerOptions0">
-                                             </el-date-picker> -->
           <el-select v-model="backupData.backupDate" clearable placeholder="请选择备份日期">
             <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -92,17 +90,6 @@ export default {
     ])
   },
   data() {
-    // const generateData = _ => {
-    //   const data = []
-    //   for (let i = 1; i <= 15; i++) {
-    //     data.push({
-    //       key: i,
-    //       label: `备选项 ${i}`,
-    //       disabled: i % 4 === 0
-    //     })
-    //   }
-    //   return data
-    // }
     return {
       newBackup: false,
       backupRule: {

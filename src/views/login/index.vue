@@ -31,7 +31,7 @@
 
 <script>
 import { isvalidUsername } from '@/utils/validate'
-import { login } from '@/api/login'
+// import { login } from '@/api/login'
 
 export default {
   name: 'login',
@@ -90,21 +90,25 @@ export default {
     // }
     async handleLogin() {
       try {
-        const res = await login(this.loginForm.username, this.loginForm.password)
-        res.validate(valid => {
-          if (valid) {
-            this.loading = true
-            this.$store.dispatch('Login', this.loginForm).then(() => {
-              this.loading = false
-              this.$router.push({ path: '/' })
-            }).catch(() => {
-              this.loading = false
-            })
-          } else {
-            console.log('error submit!!')
-            return false
-          }
-        })
+        // await login(this.loginForm.username, this.loginForm.password)
+        this.loading = true
+        await this.$store.dispatch('Login', this.loginForm)
+        this.loading = false
+        this.$router.push({ path: '/' })
+        // res.validate(valid => {
+        //   if (valid) {
+        //     this.loading = true
+        //     this.$store.dispatch('Login', this.loginForm).then(() => {
+        //       this.loading = false
+        //       this.$router.push({ path: '/' })
+        //     }).catch(() => {
+        //       this.loading = false
+        //     })
+        //   } else {
+        //     console.log('error submit!!')
+        //     return false
+        //   }
+        // })
       } catch (e) {
         console.log(e)
       }
