@@ -4,9 +4,9 @@
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
       <!-- <h4>
-                              <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
-                        <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
-                        </el-tree> -->
+                                      <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
+                                <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
+                                </el-tree> -->
       <el-menu mode="vertical" class="el-menu" @open="handleOpen" @close="handleClose" @select="getCurrentDb">
         <el-submenu index="0">
           <template slot="title">
@@ -68,7 +68,7 @@
             </el-form-item>
           </div>
           <el-dialog size="tiny" title="备份声纹库" :visible.sync="backup">
-            <el-input disabled v-model="backupName">
+            <el-input disabled v-model="voiceprintData.backupName">
               <template slot="prepend">备份名称</template>
             </el-input>
             <span slot="footer" class="dialog-footer">
@@ -132,11 +132,30 @@ export default {
       voiceprintData.DbCount = res.data.count
       this.voiceprintData = voiceprintData
     },
-    startBackup() {
+    async startBackup() {
+      const res = await this.$http.get('http://192.168.1.16:9090/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/createbackupname')
+      this.voiceprintData.backupName = res.data.backup_name
+      console.log(res)
       this.backup = true
     },
-    handleBackup() {
-      this.backup = false
+    async handleBackup() {
+      try {
+        const res = await this.$http.get('http://192.168.1.16:9090/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup')
+        this.backup = false
+        if (res.data.code === 0) {
+          this.$message({
+            showClose: true,
+            message: '成功开始备份',
+            type: 'success'
+          })
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          message: e,
+          type: 'success'
+        })
+      }
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath)
@@ -174,31 +193,6 @@ export default {
     addDb(dbIndex) {
 
     }
-    // handleNodeClick(data) {
-    //   console.log(data)
-    // },
-    // append(store, data) {
-    //   store.append({ id: id++, label: 'testtest', children: [] }, data)
-    //   console.log(data)
-    // },
-
-    // remove(store, data) {
-    //   store.remove(data)
-    // },
-
-    // renderContent(h, { node, data, store }) {
-    //   return (
-    //     <span>
-    //       <span>
-    //         <span>{node.label}</span>
-    //       </span>
-    //       <span style='float: right; margin-right: 20px'>
-    //         <el-button size='mini' on-click={() => this.append(store, data)}>修改</el-button>
-    //         <el-button size='mini' on-click={() => this.append(store, data)}>添加</el-button>
-    //         <el-button size='mini' on-click={() => this.remove(store, data)}>删除</el-button>
-    //       </span>
-    //     </span>)
-    // }
   },
   async mounted() {
     await this.getAllcompany()

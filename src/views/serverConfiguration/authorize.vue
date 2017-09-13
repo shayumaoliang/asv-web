@@ -43,7 +43,7 @@
 </template>
 
 <script>
-var querystring = require('querystring')
+const qs = require('qs')
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -74,7 +74,7 @@ export default {
         method: 'POST',
         url: 'http://' + this.servers[index].ip + ':1999/setlicence',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        data: querystring.stringify({ lic: this.servers[index].lic })
+        data: qs.stringify({ lic: this.servers[index].lic })
       })
       if (this.servers[index].lic.length !== 0) {
         if (res.data.code === 606) {

@@ -26,9 +26,9 @@
         <el-table :data="allBackup" height="500">
           <el-table-column width="100" prop="company" label="公司"></el-table-column>
           <el-table-column width="100" prop="business" label="业务"></el-table-column>
-          <el-table-column width="100" prop="voiceprintDataName" label="声纹库"></el-table-column>
-          <el-table-column width="120" prop="backupName" label="备份名称"></el-table-column>
-          <el-table-column width="100" prop="backupTime" label="备份时间"></el-table-column>
+          <el-table-column width="150" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column width="150" prop="backupName" label="备份名称"></el-table-column>
+          <el-table-column width="200" prop="backupTime" label="备份时间"></el-table-column>
           <el-table-column width="100" prop="backupType" label="备份类型"></el-table-column>
           <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
           <el-table-column prop="command" label="操作">
@@ -45,7 +45,7 @@
         </template>
       </el-tab-pane>
     </el-tabs>
-    <el-dialog title="备份声纹库" :visible.sync="newBackup">
+    <el-dialog title="创建声纹库备份规则" :visible.sync="newBackup">
       <el-form :model="backupData" label-width="130px">
         <el-form-item label="备份名称">
           <el-input v-model="backupData.backupName"></el-input>
@@ -102,20 +102,7 @@ export default {
         backupDate: null,
         copyNum: null
       },
-      allVoiceprintDb: [
-        {
-          key: 1,
-          label: '平安银行，贷款，一号阿萨德发撒旦'
-        },
-        {
-          key: 2,
-          label: '平安银行，贷款，四号'
-        },
-        {
-          key: 3,
-          label: '平安银行，贷款，三号'
-        }
-      ],
+      allVoiceprintDb: [],
       checkedVoiceprintDb: [],
       dateOptions: [
         {
@@ -161,50 +148,9 @@ export default {
           label: '三份'
         }
       ],
-      allBackupRules: [
-        {
-          company: '平安银行',
-          business: '贷款',
-          voiceprintDataName: '三号库',
-          backupName: '每天三点备份',
-          backupTime: '8:30',
-          backupDate: '08-23',
-          backupNum: 2,
-          backupStatus: '运行中',
-          onOff: '关闭'
-        },
-        {
-          company: '普惠',
-          business: '贷款',
-          voiceprintDataName: '三号库',
-          backupName: '每天三点备份',
-          backupTime: '8:30',
-          backupDate: '08-23',
-          backupNum: 2,
-          backupStatus: '暂停中',
-          onOff: '开启'
-        }
-      ],
-      allBackup: [
-        {
-          company: '平安银行',
-          business: '贷款',
-          voiceprintDataName: '三号库',
-          backupName: '每天三点备份',
-          backupTime: '8:30',
-          backupType: '手动备份',
-          backupStatus: '已完成'
-        },
-        {
-          company: '普惠',
-          business: '贷款',
-          voiceprintDataName: '三号库',
-          backupName: '每天三点备份',
-          backupTime: '8:30',
-          backupType: '自动备份',
-          backupStatus: '正在备份'
-        }
-      ]
+      allBackupRules: [],
+      allBackup: [],
+      noBackupRuleDb: []
     }
   },
   methods: {
@@ -225,8 +171,8 @@ export default {
     },
     async showAllBackupRule() {
       const res = await this.$http.get('http://192.168.1.16:9090/api/autobackups')
-      const backupRule = {}
       for (let i = 0; i < res.data.autoBackuprRuleInfos.length; i++) {
+        const backupRule = {}
         backupRule['company'] = res.data.autoBackuprRuleInfos[i].company_name
         backupRule['business'] = res.data.autoBackuprRuleInfos[i].business_name
         backupRule['voiceprintDataName'] = res.data.autoBackuprRuleInfos[i].lib_name
@@ -234,20 +180,20 @@ export default {
         backupRule['backupTime'] = res.data.autoBackuprRuleInfos[i].auto_backup_start_hour
         backupRule['backupDate'] = res.data.autoBackuprRuleInfos[i].auto_backup_repeat_weekday
         backupRule['backupNum'] = res.data.autoBackuprRuleInfos[i].auto_backup_max_duplicates
-        if (res.data.autoBackuprRuleInfos[i].auto_backup_run_status === '运行') {
+        if (res.data.autoBackuprRuleInfos[i].auto_backup_run_status === '运行中') {
           backupRule['backupStatus'] = '运行中'
           backupRule['onOff'] = '关闭'
         } else {
           backupRule['backupStatus'] = '暂停中'
           backupRule['onOff'] = '开启'
         }
+        this.allBackupRules.push(backupRule)
       }
-      this.allBackupRules.push(backupRule)
     },
     async showAllBackup() {
       const res = await this.$http.get('http://192.168.1.16:9090/api/backups')
-      const backup = {}
       for (let i = 0; i < res.data.allbackups.length; i++) {
+        const backup = {}
         backup['company'] = res.data.allbackups[i].company_name
         backup['business'] = res.data.allbackups[i].business_name
         backup['voiceprintDataName'] = res.data.allbackups[i].lib_name
@@ -255,14 +201,19 @@ export default {
         backup['backupTime'] = res.data.allbackups[i].backup_time
         backup['backupType'] = res.data.allbackups[i].backup_type
         backup['backupStatus'] = res.data.allbackups[i].backup_status
+        this.allBackup.push(backup)
       }
-      this.allBackup.push(backup)
-      // this.$message({
-      //   showClose: true,
-      //   message: '查看备份'
-      // })
     },
-    createBackup() {
+    async createBackup() {
+      const allVoiceprintDb = []
+      const res = await this.$http.get('http://192.168.1.16:9090/api/noautobackuplibs')
+      for (let i = 0; i < res.data.noAutobacpRuleLibs.length; i++) {
+        const voiceprintDb = {}
+        voiceprintDb['key'] = i
+        voiceprintDb['label'] = res.data.noAutobacpRuleLibs[i]
+        allVoiceprintDb.push(voiceprintDb)
+      }
+      this.allVoiceprintDb = allVoiceprintDb
       this.newBackup = true
     },
     createNewBackup() {
@@ -273,8 +224,8 @@ export default {
     }
   },
   async mounted() {
-    // await this.showAllBackupRule()
-    // await this.showAllBackup()
+    await this.showAllBackupRule()
+    await this.showAllBackup()
   }
 }
 </script>
