@@ -58,7 +58,7 @@
     <div class="detail">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库详情</h4>
-      <el-form label-width="120px" label-position="left" :model="voiceprintData">
+      <el-form v-if="voiceprintData.length !== 0" label-width="120px" label-position="left" :model="voiceprintData">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <el-button class="button-backpu" type="primary" @click="startBackup">备份</el-button>
@@ -91,6 +91,7 @@
           </el-dialog>
         </el-card>
       </el-form>
+      <el-card v-if="voiceprintData.length === 0"></el-card>
     </div>
   </div>
 </template>
@@ -266,6 +267,6 @@ export default {
 }
 
 .box-card {
-  // margin-top: 60px;
+  min-height: 100%;
 }
 </style>
