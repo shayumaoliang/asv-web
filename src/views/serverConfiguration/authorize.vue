@@ -102,7 +102,7 @@ export default {
       }
     },
     async getUnauthorizedServer() {
-      const res = await this.$http.get('http://192.168.1.16:9090/unauthservicesinfo')
+      const res = await this.$http.get(this.$apiUrl + '/unauthservicesinfo')
       const serverList = res.data.unauth_services
       const serversInfo = []
       for (const ip of serverList) {

@@ -269,7 +269,7 @@ export default {
       }
     },
     async getServerList() {
-      const res = await this.$http.get('http://192.168.1.16:9090/servicesinfo')
+      const res = await this.$http.get(this.$apiUrl + '/servicesinfo')
       this.runningServers = res.data.active_services
       this.stopedServers = res.data.inactive_services
       // this.alarmServers = res.data.alarmServers

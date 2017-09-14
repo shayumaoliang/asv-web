@@ -3,36 +3,40 @@
     <div class="overview">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
-      <!-- <h4>
-                                      <icon-svg icon-class="homepage"></icon-svg>平安集团</h4>
-                                <el-tree :data="voiceprintDb" :props="defaultProps" accordion @node-click="handleNodeClick" :render-content="renderContent">
-                                </el-tree> -->
-      <el-menu mode="vertical" class="el-menu" @open="handleOpen" @close="handleClose" @select="getCurrentDb">
+      <el-menu mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentDb">
         <el-submenu index="0">
           <template slot="title">
-            <i class="el-icon-menu"></i>平安集团</template>
+            <i class="el-icon-menu"></i>平安集团
+            <el-button class="button-mini" type="primary" icon="plus" size="mini" @click="addCompany"></el-button>
+          </template>
           <div v-for="(company, index) of companys" :key="company.company_name">
             <el-submenu :index="`${index}`">
               <template slot="title">
                 {{ company.company_name }}
-                <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
-                <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
-                <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addCompany(index)"></el-button>
+                <i>
+                  <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
+                </i>
+                <!-- <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button> -->
+                <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(index)"></el-button>
               </template>
               <div v-for="(business, businessIndex) of companys[index].businesses" :key="businessIndex">
                 <el-submenu :index="`${index}-${businessIndex}`">
                   <template slot="title">
                     {{ business.business_name }}
-                    <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
-                    <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
-                    <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(businessIndex)"></el-button>
+                    <i>
+                      <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
+                    </i>
+                    <!-- <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button> -->
+                    <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(businessIndex)"></el-button>
                   </template>
                   <div v-for="(voiceprintDb, dbIndex) of companys[index].businesses[businessIndex].libs" :key="voiceprintDb">
                     <el-menu-item :index="`${index}-${businessIndex}-${dbIndex}`">
                       {{ voiceprintDb }}
-                      <el-button class="button-m" type="primary" icon="delete" size="mini" @click="deleteDb(dbIndex)"></el-button>
-                      <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
-                      <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button>
+                      <i>
+                        <el-button class="button-m" type="primary" icon="delete" size="mini" @click="deleteDb(dbIndex)"></el-button>
+                      </i>
+                      <!-- <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
+                      <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button> -->
                     </el-menu-item>
                   </div>
                 </el-submenu>
@@ -42,6 +46,15 @@
         </el-submenu>
       </el-menu>
     </div>
+    <!-- <el-dialog size="tiny" title="备份声纹库" :visible.sync="dbOpration">
+      <el-input disabled v-model="voiceprintData.backupName">
+        <template slot="prepend">备份名称</template>
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="backup = false">取 消</el-button>
+        <el-button type="primary" @click="handleBackup">确 定</el-button>
+      </span>
+    </el-dialog> -->
     <div class="detail">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库详情</h4>
@@ -83,7 +96,6 @@
 </template>
 
 <script>
-// const id = 1000
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -96,6 +108,7 @@ export default {
   data() {
     return {
       index: 2,
+      dbOpration: false,
       voiceprintName: '一号备份库',
       backup: false,
       backupName: null,
@@ -111,7 +124,7 @@ export default {
   },
   methods: {
     async getAllcompany() {
-      const res = await this.$http.get('http://192.168.1.16:9090/api/getallcompanys')
+      const res = await this.$http.get(this.$apiUrl + '/api/getallcompanys')
       const allCompanys = res.data.companys
       this.companys = allCompanys
     },
@@ -123,7 +136,7 @@ export default {
       const companyName = this.companys[conmpantIndex].company_name
       const businessName = this.companys[conmpantIndex].businesses[businessIndex].business_name
       const db = this.companys[conmpantIndex].businesses[businessIndex].libs[dbIndex]
-      const res = await this.$http.get('http://192.168.1.16:9090/lib/' + companyName + '/' + businessName + '/' + db)
+      const res = await this.$http.get(this.$apiUrl + '/lib/' + companyName + '/' + businessName + '/' + db)
       const voiceprintData = {}
       voiceprintData.companyName = companyName
       voiceprintData.businessName = businessName
@@ -133,14 +146,14 @@ export default {
       this.voiceprintData = voiceprintData
     },
     async startBackup() {
-      const res = await this.$http.get('http://192.168.1.16:9090/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/createbackupname')
+      const res = await this.$http.get(this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/createbackupname')
       this.voiceprintData.backupName = res.data.backup_name
       console.log(res)
       this.backup = true
     },
     async handleBackup() {
       try {
-        const res = await this.$http.get('http://192.168.1.16:9090/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup')
+        const res = await this.$http.get(this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup')
         this.backup = false
         if (res.data.code === 0) {
           this.$message({
@@ -159,12 +172,14 @@ export default {
     },
     handleOpen(key, keyPath) {
       console.log(key, keyPath)
+      this.dbOpration = true
     },
     handleClose(key, keyPath) {
       console.log(key, keyPath)
     },
     handleSelect(key, keyPath) {
       console.log(key, keyPath)
+      this.dbOpration = true
     },
     deleteCompany(index) {
 
@@ -172,8 +187,8 @@ export default {
     editCompany(index) {
 
     },
-    addCompany(index) {
-
+    addCompany() {
+      this.dbOpration = true
     },
     deleteBusiness(businessIndex) {
 
@@ -191,7 +206,7 @@ export default {
 
     },
     addDb(dbIndex) {
-
+      this.dbOpration = true
     }
   },
   async mounted() {
@@ -212,7 +227,8 @@ export default {
 }
 
 .el-menu {
-  width: 100%
+  width: 100%;
+  min-height: 100%;
 }
 
 .button-mini {

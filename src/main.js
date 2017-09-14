@@ -15,6 +15,11 @@ Vue.component(IEcharts.name, IEcharts)
 
 Vue.use(ElementUI)
 
+import config from '../config'
+Vue.prototype.$apiUrl = process.env.NODE_ENV === 'development'
+? JSON.parse(config.dev.env.BASE_API)
+: JSON.parse(config.build.env.BASE_API)
+
 Vue.config.productionTip = false
 
 new Vue({

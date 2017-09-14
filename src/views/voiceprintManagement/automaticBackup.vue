@@ -48,11 +48,18 @@
     <el-dialog title="创建声纹库备份规则" :visible.sync="newBackup">
       <el-form :model="backupData" label-width="130px">
         <el-form-item label="备份名称">
-          <el-input v-model="backupData.backupName"></el-input>
+          <el-input style="width: 89%;" v-model="backupData.backupName"></el-input>
         </el-form-item>
         <el-form-item label="备份时间">
-          <el-time-picker v-model="backupData.backupTime" placeholder="请选择备份时间">
-          </el-time-picker>
+          <el-time-select
+            v-model="backupData.backupTime"
+            :picker-options="{
+              start: '00:00',
+              step: '00:30',
+              end: '08:00'
+            }"
+          placeholder="请选择备份时间">
+          </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
           <el-select v-model="backupData.backupDate" clearable placeholder="请选择备份日期">
@@ -80,6 +87,7 @@
 </template>
 
 <script>
+const qs = require('qs')
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -98,7 +106,7 @@ export default {
       backupName: null,
       backupData: {
         backupName: null,
-        backupTime: new Date(),
+        backupTime: null,
         backupDate: null,
         copyNum: null
       },
@@ -170,7 +178,7 @@ export default {
       }
     },
     async showAllBackupRule() {
-      const res = await this.$http.get('http://192.168.1.16:9090/api/autobackups')
+      const res = await this.$http.get(this.$apiUrl + '/api/autobackups')
       for (let i = 0; i < res.data.autoBackuprRuleInfos.length; i++) {
         const backupRule = {}
         backupRule['company'] = res.data.autoBackuprRuleInfos[i].company_name
@@ -191,7 +199,7 @@ export default {
       }
     },
     async showAllBackup() {
-      const res = await this.$http.get('http://192.168.1.16:9090/api/backups')
+      const res = await this.$http.get(this.$apiUrl + '/api/backups')
       for (let i = 0; i < res.data.allbackups.length; i++) {
         const backup = {}
         backup['company'] = res.data.allbackups[i].company_name
@@ -205,8 +213,9 @@ export default {
       }
     },
     async createBackup() {
+      this.newBackup = true
       const allVoiceprintDb = []
-      const res = await this.$http.get('http://192.168.1.16:9090/api/noautobackuplibs')
+      const res = await this.$http.get(this.$apiUrl + '/api/noautobackuplibs')
       for (let i = 0; i < res.data.noAutobacpRuleLibs.length; i++) {
         const voiceprintDb = {}
         voiceprintDb['key'] = i
@@ -214,10 +223,33 @@ export default {
         allVoiceprintDb.push(voiceprintDb)
       }
       this.allVoiceprintDb = allVoiceprintDb
-      this.newBackup = true
     },
-    createNewBackup() {
-      this.newBackup = false
+    async createNewBackup() {
+      console.log(this.backupData.backupTime)
+      if (this.checkedVoiceprintDb > 0) {
+        for (const i of this.checkedVoiceprintDb) {
+          const dbName = this.allVoiceprintDb[i].label
+          const res = await this.$http({
+            method: 'POST',
+            url: this.$apiUrl + '/admin/createautobackuprule',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            data: qs.stringify({
+              auto_backup_rule_name: this.backupData.backupName,
+              auto_backup_rule_start_time: this.backupData.backupTime,
+              auto_backup_rule_weekday: this.backupData.backupDate,
+              auto_backup_rule_duplicates: this.backupData.copyNum,
+              auto_backup_rule_lib_name: dbName
+            })
+          })
+        }
+      } else {
+        this.$message({
+          showClose: true,
+          message: '请选择要备份的声纹库',
+          type: 'error'
+        })
+      }
+      // this.newBackup = false
     },
     handleChange(value, direction, movedKeys) {
       console.log(value, direction, movedKeys)
