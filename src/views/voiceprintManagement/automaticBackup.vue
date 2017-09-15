@@ -13,7 +13,7 @@
           <el-table-column width="100" prop="backupDate" label="备份日期"></el-table-column>
           <el-table-column width="150" prop="backupNum" label="备份最大副本数量"></el-table-column>
           <el-table-column width="150" prop="backupStatus" label="备份规则启用状态"></el-table-column>
-          <el-table-column prop="command" label="操作">
+          <el-table-column label="操作">
             <template scope="scope">
               <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.onOff }}</el-button>
               <el-button type="text" size="small">编辑</el-button>
@@ -45,7 +45,7 @@
           <el-table-column width="200" prop="backupTime" label="备份时间"></el-table-column>
           <el-table-column width="100" prop="backupType" label="备份类型"></el-table-column>
           <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
-          <el-table-column prop="command" label="操作">
+          <el-table-column label="操作">
             <template scope="scope">
               <el-button type="text" size="small">回滚</el-button>
               <el-button @click="handkeDeleteBackupConfirm(scope)" type="text" size="small">删除</el-button>

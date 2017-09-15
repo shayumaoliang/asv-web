@@ -7,36 +7,35 @@
         <el-submenu index="0">
           <template slot="title">
             <i class="el-icon-menu"></i>平安集团
-            <el-button class="button-mini" type="primary" icon="plus" size="mini" @click="addCompany"></el-button>
+            <i class="el-icon-plus" @click="addCompany"></i>
           </template>
           <div v-for="(company, index) of companys" :key="company.company_name">
             <el-submenu :index="`${index}`">
               <template slot="title">
                 {{ company.company_name }}
-                <i>
-                  <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
-                </i>
-                <!-- <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button> -->
-                <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(index)"></el-button>
+                <!-- <i>
+                                <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
+                              </i>
+                              <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
+                              <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(index)"></el-button> -->
               </template>
               <div v-for="(business, businessIndex) of companys[index].businesses" :key="businessIndex">
                 <el-submenu :index="`${index}-${businessIndex}`">
                   <template slot="title">
                     {{ business.business_name }}
-                    <i>
-                      <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
-                    </i>
-                    <!-- <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button> -->
-                    <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(businessIndex)"></el-button>
+                    <!-- <i>
+                                    <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
+                                  </i>
+                                  <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
+                                  <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(businessIndex)"></el-button> -->
                   </template>
                   <div v-for="(voiceprintDb, dbIndex) of companys[index].businesses[businessIndex].libs" :key="voiceprintDb">
                     <el-menu-item :index="`${index}-${businessIndex}-${dbIndex}`">
-                      {{ voiceprintDb }}
-                      <i>
-                        <el-button class="button-m" type="primary" icon="delete" size="mini" @click="deleteDb(dbIndex)"></el-button>
+                      <icon-svg icon-class="server"></icon-svg> {{ voiceprintDb }}
+                      <i class="el-icon-delete" @click="deleteDb(dbIndex)">
                       </i>
-                      <!-- <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
-                      <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button> -->
+                      <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
+                      <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button>
                     </el-menu-item>
                   </div>
                 </el-submenu>
@@ -45,23 +44,26 @@
           </div>
         </el-submenu>
       </el-menu>
+      <el-tree :indent="8" :data="data2" :props="defaultProps" accordion highlight-current node-key="id" default-expand-all :expand-on-click-node="false" :render-content="renderContent" @node-click="clickItem">
+      </el-tree>
     </div>
     <!-- <el-dialog size="tiny" title="备份声纹库" :visible.sync="dbOpration">
-      <el-input disabled v-model="voiceprintData.backupName">
-        <template slot="prepend">备份名称</template>
-      </el-input>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="backup = false">取 消</el-button>
-        <el-button type="primary" @click="handleBackup">确 定</el-button>
-      </span>
-    </el-dialog> -->
+                        <el-input disabled v-model="voiceprintData.backupName">
+                          <template slot="prepend">备份名称</template>
+                        </el-input>
+                        <span slot="footer" class="dialog-footer">
+                          <el-button @click="backup = false">取 消</el-button>
+                          <el-button type="primary" @click="handleBackup">确 定</el-button>
+                        </span>
+                      </el-dialog> -->
     <div class="detail">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库详情</h4>
-      <el-form v-if="voiceprintData.length !== 0" label-width="120px" label-position="left" :model="voiceprintData">
+      <el-form label-width="120px" label-position="left" :model="voiceprintData">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <el-button class="button-backpu" type="primary" @click="startBackup">备份</el-button>
+            <el-button class="button-backpu " type="primary" @click="startBackup">备份</el-button>
+            <i class="el-icon-delete" @click="startBackup"></i>
           </div>
           <div class="form">
             <el-form-item label="子公司">
@@ -91,12 +93,25 @@
           </el-dialog>
         </el-card>
       </el-form>
-      <el-card v-if="voiceprintData.length === 0"></el-card>
+      <!-- <div v-else>
+                      <el-card>
+                        <div slot="header" class="clearfix">
+                          <span style="line-height: 10px;">子公司名称 OR 业务名称 OR 声纹库名称</span>
+                          <i><el-button size="mini" style="float: right;margin-right:100px;" type="primary">删除</el-button></i>
+                          <el-button size="mini" style="float: right;" type="primary">编辑</el-button>
+                          <el-button size="mini" style="float: right;" type="primary">新增</el-button>
+                        </div>
+                        <div>
+                          各自对应的详细内容
+                        </div>
+                      </el-card>
+                    </div> -->
     </div>
   </div>
 </template>
 
 <script>
+let id = 1000
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -108,6 +123,29 @@ export default {
   },
   data() {
     return {
+      data2: [{
+        id: 1,
+        label: '平安集团',
+        children: [{
+          id: 4,
+          label: '平安保险',
+          children: [{
+            id: 9,
+            label: '分红保险',
+            children: [{
+              id: 11,
+              label: '黑声纹库'
+            }]
+          }, {
+            id: 10,
+            label: '教育保险',
+            children: [{
+              id: 12,
+              label: '白声纹库'
+            }]
+          }]
+        }]
+      }],
       index: 2,
       dbOpration: false,
       voiceprintName: '一号备份库',
@@ -124,6 +162,30 @@ export default {
     }
   },
   methods: {
+    append(store, data) {
+      store.append({ id: id++, label: 'testtest', children: [] }, data);
+    },
+    remove(store, data) {
+      store.remove(data)
+    },
+    renderContent(h, { node, data, store }) {
+      return (
+        <span>
+          <span>
+            <span>{node.label}</span>
+          </span>
+          <span style="float: right; margin-right: 20px">
+            <el-button size="mini" on-click={() => this.append(store, data)}><i class="el-icon-plus"></i></el-button>
+            <el-button size="mini"    ><i class="el-icon-edit"></i></el-button>
+            <el-button size="mini" on-click={() => this.remove(store, data)}><i class="el-icon-delete"></i></el-button>
+          </span>
+        </span>)
+    },
+    clickItem(store, data, node) {
+      console.log(store)
+      console.log(data)
+      console.log(node)
+    },
     async getAllcompany() {
       const res = await this.$http.get(this.$apiUrl + '/api/getallcompanys')
       const allCompanys = res.data.companys
@@ -246,13 +308,13 @@ export default {
 
 .detail {
   float: left;
-  width: 68%;
+  width: 58%;
   height: auto;
 }
 
 .overview {
   margin-bottom: 5px;
-  width: 30%;
+  width: 40%;
   float: left;
   height: auto;
 }
@@ -268,5 +330,15 @@ export default {
 
 .box-card {
   min-height: 100%;
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+
+.clearfix:after {
+  clear: both
 }
 </style>

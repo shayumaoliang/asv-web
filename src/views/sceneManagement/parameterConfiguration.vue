@@ -1,7 +1,17 @@
 <template>
   <div class="dashboard-container">
     <h4>
-      <icon-svg icon-class="vertical"></icon-svg>自动备份设置</h4>
+      <icon-svg icon-class="vertical"></icon-svg>参数配置</h4>
+    <el-card class="view">
+      <el-form label-width="120px" label-position="left" :model="voiceprintData">
+        
+      </el-form>
+    </el-card>
+    <el-card class="view">
+      <el-form label-width="120px" label-position="left" :model="voiceprintData">
+
+      </el-form>
+    </el-card>
   </div>
 </template>
 
@@ -21,11 +31,17 @@ export default {
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard {
   &-container {
-    margin: 10px;
+    margin: 8px;
   }
   &-text {
     font-size: 30px;
     line-height: 46px;
   }
+}
+
+.view {
+  width: 45%;
+  float: left;
+  margin-right: 5%;
 }
 </style>
