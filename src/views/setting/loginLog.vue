@@ -1,8 +1,12 @@
 <template>
   <div class="dashboard-container">
-    <h1>登录日志页面</h1>
-    <div class='dashboard-text'>name:{{name}}</div>
-    <div class='dashboard-text'>role:<span v-for='role in roles' :key='role'>{{role}}</span></div>
+    <h3>
+      <icon-svg icon-class="vertical"></icon-svg>登录日志</h3>
+    <el-table :data="accountData">
+      <el-table-column width="300" prop="accountName" label="账号"></el-table-column>
+      <el-table-column width="300" prop="authority" label="上线时间"></el-table-column>
+      <el-table-column prop="name" label="退出时间"></el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -15,6 +19,11 @@ export default {
       'name',
       'roles'
     ])
+  },
+  data() {
+    return {
+
+    }
   }
 }
 </script>

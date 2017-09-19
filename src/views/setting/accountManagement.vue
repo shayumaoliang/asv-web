@@ -2,25 +2,79 @@
   <div class="dashboard-container">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>账号管理
-      <el-button class="createNewAccount" size="small" type="primary">添加账号</el-button>
+      <el-button class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
     </h4>
-    <el-form class="view" label-width="120px" label-position="left" :model="accountData">
+    <el-form class="view" label-width="120px" label-position="left">
       <el-table :data="accountData">
-        <el-table-column width="300" prop="accountName" label="账号"></el-table-column>
-        <el-table-column width="300" prop="authority" label="操作权限"></el-table-column>
+        <el-table-column width="150" prop="accountName" label="账号"></el-table-column>
+        <el-table-column width="150" prop="authority" label="操作权限"></el-table-column>
+        <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
+        <el-table-column width="150" prop="phone" label="手机号码"></el-table-column>
+        <el-table-column width="220" prop="email" label="邮箱"></el-table-column>
         <el-table-column label="操作">
           <template scope="scope">
-            <el-button type="text" @click="deleteAccountDialog(scope)">删除</el-button>
+            <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
             <el-button type="text" @click="resetPasswordDialog(scope)">重设密码</el-button>
+            <el-button type="text" @click="deleteAccountDialog(scope)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-form>
+    <el-dialog title="编辑账号信息" :visible.sync="editContactConfirm" size="tiny">
+      <el-form :model="editAccountData" label-width="50px">
+        <el-form-item label="权限">
+          <el-checkbox-group v-model="editAccountData.authority">
+            <el-checkbox v-for="(authority, index) of allAuthority" :label="authority.value" :key="index">{{ authority.label }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="姓名">
+          <el-input disabled v-model="editAccountData.name"></el-input>
+        </el-form-item>
+        <el-form-item label="手机">
+          <el-input disabled v-model="editAccountData.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input disabled v-model="editAccountData.email"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editContactConfirm = false">取 消</el-button>
+        <el-button type="primary" @click="editContact()">确 定</el-button>
+      </span>
+    </el-dialog>
     <el-dialog title="是否删除账号？" :visible.sync="deleteAccountConfirm" size="tiny">
       <span>删除后不可恢复，请谨慎操作。</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="deleteAccountConfirm = false">取 消</el-button>
         <el-button type="primary" @click="deleteAccount()">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="创建账号" :visible.sync="addAccountDialog" size="tiny">
+      <el-form :model="createAccountData" label-width="50px">
+        <el-form-item label="账号" prop="account">
+          <el-input v-model="createAccountData.accountName" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="checkPass">
+          <el-input type="password" v-model="createAccountData.password" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="权限">
+          <el-checkbox-group v-model="createAccountData.authority">
+            <el-checkbox v-for="(authority, index) of allAuthority" :label="authority.value" :key="index">{{ authority.label }}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="姓名">
+          <el-input disabled v-model="createAccountData.name"></el-input>
+        </el-form-item>
+        <el-form-item label="手机">
+          <el-input disabled v-model="createAccountData.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input disabled v-model="createAccountData.email"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addAccountDialog = false">取 消</el-button>
+        <el-button type="primary" @click="addAccount()">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog title="重设密码" :visible.sync="resetPasswordConfirm" size="tiny">
@@ -34,13 +88,14 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="resetPasswordConfirm = false">取 消</el-button>
-        <el-button type="primary" @click="resetPassword()">确 定</el-button>
+        <el-button type="primary" @click="resetPassword('password')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+const qs = require('qs')
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -71,6 +126,23 @@ export default {
       }
     }
     return {
+      createAccountData: {
+        accountName: null,
+        password: null,
+        authority: [],
+        name: null,
+        phone: null,
+        email: null
+      },
+      editAccountData: {
+        authority: [],
+        name: null,
+        phone: null,
+        email: null
+      },
+      scope: null,
+      editContactConfirm: false,
+      addAccountDialog: false,
       password: {
         pass: '',
         checkPass: ''
@@ -85,44 +157,306 @@ export default {
       },
       deleteAccountConfirm: false,
       resetPasswordConfirm: false,
-      accountData: [
+      accountData: [],
+      checkAuthority: [],
+      allAuthority: [
         {
-          accountName: '张三',
-          authority: 'admin'
+          label: '接收报警权限',
+          value: 'alarm'
+        },
+        {
+          label: '操作权限',
+          value: 'opration'
         }
       ]
     }
   },
   methods: {
+    async showAllAcount() {
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/api/allusers')
+        if (res.data.code === 0) {
+          const users = res.data.users
+          for (let i = 0; i < users.length; i++) {
+            const user = {
+              accountName: null,
+              authority: []
+            }
+            user.accountName = users[i].username
+            if (users[i].admin === true && users[i].alarm === true) {
+              user.authority[0] = '接收报警权限'
+              user.authority[1] = <br />
+              user.authority[2] = '操作权限'
+            } else {
+              if (users[i].admin === false && users[i].alarm === false) {
+                user.authority = ['无任何权限']
+              } else {
+                if (users[i].admin === true && users[i].alarm === false) {
+                  user.authority[0] = '操作权限'
+                } else {
+                  if (users[i].admin === false && users[i].alarm === true) {
+                    user.authority[0] = '接收报警权限'
+                  }
+                }
+              }
+            }
+            this.accountData.push(user)
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    editContactDialog(scope) {
+      this.scope = scope
+      this.editAccountData.authority = []
+      this.editAccountData.name = scope.row.name
+      this.editAccountData.accountName = scope.row.accountName
+      this.editAccountData.phone = scope.row.phone
+      this.editAccountData.email = scope.row.email
+      if (scope.row.authority[0] === '无任何权限') {
+        this.editAccountData.authority = []
+      } else {
+        if (scope.row.authority.length === 3) {
+          this.editAccountData.authority[0] = 'alarm'
+          this.editAccountData.authority[1] = 'opration'
+        } else {
+          if (scope.row.authority[0] === '接收报警权限') {
+            this.editAccountData.authority[0] = 'alarm'
+          } else {
+            this.editAccountData.authority[0] = 'opration'
+          }
+        }
+      }
+      this.editContactConfirm = true
+    },
+    async editContact() {
+      try {
+        let admin
+        let alarm
+        const authority = []
+        if (this.editAccountData.authority[0] === 'opration' && this.editAccountData.authority.length === 1) {
+          admin = true
+          alarm = false
+          authority[0] = '操作权限'
+        } else {
+          if (this.editAccountData.authority[0] === 'alarm' && this.editAccountData.authority.length === 1) {
+            admin = false
+            alarm = true
+            authority[0] = '接收警报权限'
+          } else {
+            if (this.editAccountData.authority[0] === 'alarm' && this.editAccountData.authority[1] === 'opration') {
+              admin = true
+              alarm = true
+              authority[0] = '操作权限'
+              authority[1] = <br />
+              authority[2] = '接收警报权限'
+            } else {
+              admin = false
+              alarm = false
+            }
+          }
+        }
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/updateuser',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          data: qs.stringify(
+            {
+              username: this.editAccountData.accountName,
+              admin: admin,
+              alarm: alarm
+            }
+          )
+        })
+        if (res.data.code === 0) {
+          const index = this.scope.$index
+          this.accountData[index].authority = authority
+          this.editContactConfirm = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '修改成功'
+            }
+          )
+        } else {
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: res.data.msg
+            }
+          )
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    addAccountConfirm() {
+      this.addAccountDialog = true
+    },
+    async addAccount() {
+      try {
+        if (!this.createAccountData.accountName) {
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: '账号不能为空'
+            }
+          )
+        } else {
+          if (!this.createAccountData.password) {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: '密码不能为空'
+              }
+            )
+          } else {
+            let authority = []
+            let admin
+            let alarm
+            if (this.createAccountData.authority[0] === 'opration' && this.createAccountData.authority.length === 1) {
+              authority[0] = '操作权限'
+              admin = true
+              alarm = false
+            } else {
+              if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority.length === 1) {
+                authority[0] = '接收报警权限'
+                admin = false
+                alarm = true
+              } else {
+                if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority[1] === 'opration') {
+                  authority[0] = '接收报警权限'
+                  authority[1] = <br />
+                  authority[2] = '操作权限'
+                  admin = true
+                  alarm = true
+                } else {
+                  authority = ['无任何权限']
+                  admin = false
+                  alarm = false
+                }
+              }
+            }
+            const res = await this.$http({
+              method: 'POST',
+              url: this.$apiUrl + '/admin/createuser',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              data: qs.stringify(
+                {
+                  username: this.createAccountData.accountName,
+                  password: this.createAccountData.password,
+                  admin: admin,
+                  alarm: alarm
+                }
+              )
+            })
+            if (res.data.code === 0) {
+              this.accountData.push({
+                accountName: this.createAccountData.accountName,
+                authority: authority,
+                name: this.createAccountData.name,
+                phone: this.createAccountData.phone,
+                email: this.createAccountData.email
+              })
+              this.addAccountDialog = false
+            } else {
+              if (res.data.code === 504) {
+                this.$message(
+                  {
+                    showClose: true,
+                    type: 'error',
+                    message: '用户名已存在，请更换再尝试'
+                  }
+                )
+              } else {
+                this.$message(
+                  {
+                    showClose: true,
+                    type: 'error',
+                    message: '有问题！！'
+                  }
+                )
+              }
+            }
+          }
+        }
+      } catch (e) {
+        this.$message(
+          {
+            showClose: true,
+            type: 'error',
+            message: '啥问题啊'
+          }
+        )
+      }
+    },
     deleteAccountDialog(scope) {
+      this.scope = scope
       this.deleteAccountConfirm = true
     },
     resetPasswordDialog(scope) {
+      this.scope = scope
+      this.editAccountData.accountName = scope.row.accountName
       this.resetPasswordConfirm = true
     },
-    deleteAccount() {
-      this.deleteAccountConfirm = false
-      this.$message({
-        showClose: true,
-        message: '成功删除',
-        type: 'success'
-      })
-    },
-    resetPassword(password) {
-      this.$refs[password].validate((valid) => {
-        if (valid) {
-          this.resetPasswordConfirm = false
+    async deleteAccount() {
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/admin/deleteuser?username=' + this.scope.row.accountName)
+        if (res.data.code === 0) {
+          this.accountData.splice(this.scope.$index, 1)
+          this.deleteAccountConfirm = false
           this.$message({
             showClose: true,
-            message: '重设密码成功',
+            message: '成功删除',
             type: 'success'
           })
+        } else {
+          this.$message({
+            showClose: true,
+            message: '出问题啦',
+            type: 'error'
+          })
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    resetPassword(formName) {
+      this.$refs[formName].validate(async (valid) => {
+        if (valid) {
+          const res = await this.$http({
+            method: 'POST',
+            url: this.$apiUrl + '/admin/updateuser',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            data: qs.stringify(
+              {
+                username: this.editAccountData.accountName,
+                password: this.password.checkPass
+              }
+            )
+          })
+          if (res.data.code === 0) {
+            this.resetPasswordConfirm = false
+            this.$message({
+              showClose: true,
+              message: '重设密码成功',
+              type: 'success'
+            })
+          }
         } else {
           console.log('error submit!!')
           return false
         }
       })
     }
+  },
+  async mounted() {
+    await this.showAllAcount()
   }
 }
 </script>
@@ -144,6 +478,6 @@ export default {
 }
 
 .view {
-  width: 80%;
+  width: 90%;
 }
 </style>

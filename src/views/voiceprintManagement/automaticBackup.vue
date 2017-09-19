@@ -264,7 +264,7 @@ export default {
         backupRule['business'] = res.data.autoBackuprRuleInfos[i].business_name
         backupRule['voiceprintDataName'] = res.data.autoBackuprRuleInfos[i].lib_name
         backupRule['backupName'] = res.data.autoBackuprRuleInfos[i].auto_backup_rule_name
-        backupRule['backupTime'] = res.data.autoBackuprRuleInfos[i].auto_backup_start_hour
+        backupRule['backupTime'] = res.data.autoBackuprRuleInfos[i].auto_backup_start_time
         backupRule['backupDate'] = res.data.autoBackuprRuleInfos[i].auto_backup_repeat_weekday
         backupRule['backupNum'] = res.data.autoBackuprRuleInfos[i].auto_backup_max_duplicates
         if (res.data.autoBackuprRuleInfos[i].auto_backup_run_status === '运行中') {

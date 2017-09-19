@@ -14,28 +14,30 @@
               <template slot="title">
                 {{ company.company_name }}
                 <!-- <i>
-                                <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
-                              </i>
-                              <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
-                              <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(index)"></el-button> -->
+                                      <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteCompany(index)"></el-button>
+                                    </i>
+                                    <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editCompany(index)"></el-button>
+                                    <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addBusiness(index)"></el-button> -->
               </template>
               <div v-for="(business, businessIndex) of companys[index].businesses" :key="businessIndex">
                 <el-submenu :index="`${index}-${businessIndex}`">
                   <template slot="title">
                     {{ business.business_name }}
                     <!-- <i>
-                                    <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
-                                  </i>
-                                  <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
-                                  <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(businessIndex)"></el-button> -->
+                                          <el-button class="button-mini" type="primary" icon="delete" size="mini" @click="deleteBusiness(businessIndex)"></el-button>
+                                        </i>
+                                        <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editBusiness(businessIndex)"></el-button>
+                                        <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(businessIndex)"></el-button> -->
                   </template>
                   <div v-for="(voiceprintDb, dbIndex) of companys[index].businesses[businessIndex].libs" :key="voiceprintDb">
                     <el-menu-item :index="`${index}-${businessIndex}-${dbIndex}`">
                       <icon-svg icon-class="server"></icon-svg> {{ voiceprintDb }}
+                      <i class="el-icon-plus" @click="addDb(dbIndex)">
+                      </i>
+                      <i class="el-icon-edit" @click="editDb(dbIndex)">
+                      </i>
                       <i class="el-icon-delete" @click="deleteDb(dbIndex)">
                       </i>
-                      <el-button class="button-m" type="primary" icon="edit" size="mini" @click="editDb(dbIndex)"></el-button>
-                      <el-button class="button-m" type="primary" icon="plus" size="mini" @click="addDb(dbIndex)"></el-button>
                     </el-menu-item>
                   </div>
                 </el-submenu>
@@ -48,22 +50,21 @@
       </el-tree>
     </div>
     <!-- <el-dialog size="tiny" title="备份声纹库" :visible.sync="dbOpration">
-                        <el-input disabled v-model="voiceprintData.backupName">
-                          <template slot="prepend">备份名称</template>
-                        </el-input>
-                        <span slot="footer" class="dialog-footer">
-                          <el-button @click="backup = false">取 消</el-button>
-                          <el-button type="primary" @click="handleBackup">确 定</el-button>
-                        </span>
-                      </el-dialog> -->
+                              <el-input disabled v-model="voiceprintData.backupName">
+                                <template slot="prepend">备份名称</template>
+                              </el-input>
+                              <span slot="footer" class="dialog-footer">
+                                <el-button @click="backup = false">取 消</el-button>
+                                <el-button type="primary" @click="handleBackup">确 定</el-button>
+                              </span>
+                            </el-dialog> -->
     <div class="detail">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库详情</h4>
       <el-form label-width="120px" label-position="left" :model="voiceprintData">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <el-button class="button-backpu " type="primary" @click="startBackup">备份</el-button>
-            <i class="el-icon-delete" @click="startBackup"></i>
+            <el-button class="button-backpu" type="primary" @click="startBackup">备份</el-button>
           </div>
           <div class="form">
             <el-form-item label="子公司">
@@ -94,18 +95,18 @@
         </el-card>
       </el-form>
       <!-- <div v-else>
-                      <el-card>
-                        <div slot="header" class="clearfix">
-                          <span style="line-height: 10px;">子公司名称 OR 业务名称 OR 声纹库名称</span>
-                          <i><el-button size="mini" style="float: right;margin-right:100px;" type="primary">删除</el-button></i>
-                          <el-button size="mini" style="float: right;" type="primary">编辑</el-button>
-                          <el-button size="mini" style="float: right;" type="primary">新增</el-button>
-                        </div>
-                        <div>
-                          各自对应的详细内容
-                        </div>
-                      </el-card>
-                    </div> -->
+                            <el-card>
+                              <div slot="header" class="clearfix">
+                                <span style="line-height: 10px;">子公司名称 OR 业务名称 OR 声纹库名称</span>
+                                <i><el-button size="mini" style="float: right;margin-right:100px;" type="primary">删除</el-button></i>
+                                <el-button size="mini" style="float: right;" type="primary">编辑</el-button>
+                                <el-button size="mini" style="float: right;" type="primary">新增</el-button>
+                              </div>
+                              <div>
+                                各自对应的详细内容
+                              </div>
+                            </el-card>
+                          </div> -->
     </div>
   </div>
 </template>
@@ -176,7 +177,7 @@ export default {
           </span>
           <span style="float: right; margin-right: 20px">
             <el-button size="mini" on-click={() => this.append(store, data)}><i class="el-icon-plus"></i></el-button>
-            <el-button size="mini"    ><i class="el-icon-edit"></i></el-button>
+            <el-button size="mini"><i class="el-icon-edit"></i></el-button>
             <el-button size="mini" on-click={() => this.remove(store, data)}><i class="el-icon-delete"></i></el-button>
           </span>
         </span>)

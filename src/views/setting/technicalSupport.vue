@@ -1,9 +1,6 @@
 <template>
   <div class="dashboard-container">
-    <h1>技术支持页面</h1>
     <p>由快商通提供所有技术支持</p>
-    <div class='dashboard-text'>name:{{name}}</div>
-    <div class='dashboard-text'>role:<span v-for='role in roles' :key='role'>{{role}}</span></div>
   </div>
 </template>
 
