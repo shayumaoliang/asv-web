@@ -2,43 +2,34 @@
   <div class="dashboard-container">
     <el-tabs v-model="activeTab">
       <el-tab-pane label="报警规则" v-if="createRuleStatus === 0" name="alarmRule">
-        <el-table :data="allalarmRules" height="500">
-          <el-table-column width="100" prop="ruleName" label="规则名称"></el-table-column>
-          <el-table-column width="100" prop="status" label="状态"></el-table-column>
-          <el-table-column width="100" prop="onOff" label="启用"></el-table-column>
-          <el-table-column width="150" prop="alarmTerm" label="监控项"></el-table-column>
-          <el-table-column width="100" prop="ruleDescription" label="规则描述"></el-table-column>
-          <el-table-column width="100" prop="notifyPerson" label="通知对象"></el-table-column>
-          <el-table-column width="150" prop="notifyWay" label="通知方式"></el-table-column>
-          <el-table-column label="操作">
-            <template scope="scope">
-              <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.onOff }}</el-button>
-              <el-button type="text" size="small">编辑</el-button>
-              <el-button @click="deleteDialog(scope)" type="text" size="small">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <div class="table-view">
+          <el-table :data="allalarmRules" height="500">
+            <el-table-column width="200" prop="ruleName" label="规则名称"></el-table-column>
+            <el-table-column width="100" prop="status" label="状态"></el-table-column>
+            <el-table-column width="150" prop="alarmTerm" label="监控项"></el-table-column>
+            <el-table-column prop="ruleDescription" label="规则描述"></el-table-column>
+            <el-table-column width="100" prop="notifyPerson" label="通知对象"></el-table-column>
+            <el-table-column width="100" prop="notifyWay" label="通知方式"></el-table-column>
+            <el-table-column width="150" label="操作">
+              <template scope="scope">
+                <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.status }}</el-button>
+                <el-button type="text" size="small" @click="editRuleConfirm(scope)">编辑</el-button>
+                <el-button @click="deleteDialog(scope)" type="text" size="small">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
         <el-dialog title="删除提示" :visible.sync="deleteDialogConfirm" size="tiny">
           <span>是否删除该备份规则？</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteDialogConfirm = false">取 消</el-button>
-            <el-button type="primary" @click="deletealarmRule()">确 定</el-button>
+            <el-button type="primary" @click="deletealarmRuleDone()">确 定</el-button>
           </span>
         </el-dialog>
       </el-tab-pane>
       <el-tab-pane label="创建报警规则" v-if="createRuleStatus === 1" name="createAlarmRule">
         <el-form :model="alarmRuleData" label-width="100px">
-          <!-- <div>
-            <h3 class="title-text">①选择服务器
-              <el-button class="title-button" type="primary" @click="createAlarmDone">填写完毕，创建报警规则</el-button>
-            </h3>
-
-          </div>
-          <el-form-item label-width="20px">
-            <el-transfer class="transfer" filterable :titles="['所有服务器', '已选服务器']" :button-texts="['移除', '添加']">
-            </el-transfer>
-          </el-form-item> -->
-           <el-button class="title-button" type="primary" @click="createAlarmDone">填写完毕，创建报警规则</el-button>
+          <el-button class="title-button" type="primary" @click="createAlarmDone">填写完毕，创建报警规则</el-button>
           <h3>①设置报警规则</h3>
           <el-button class="add-button" size="small" @click="createAlarmRule">添加监控规则</el-button>
           <el-form-item v-for="(rule, index) of rules" :key="index" v-model="rules" label-width="20px">
@@ -88,6 +79,59 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
+      <el-dialog title="编辑报警规则" :visible.sync="editRuleDialog">
+        <el-form :model="editRuleData" label-width="100px">
+          <h4>①编辑报警规则</h4>
+          <el-form-item v-model="rules" label-width="20px">
+            <el-card class="card-list">
+              <el-form-item label="规则名称">
+                <el-input disabled class="rule-edit-input" size="small" v-model="editRuleData.ruleName"></el-input>
+              </el-form-item>
+              <el-form-item label="规则描述">
+                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTerm" placeholder="请选择监测项">
+                  <el-option v-for="item in alarmTerms" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTimes" placeholder="请选择监测时间段">
+                  <el-option v-for="item in alarmTims" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmExtremum" placeholder="请选择监测值">
+                  <el-option v-for="item in alarmExtremums" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled">
+                  </el-option>
+                </el-select>
+                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmContrast" placeholder="请选择对比方法">
+                  <el-option v-for="item in alarmContrasts" :key="item.value" :label="item.label" :value="item.value">
+                  </el-option>
+                </el-select>
+                <el-input class="rule-edit-input" size="small" v-model="editRuleData.threshold" placeholder="阈值：0-100的数字">
+                  <template slot="append">%</template>
+                </el-input>
+              </el-form-item>
+            </el-card>
+          </el-form-item>
+          <h4>②编辑报警接方式</h4>
+          <el-form-item label-width="20px">
+            <el-card class="card-list">
+              <el-checkbox-group v-model="editRuleData.notifyWay">
+                <el-checkbox v-for="(contactInfo, index) of allContactInfo" :label="contactInfo" :key="index" :disabled="contactInfo === '短信'">{{ contactInfo }}</el-checkbox>
+              </el-checkbox-group>
+            </el-card>
+          </el-form-item>
+          <h4>③编辑报警接收人</h4>
+          <el-form-item label-width="20px">
+            <el-card class="card-list">
+              <el-checkbox-group v-model="editRuleData.notifyPerson">
+                <el-checkbox v-for="(contact, index) of allContactData" :label="contact.name" :key="index">{{ contact.name }}</el-checkbox>
+              </el-checkbox-group>
+            </el-card>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editRuleDialog = false">取 消</el-button>
+          <el-button type="primary" @click="editAlarmRule">确 定</el-button>
+        </span>
+      </el-dialog>
       <el-tab-pane label="联系人设置" name="contacts">
         <el-button class="add-button" type="primary" @click="createContactConfirm">新建联系人</el-button>
         <el-table :data="allContactData">
@@ -144,11 +188,19 @@
         </el-dialog>
       </el-tab-pane>
       <el-tab-pane label="报警历史" name="alarmHistory">
-        <el-table :data="alarmHistory" height="500">
-          <el-table-column width="200" prop="ruleName" label="报警服务器"></el-table-column>
-          <el-table-column width="200" prop="status" label="报警时间"></el-table-column>
-          <el-table-column width="200" prop="onOff" label="报警项"></el-table-column>
-        </el-table>
+        <div class="table-view">
+          <el-date-picker class="data-picker" v-model="dataRange" type="daterange" align="right" placeholder="选择日期范围" :picker-options="pickerOptions" :onPick="checkDataRange">
+          </el-date-picker>
+          <el-table :data="alarmHistory" height="500">
+            <el-table-column width="200" prop="ruleName" label="报警服务器"></el-table-column>
+            <el-table-column width="200" prop="status" label="报警时间"></el-table-column>
+            <el-table-column width="100" prop="status" label="持续时间"></el-table-column>
+            <el-table-column width="100" prop="status" label="规则名称"></el-table-column>
+            <el-table-column width="120" prop="status" label="通知对象"></el-table-column>
+            <el-table-column width="120" prop="status" label="通知方式"></el-table-column>
+            <el-table-column prop="onOff" label="状态"></el-table-column>
+          </el-table>
+        </div>
       </el-tab-pane>
       <el-tab-pane disabled>
         <template slot="label">
@@ -160,6 +212,7 @@
 </template>
 
 <script>
+const qs = require('qs')
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
@@ -171,6 +224,18 @@ export default {
   },
   data() {
     return {
+      editRuleDialog: false,
+      editRuleData: {
+        notifyWay: [],
+        notifyPerson: [],
+        ruleName: null,
+        alarmTerm: null,
+        alarmExtremum: null,
+        alarmTimes: null,
+        alarmContrast: null,
+        threshold: null
+      },
+      dataRange: [],
       alarmHistory: [],
       createContactData: {},
       addContactDialog: false,
@@ -183,6 +248,11 @@ export default {
       alarmRuleData: {},
       editContactData: {},
       allContactData: [
+        {
+          name: '王二麻子',
+          phone: '110',
+          email: '110@110.com'
+        },
         {
           name: '张三',
           phone: '110',
@@ -208,11 +278,11 @@ export default {
       alarmTerms: [
         {
           value: 'cpu',
-          label: 'CPU 占用率'
+          label: 'CPU使用率'
         },
         {
           value: 'memory',
-          label: '内存占用率'
+          label: '内存使用率'
         }
       ],
       alarmTims: [
@@ -288,10 +358,178 @@ export default {
           value: '>=',
           label: '大于等于'
         }
-      ]
+      ],
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
+      }
     }
   },
   methods: {
+    async showAllAlarmRules() {
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/api/allwarnings')
+        if (res.data.code === 0) {
+          const rules = res.data.warnings
+          for (let i = 0; i < rules.length; i++) {
+            const rule = {}
+            rule.ruleName = rules[i].warning_name
+            rule.status = '启用'
+            if (rules[i].metrics === 'mem.memused.percent') {
+              rule.alarmTerm = '内存使用率'
+            } else {
+              if (rules[i].metrics === 'cpu.busy') {
+                rule.alarmTerm = 'CPU使用率'
+              }
+            }
+            rule.ruleDescription = rules[i].description
+            rule.notifyPerson = rules[i].notified_bodies
+            if (rules[i].notify_way === 'EMAIL') {
+              rule.notifyWay = '邮件'
+            } else {
+              rule.notifyWay = ''
+            }
+            rule.alarmTimes = rules[i].monitor_duration
+            rule.alarmExtremum = rules[i].func
+            rule.alarmContrast = rules[i].operator
+            rule.threshold = rules[i].right_value
+            this.allalarmRules.push(rule)
+          }
+        } else {
+          console.log(res.data.code)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    editRuleConfirm(scope) {
+      this.scope = scope
+      this.editRuleData.ruleName = scope.row.ruleName
+      if (scope.row.alarmTerm === 'CPU使用率') {
+        this.editRuleData.alarmTerm = 'memory'
+      } else {
+        if (scope.row.alarmTerm === '内存使用率') {
+          this.editRuleData.alarmTerm = 'cpu'
+        }
+      }
+      this.editRuleData.alarmTerm = scope.row.alarmTerm
+      this.editRuleData.threshold = scope.row.threshold
+      this.editRuleData.alarmContrast = scope.row.alarmContrast
+      this.editRuleData.alarmExtremum = scope.row.alarmExtremum
+      if (scope.row.alarmTimes === 60) {
+        this.editRuleData.alarmTimes = '一分钟'
+      } else {
+        if (scope.row.alarmTimes === 300) {
+          this.editRuleData.alarmTimes = '五分钟'
+        } else {
+          if (scope.row.alarmTimes === 600) {
+            this.editRuleData.alarmTimes = '十分钟'
+          }
+        }
+      }
+      this.editRuleData.notifyWay[0] = scope.row.notifyWay
+      this.editRuleData.notifyPerson = scope.row.notifyPerson
+      this.editRuleDialog = true
+    },
+    async editAlarmRule() {
+      try {
+        if (!this.editRuleData.ruleName) {
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: '规则名称不能为空'
+            }
+          )
+        } else {
+          const ruleName = this.editRuleData.ruleName
+          let alarmTerm
+          if (this.editRuleData.alarmTerm === 'memory') {
+            alarmTerm = 'mem.memused.percent'
+          } else {
+            if (this.editRuleData.alarmTerm === 'cpu') {
+              alarmTerm = 'cpu.busy'
+            }
+          }
+          const alarmExtremum = this.editRuleData.alarmExtremum
+          let alarmTimes
+          if (this.editRuleData.alarmTimes === '一分钟') {
+            alarmTimes = 60
+          } else {
+            if (this.editRuleData.alarmTimes === '五分钟') {
+              alarmTimes = 300
+            } else {
+              if (this.editRuleData.alarmTimes === '十分钟') {
+                alarmTimes = 600
+              }
+            }
+          }
+          const alarmContrast = this.editRuleData.alarmContrast
+          const threshold = this.editRuleData.threshold
+          let notifyWay
+          if (this.editRuleData.notifyWay[0] === '邮件') {
+            notifyWay = 'EMAIL'
+          } else {
+            if (this.editRuleData.notifyWay[0] === '短信') {
+              notifyWay = 'SMS'
+            }
+          }
+          const res = await this.$http({
+            method: 'POST',
+            url: this.$apiUrl + '/admin/updatewarning',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            data: qs.stringify(
+              {
+                warning_name: ruleName,
+                metrics: alarmTerm,
+                func: alarmExtremum,
+                monitor_duration: alarmTimes,
+                operator: alarmContrast,
+                right_value: threshold,
+                notify_way: notifyWay
+              }
+            )
+          })
+          if (res.data.code === 0) {
+            location.reload()
+          } else {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: res.data.msg
+              }
+            )
+            this.editRuleDialog = false
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
     editContactDialog(scope) {
       this.scope = scope
       this.editContactConfirm = true
@@ -355,10 +593,19 @@ export default {
       }
     },
     deleteDialog(scope) {
+      this.scope = scope
       this.deleteDialogConfirm = true
     },
-    deletealarmRule() {
-      this.deleteDialogConfirm = false
+    async deletealarmRuleDone() {
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName)
+        if (res.data.code === 0) {
+          this.allalarmRules.splice(this.scope.$index, 1)
+          this.deleteDialogConfirm = false
+        }
+      } catch (e) {
+        console.log(e)
+      }
     },
     createAlarmRule() {
       this.rules.push({
@@ -370,10 +617,7 @@ export default {
         threshold: null
       })
     },
-    deleteAlarmRule(index) {
-      this.rules.splice(index, 1)
-    },
-    createAlarmDone() {
+    async createAlarmDone() {
       try {
         for (const i in this.rules) {
           if (!this.rules[i].name) {
@@ -432,23 +676,73 @@ export default {
                     } else {
                       if (this.checkContectInfo.length !== 0) {
                         if (this.checkContect.length !== 0) {
-                          this.allalarmRules.push(
-                            {
-                              ruleName: this.rules[i].name,
-                              alarmTerm: this.rules[i].alarmTerm,
-                              ruleDescription: ''
+                          let notifyWay
+                          if (this.checkContectInfo[0] === '邮件') {
+                            notifyWay = 'EMAIL'
+                          } else {
+                            if (this.checkContectInfo[0] === '短信') {
+                              notifyWay = 'SMS'
                             }
-                          )
-                          this.createRuleStatus = 0
-                          this.createOrBackRule = '创建报警规则'
-                          this.activeTab = 'alarmRule'
-                          this.$message(
-                            {
-                              showClose: true,
-                              type: 'success',
-                              message: '创建成功'
+                          }
+                          const threshold = this.rules[i].threshold
+                          const alarmContrast = this.rules[i].alarmContrast
+                          const alarmTimes = this.rules[i].alarmTimes
+                          let alarmTerm
+                          if (this.rules[i].alarmTerm === 'cpu') {
+                            alarmTerm = 'cpu.busy'
+                          } else {
+                            if (this.rules[i].alarmTerm === 'memory') {
+                              alarmTerm = 'mem.memused.percent'
                             }
-                          )
+                          }
+                          const alarmExtremum = this.rules[i].alarmExtremum
+                          const name = this.rules[i].name
+                          const res = await this.$http({
+                            method: 'POST',
+                            url: this.$apiUrl + '/admin/createwarning',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            data: qs.stringify(
+                              {
+                                warning_name: name,
+                                metrics: alarmTerm,
+                                func: alarmExtremum,
+                                monitor_duration: alarmTimes,
+                                operator: alarmContrast,
+                                right_value: threshold,
+                                notify_way: notifyWay
+                              }
+                            )
+                          })
+                          if (res.data.code === 0) {
+                            this.allalarmRules.push(
+                              {
+                                ruleName: this.rules[i].name,
+                                alarmTerm: this.rules[i].alarmTerm,
+                                ruleDescription: ''
+                              }
+                            )
+                            this.createRuleStatus = 0
+                            this.createOrBackRule = '创建报警规则'
+                            this.activeTab = 'alarmRule'
+                            this.$message(
+                              {
+                                showClose: true,
+                                type: 'success',
+                                message: '创建成功'
+                              }
+                            )
+                          } else {
+                            if (res.data.code === 402) {
+                              this.$message(
+                                {
+                                  showClose: true,
+                                  type: 'warning',
+                                  message: '该规则名已被占用，请更换'
+                                }
+                              )
+                            }
+                            console.log('错了')
+                          }
                         } else {
                           this.$message(
                             {
@@ -548,7 +842,13 @@ export default {
           message: '删除联系人 ' + this.scope.row.name + ' 成功'
         }
       )
+    },
+    checkDataRange({ maxDate, minDate }) {
+      console.log({ maxDate, minDate })
     }
+  },
+  async mounted() {
+    await this.showAllAlarmRules()
   }
 }
 </script>
@@ -602,5 +902,21 @@ export default {
 .title-button {
   float: right;
   margin-right: 10%;
+}
+
+.table-view {
+  width: 95%;
+}
+
+.data-picker {
+  float: right;
+}
+
+.rule-edit-select {
+  width: 48.5%;
+}
+
+.rule-edit-input {
+  width: 98%;
 }
 </style>

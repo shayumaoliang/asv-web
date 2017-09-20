@@ -364,6 +364,13 @@ export default {
                 email: this.createAccountData.email
               })
               this.addAccountDialog = false
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'success',
+                  message: '创建成功'
+                }
+              )
             } else {
               if (res.data.code === 504) {
                 this.$message(
