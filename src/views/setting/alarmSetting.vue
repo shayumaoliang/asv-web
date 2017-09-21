@@ -165,7 +165,7 @@
         <el-dialog title="编辑联系人信息" :visible.sync="editContactConfirm" size="tiny">
           <el-form :model="editContactData" label-width="50px">
             <el-form-item label="姓名">
-              <el-input v-model="editContactData.name"></el-input>
+              <el-input disabled v-model="editContactData.name"></el-input>
             </el-form-item>
             <el-form-item label="手机">
               <el-input v-model="editContactData.phone"></el-input>
@@ -189,16 +189,16 @@
       </el-tab-pane>
       <el-tab-pane label="报警历史" name="alarmHistory">
         <div class="table-view">
-          <el-date-picker class="data-picker" v-model="dataRange" type="daterange" align="right" placeholder="选择日期范围" :picker-options="pickerOptions" :onPick="checkDataRange">
+          <el-date-picker class="data-picker" v-model="dataRange" type="daterange" align="right" placeholder="选择时间范围查看报警记录" :picker-options="pickerOptions" @change="checkDataRange">
           </el-date-picker>
           <el-table :data="alarmHistory" height="500">
-            <el-table-column width="200" prop="ruleName" label="报警服务器"></el-table-column>
-            <el-table-column width="200" prop="status" label="报警时间"></el-table-column>
-            <el-table-column width="100" prop="status" label="持续时间"></el-table-column>
-            <el-table-column width="100" prop="status" label="规则名称"></el-table-column>
-            <el-table-column width="120" prop="status" label="通知对象"></el-table-column>
-            <el-table-column width="120" prop="status" label="通知方式"></el-table-column>
-            <el-table-column prop="onOff" label="状态"></el-table-column>
+            <el-table-column width="200" prop="alarmServer" label="报警服务器"></el-table-column>
+            <el-table-column width="200" prop="alarmTime" label="报警时间"></el-table-column>
+            <el-table-column width="100" prop="alarmDuration" label="持续时间"></el-table-column>
+            <el-table-column width="100" prop="alarmRuleName" label="规则名称"></el-table-column>
+            <el-table-column width="120" prop="notifyPerson" label="通知对象"></el-table-column>
+            <el-table-column width="120" prop="notifyWay" label="通知方式"></el-table-column>
+            <el-table-column prop="status" label="状态"></el-table-column>
           </el-table>
         </div>
       </el-tab-pane>
@@ -247,18 +247,7 @@ export default {
       allalarmRules: [],
       alarmRuleData: {},
       editContactData: {},
-      allContactData: [
-        {
-          name: '王二麻子',
-          phone: '110',
-          email: '110@110.com'
-        },
-        {
-          name: '张三',
-          phone: '110',
-          email: '110@110.com'
-        }
-      ],
+      allContactData: [],
       createOrBackRule: '创建报警规则',
       deleteDialogConfirm: false,
       activeTab: 'alarmRule',
@@ -389,13 +378,40 @@ export default {
     }
   },
   methods: {
+    async showAllAlarmHistory() {
+      const res = await this.$http.get(this.$apiUrl + '/api/allwarningnotes')
+      if (res.data.code === 0) {
+        const alarmRecords = res.data.warning_notes
+        for (let i = 0; i < alarmRecords.length; i++) {
+          const record = {}
+          // record.alarmServer = alarmRecords[i].
+          record.alarmTime = alarmRecords[i].notify_time
+          // record.alarmDuration = alarmRecords[i].
+          record.alarmRuleName = alarmRecords[i].warning_name
+          record.notifyPerson = alarmRecords[i].notified_body
+          record.notifyWay = alarmRecords[i].notify_way
+          record.status = alarmRecords[i].notify_status
+          this.alarmHistory.push(record)
+        }
+      } else {
+        this.$message(
+          {
+            showClose: true,
+            type: 'error',
+            message: '有问题'
+          }
+        )
+      }
+    },
     async showAllAlarmRules() {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allwarnings')
         if (res.data.code === 0) {
           const rules = res.data.warnings
           for (let i = 0; i < rules.length; i++) {
-            const rule = {}
+            const rule = {
+              notifyPerson: []
+            }
             rule.ruleName = rules[i].warning_name
             rule.status = '启用'
             if (rules[i].metrics === 'mem.memused.percent') {
@@ -406,7 +422,13 @@ export default {
               }
             }
             rule.ruleDescription = rules[i].description
-            rule.notifyPerson = rules[i].notified_bodies
+            if (rules[i].notified_bodies.length !== 0) {
+              for (let I = 0; I < rules[i].notified_bodies.length; I++) {
+                rule.notifyPerson[I] = rules[i].notified_bodies[I].body_name
+              }
+            } else {
+              rule.notifyPerson = []
+            }
             if (rules[i].notify_way === 'EMAIL') {
               rule.notifyWay = '邮件'
             } else {
@@ -435,7 +457,6 @@ export default {
           this.editRuleData.alarmTerm = 'cpu'
         }
       }
-      this.editRuleData.alarmTerm = scope.row.alarmTerm
       this.editRuleData.threshold = scope.row.threshold
       this.editRuleData.alarmContrast = scope.row.alarmContrast
       this.editRuleData.alarmExtremum = scope.row.alarmExtremum
@@ -509,7 +530,9 @@ export default {
                 monitor_duration: alarmTimes,
                 operator: alarmContrast,
                 right_value: threshold,
-                notify_way: notifyWay
+                notify_way: notifyWay,
+                notified_body_names: this.editRuleData.notifyPerson,
+                notified_body_num: this.editRuleData.notifyPerson.length
               }
             )
           })
@@ -537,22 +560,44 @@ export default {
       this.editContactData.phone = scope.row.phone
       this.editContactData.email = scope.row.email
     },
-    editContact() {
+    async editContact() {
       const index = this.scope.$index
       if (this.editContactData.name) {
         if (this.editContactData.phone) {
           if (this.editContactData.email) {
-            this.allContactData[index].name = this.editContactData.name
-            this.allContactData[index].phone = this.editContactData.phone
-            this.allContactData[index].email = this.editContactData.email
-            this.editContactConfirm = false
-            this.$message(
-              {
-                showClose: true,
-                type: 'success',
-                message: '修改成功'
-              }
-            )
+            const res = await this.$http({
+              method: 'POST',
+              url: this.$apiUrl + '/admin/updatenotifiedbody',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              data: qs.stringify(
+                {
+                  body_name: this.editContactData.name,
+                  email: this.editContactData.email,
+                  phone_number: this.editContactData.phone
+                }
+              )
+            })
+            if (res.data.code === 0) {
+              this.allContactData[index].name = this.editContactData.name
+              this.allContactData[index].phone = this.editContactData.phone
+              this.allContactData[index].email = this.editContactData.email
+              this.editContactConfirm = false
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'success',
+                  message: '修改成功'
+                }
+              )
+            } else {
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'error',
+                  message: res.data.msg
+                }
+              )
+            }
           } else {
             this.$message(
               {
@@ -602,6 +647,13 @@ export default {
         if (res.data.code === 0) {
           this.allalarmRules.splice(this.scope.$index, 1)
           this.deleteDialogConfirm = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '删除成功'
+            }
+          )
         }
       } catch (e) {
         console.log(e)
@@ -709,28 +761,31 @@ export default {
                                 monitor_duration: alarmTimes,
                                 operator: alarmContrast,
                                 right_value: threshold,
-                                notify_way: notifyWay
+                                notify_way: notifyWay,
+                                notified_body_names: this.checkContect,
+                                notified_body_num: this.checkContect.length
                               }
                             )
                           })
                           if (res.data.code === 0) {
-                            this.allalarmRules.push(
-                              {
-                                ruleName: this.rules[i].name,
-                                alarmTerm: this.rules[i].alarmTerm,
-                                ruleDescription: ''
-                              }
-                            )
+                            // this.allalarmRules.push(
+                            //   {
+                            //     ruleName: this.rules[i].name,
+                            //     alarmTerm: this.rules[i].alarmTerm,
+                            //     ruleDescription: ''
+                            //   }
+                            // )
                             this.createRuleStatus = 0
                             this.createOrBackRule = '创建报警规则'
                             this.activeTab = 'alarmRule'
-                            this.$message(
-                              {
-                                showClose: true,
-                                type: 'success',
-                                message: '创建成功'
-                              }
-                            )
+                            location.reload()
+                            // this.$message(
+                            //   {
+                            //     showClose: true,
+                            //     type: 'success',
+                            //     message: '创建成功'
+                            //   }
+                            // )
                           } else {
                             if (res.data.code === 402) {
                               this.$message(
@@ -781,31 +836,84 @@ export default {
     createContactConfirm() {
       this.addContactDialog = true
     },
-    addContact() {
-      if (this.createContactData.name) {
-        if (this.createContactData.phone) {
-          if (this.createContactData.email) {
-            this.allContactData.push(
-              {
-                name: this.createContactData.name,
-                phone: this.createContactData.phone,
-                email: this.createContactData.email
+    async showAllContact() {
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/api/allnotifiedbodies')
+        if (res.data.code === 0) {
+          const contacts = res.data.notified_boides
+          for (let i = 0; i < contacts.length; i++) {
+            const contact = {}
+            contact.name = contacts[i].body_name
+            contact.email = contacts[i].email
+            contact.phone = contacts[i].phone_number
+            this.allContactData.push(contact)
+          }
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async addContact() {
+      try {
+        if (this.createContactData.name) {
+          if (this.createContactData.phone) {
+            if (this.createContactData.email) {
+              const res = await this.$http({
+                method: 'POST',
+                url: this.$apiUrl + '/admin/createnotifiedbody',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                data: qs.stringify(
+                  {
+                    body_name: this.createContactData.name,
+                    email: this.createContactData.email,
+                    phone_number: this.createContactData.phone
+                  }
+                )
+              })
+              if (res.data.code === 0) {
+                this.allContactData.push(
+                  {
+                    name: this.createContactData.name,
+                    phone: this.createContactData.phone,
+                    email: this.createContactData.email
+                  }
+                )
+                this.addContactDialog = false
+                this.$message(
+                  {
+                    showClose: true,
+                    type: 'success',
+                    message: '添加联系人 ' + this.createContactData.name + ' 成功'
+                  }
+                )
+              } else {
+                if (res.data.code === 801) {
+                  this.$message(
+                    {
+                      showClose: true,
+                      type: 'error',
+                      message: '手机号码格式有误'
+                    }
+                  )
+                } else {
+                  console.log('有问题')
+                }
               }
-            )
-            this.addContactDialog = false
-            this.$message(
-              {
-                showClose: true,
-                type: 'success',
-                message: '添加联系人 ' + this.createContactData.name + ' 成功'
-              }
-            )
+            } else {
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'error',
+                  message: '联系人邮箱不能为空'
+                }
+              )
+            }
           } else {
             this.$message(
               {
                 showClose: true,
                 type: 'error',
-                message: '联系人邮箱不能为空'
+                message: '联系人电话号码不能为空'
               }
             )
           }
@@ -814,41 +922,87 @@ export default {
             {
               showClose: true,
               type: 'error',
-              message: '联系人电话号码不能为空'
+              message: '联系人姓名不能为空'
             }
           )
         }
-      } else {
-        this.$message(
-          {
-            showClose: true,
-            type: 'error',
-            message: '联系人姓名不能为空'
-          }
-        )
+      } catch (e) {
+        console.log(e)
       }
     },
     deleteContactDialog(scope) {
       this.scope = scope
       this.deleteContactConfirm = true
     },
-    deleteContact() {
-      this.allContactData.splice(this.scope.$index, 1)
-      this.deleteContactConfirm = false
-      this.$message(
-        {
-          showClose: true,
-          type: 'success',
-          message: '删除联系人 ' + this.scope.row.name + ' 成功'
+    async deleteContact() {
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName)
+        console.log(this.scope.row)
+        if (res.data.code === 0) {
+          this.allContactData.splice(this.scope.$index, 1)
+          this.deleteContactConfirm = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '删除联系人 ' + this.scope.row.name + ' 成功'
+            }
+          )
+        } else {
+          this.$message(
+            {
+              showClose: true,
+              type: 'erroe',
+              message: '有问题'
+            }
+          )
         }
-      )
+      } catch (e) {
+        console.log(e)
+      }
     },
-    checkDataRange({ maxDate, minDate }) {
-      console.log({ maxDate, minDate })
+    async checkDataRange(date) {
+      const dates = date.split('-')
+      const startYear = dates[0]
+      const startMon = dates[1]
+      const startDay = dates[2]
+      const endYear = dates[3]
+      const endMon = dates[4]
+      const endDay = dates[5]
+      const beginTime = (new Date(String(startYear) + '-' + String(startMon) + '-' + String(startDay) + ' 00:00:00:000')).getTime()
+      const endTime = (new Date(String(endYear) + '-' + String(endMon) + '-' + String(endDay) + ' 00:00:00:000')).getTime()
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/api/warningnotes_between?begin_time=' + beginTime + '&end_time=' + endTime)
+        if (res.data.code === 0) {
+          const alarmRecords = res.data.warning_notes
+          for (let i = 0; i < alarmRecords.length; i++) {
+            const record = {}
+            // record.alarmServer = alarmRecords[i].
+            record.alarmTime = alarmRecords[i].notify_time
+            // record.alarmDuration = alarmRecords[i].
+            record.alarmRuleName = alarmRecords[i].warning_name
+            record.notifyPerson = alarmRecords[i].notified_body
+            record.notifyWay = alarmRecords[i].notify_way
+            record.status = alarmRecords[i].notify_status
+            this.alarmHistory.push(record)
+          }
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '查询成功'
+            }
+          )
+        }
+      } catch (e) {
+        console.log(e)
+      }
     }
   },
   async mounted() {
     await this.showAllAlarmRules()
+    this.showAllAlarmHistory()
+    this.showAllContact()
   }
 }
 </script>
@@ -906,6 +1060,7 @@ export default {
 
 .table-view {
   width: 95%;
+  display: block
 }
 
 .data-picker {
