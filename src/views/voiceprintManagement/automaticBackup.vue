@@ -36,6 +36,13 @@
           <el-button type="primary" @click="handleDeleteBackup()">确 定</el-button>
         </span>
       </el-dialog>
+      <el-dialog title="确认回滚到该备份点？" :visible.sync="rollBackDialog" size="tiny">
+        <span>此操作不可撤销，对应声纹库将恢复到此备份点状态，请谨慎！！！</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="rollBackDialog = false">取 消</el-button>
+          <el-button type="primary" @click="rollBack()">确 定</el-button>
+        </span>
+      </el-dialog>
       <el-tab-pane label="查看备份" @click="showAllBackup">
         <el-table :data="allBackup" height="500">
           <el-table-column width="100" prop="company" label="公司"></el-table-column>
@@ -47,7 +54,7 @@
           <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
           <el-table-column label="操作">
             <template scope="scope">
-              <el-button type="text" size="small">回滚</el-button>
+              <el-button type="text" size="small" @click="rollBackConfirm(scope)">回滚</el-button>
               <el-button @click="handkeDeleteBackupConfirm(scope)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -66,10 +73,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select v-model="backupData.backupTime" :picker-options="{
-            start: '00:00',
-            step: '00:30',
-            end: '08:00'
-          }" placeholder="请选择备份时间">
+                start: '00:00',
+                step: '00:30',
+                end: '08:00'
+              }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -110,6 +117,7 @@ export default {
   },
   data() {
     return {
+      rollBackDialog: false,
       deleteBackupConfirm: false,
       deleteBackupRuleConfirm: false,
       newBackup: false,
@@ -174,6 +182,21 @@ export default {
     }
   },
   methods: {
+    rollBackConfirm(scope) {
+      this.scope = scope
+      this.rollBackDialog = true
+    },
+    async rollBack() {
+      const res = await this.$http.get(this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName)
+      if (res.data.code === 413) {
+        await this.$message({
+          type: 'success',
+          showClose: true,
+          message: '成功回滚'
+        })
+        this.rollBackDialog = false
+      }
+    },
     async handleOnOff(scope) {
       if (scope.row.onOff === '停止') {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule')
@@ -320,11 +343,6 @@ export default {
             })
           })
         }
-        // this.$message({
-        //   showClose: true,
-        //   message: '创建备份规则成功',
-        //   type: 'success'
-        // })
         location.reload()
       } else {
         this.$message({
@@ -332,45 +350,6 @@ export default {
           message: '请确认各项是否都有填选完整',
           type: 'error'
         })
-        // if (this.backupData.backupName === 0) {
-        //   this.$message({
-        //     showClose: true,
-        //     message: '请输入备份名称',
-        //     type: 'error'
-        //   })
-        // } else {
-        //   if (this.backupData.backupTime === 0) {
-        //     this.$message({
-        //       showClose: true,
-        //       message: '请选择备份时间',
-        //       type: 'error'
-        //     })
-        //   } else {
-        //     if (this.backupData.backupDate === 0) {
-        //       this.$message({
-        //         showClose: true,
-        //         message: '请选择备份日期',
-        //         type: 'error'
-        //       })
-        //     } else {
-        //       if (this.backupData.copyNum === 0) {
-        //         this.$message({
-        //           showClose: true,
-        //           message: '请选择保留最大备份副本数',
-        //           type: 'error'
-        //         })
-        //       } else {
-        //         if (this.checkedVoiceprintDb.length === 0) {
-        //           this.$message({
-        //             showClose: true,
-        //             message: '请选择要备份的声纹库',
-        //             type: 'error'
-        //           })
-        //         }
-        //       }
-        //     }
-        //   }
-        // }
       }
     },
     handleChange(value, direction, movedKeys) {
@@ -394,6 +373,7 @@ export default {
     line-height: 46px;
   }
 }
+
 .transfer {
   font-size: 10px;
 }

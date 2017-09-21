@@ -78,7 +78,7 @@
               <el-table-column prop="command" label="COMMAND"></el-table-column>
             </el-table>
           </el-dialog>
-          <el-form-item label="监控" label-width="70px">
+          <el-form-item label="授权" label-width="70px">
             <span>最大并发：{{ maxConcurrency }}</span>
             <span style="float: right; margin-right:60%;">授权到期时间：{{ ExpireDate }}</span>
           </el-form-item>
