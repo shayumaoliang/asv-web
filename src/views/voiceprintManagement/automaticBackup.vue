@@ -207,32 +207,15 @@ export default {
       if (scope.row.onOff === '停止') {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule')
         if (res.data.code === 0) {
-          // await this.$message({
-          //   type: 'success',
-          //   showClose: true,
-          //   message: '已停止使用该备份规则'
-          // })
           location.reload()
         }
       } else {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/startautobackuprule')
         if (res.data.code === 0) {
-          // await this.$message({
-          //   type: 'success',
-          //   showClose: true,
-          //   message: '已开启使用该备份规则'
-          // })
           location.reload()
         }
       }
     },
-    // handleClose(done) {
-    //   this.$confirm('确认放弃删除？')
-    //     .then(_ => {
-    //       done()
-    //     })
-    //     .catch(_ => { })
-    // },
     handkeDeleteBackupConfirm(scope) {
       this.deleteBackupConfirm = true
       this.scope = scope
@@ -246,12 +229,6 @@ export default {
       try {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackup?backup_name=' + scope.row.backupName)
         if (res.data.code === 0) {
-          // await this.$message({
-          //   type: 'success',
-          //   showClose: true,
-          //   message: '成功删除该备份规则'
-          // })
-          // this.deleteBackupConfirm = false
           location.reload()
         } else {
           await this.$message({
@@ -270,12 +247,6 @@ export default {
       try {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackuprule')
         if (res.data.code === 0) {
-          // await this.$message({
-          //   type: 'success',
-          //   showClose: true,
-          //   message: '成功删除该备份规则'
-          // })
-          // this.deleteBackupRuleConfirm = false
           location.reload()
         } else {
           await this.$message({

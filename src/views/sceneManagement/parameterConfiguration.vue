@@ -5,19 +5,19 @@
     <el-form label-width="10px" label-position="left" :model="rpcServerData">
       <el-card class="view">
         <div slot="header" class="header-card">
-          <span>rpcServer 配置</span>
+          <span>asv-rpc 配置</span>
           <el-button size="small" class="delete-icon el-icon-plus" @click="addRpcServerConfig()">添加配置项</el-button>
           <el-button size="small" type="success" class="delete-icon" @click="pushRpcServerConfigConfirm()">提交配置</el-button>
         </div>
         <div v-for="(config, index) of allRpcServerConfig" :key="index">
           <el-form-item class="item-form">
-            <el-input class="config-input" v-model="config.name">
+            <el-input size="small" class="config-input" v-model="config.name">
               <template slot="prepend"> 配置项名</template>
             </el-input>
-            <el-input class="config-input" v-model="config.configValue">
+            <el-input size="small" class="config-input" v-model="config.configValue">
               <template slot="prepend"> 配置项值</template>
             </el-input>
-            <el-button size="small" class="delete-icon el-icon-delete" @click="deleteRpcServerConfig(index)">删除该配置项</el-button>
+            <el-button size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteRpcServerConfig(index)">删除该配置项</el-button>
           </el-form-item>
         </div>
       </el-card>
@@ -38,13 +38,13 @@
         </div>
         <div v-for="(config, index) of allAsvServerConfig" :key="index">
           <el-form-item class="item-form">
-            <el-input class="config-input" v-model="config.name">
+            <el-input size="small" class="config-input" v-model="config.name">
               <template slot="prepend"> 配置项名</template>
             </el-input>
-            <el-input class="config-input" v-model="config.configValue">
+            <el-input size="small" class="config-input" v-model="config.configValue">
               <template slot="prepend"> 配置项值</template>
             </el-input>
-            <el-button size="small" class="delete-icon el-icon-delete" @click="deleteAsvServerConfig(index)">删除该配置项</el-button>
+            <el-button size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteAsvServerConfig(index)">删除该配置项</el-button>
           </el-form-item>
         </div>
       </el-card>
@@ -75,19 +75,37 @@ export default {
       pushAsvServerConfigDialog: false,
       rpcServerData: {},
       asvServerData: {},
-      allRpcServerConfig: [
-        {
-          name: 'ip',
-          configValue: '192.168.1.1'
-        }
-      ],
+      allRpcServerConfig: [],
       allAsvServerConfig: []
     }
   },
   methods: {
     async showAllConfig() {
       try {
-
+        const res = await this.$http.get(this.$apiUrl + '/api/allconfigs')
+        if (res.data.code === 0) {
+          let rpcConfigData
+          let asvServerData
+          if (res.data.configs[0].config_name === 'asv-rpc') {
+            rpcConfigData = res.data.configs[0].conf_data
+            asvServerData = res.data.configs[1].conf_data
+          } else {
+            rpcConfigData = res.data.configs[0].conf_data
+            asvServerData = res.data.configs[1].conf_data
+          }
+          for (let i = 0; i < Object.keys(rpcConfigData).length; i++) {
+            const allRpcConfig = {}
+            allRpcConfig['name'] = Object.keys(rpcConfigData)[i]
+            allRpcConfig['configValue'] = Object.values(rpcConfigData)[i]
+            this.allRpcServerConfig.push(allRpcConfig)
+          }
+          for (let i = 0; i < Object.keys(asvServerData).length; i++) {
+            const allasvConfig = {}
+            allasvConfig['name'] = Object.keys(asvServerData)[i]
+            allasvConfig['configValue'] = Object.values(asvServerData)[i]
+            this.allAsvServerConfig.push(allasvConfig)
+          }
+        }
       } catch (e) {
         console.log(e)
       }
@@ -102,13 +120,33 @@ export default {
     },
     deleteRpcServerConfig(index) {
       this.allRpcServerConfig.splice(index, 1)
+      console.log(this.allRpcServerConfig)
     },
     pushRpcServerConfigConfirm() {
       this.pushRpcServerConfigDialog = true
     },
     async pushRpcServerConfig() {
       try {
-
+        const body = {}
+        for (let i = 0; i < this.allRpcServerConfig.length; i++) {
+          body[`${this.allRpcServerConfig[i].name}`] = `${this.allRpcServerConfig[i].configValue}`
+        }
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/updateconfig?config_name=asv-rpc',
+          headers: { 'Content-Type': 'application/json' },
+          data: body
+        })
+        if (res.data.code === 0) {
+          this.pushRpcServerConfigDialog = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '提交配置成功'
+            }
+          )
+        }
       } catch (e) {
         console.log(e)
       }
@@ -129,11 +167,33 @@ export default {
     },
     async pushAsvServerConfig() {
       try {
-
+        const body = {}
+        for (let i = 0; i < this.allAsvServerConfig.length; i++) {
+          body[`${this.allAsvServerConfig[i].name}`] = `${this.allAsvServerConfig[i].configValue}`
+        }
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/updateconfig?config_name=asvserver',
+          headers: { 'Content-Type': 'application/json' },
+          data: body
+        })
+        if (res.data.code === 0) {
+          this.pushAsvServerConfigDialog = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '提交配置成功'
+            }
+          )
+        }
       } catch (e) {
         console.log(e)
       }
     }
+  },
+  mounted() {
+    this.showAllConfig()
   }
 }
 </script>
@@ -161,12 +221,14 @@ export default {
 }
 
 .config-input {
-  width: 50%;
+  width: 70%;
 }
-.header-card{
+
+.header-card {
   height: 20px;
 }
-.item-form{
+
+.item-form {
   margin-bottom: 10px;
 }
 </style>
