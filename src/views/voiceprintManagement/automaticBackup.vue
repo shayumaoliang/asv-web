@@ -73,10 +73,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select v-model="backupData.backupTime" :picker-options="{
-                start: '00:00',
-                step: '00:30',
-                end: '08:00'
-              }" placeholder="请选择备份时间">
+                      start: '00:00',
+                      step: '00:30',
+                      end: '08:00'
+                    }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -188,32 +188,42 @@ export default {
     },
     async rollBack() {
       const res = await this.$http.get(this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName)
-      if (res.data.code === 413) {
+      if (res.data.code === 0) {
         await this.$message({
           type: 'success',
           showClose: true,
           message: '成功回滚'
         })
         this.rollBackDialog = false
+      } else {
+        await this.$message({
+          type: 'error',
+          showClose: true,
+          message: '有问题'
+        })
       }
     },
     async handleOnOff(scope) {
       if (scope.row.onOff === '停止') {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule')
-        await this.$message({
-          type: 'success',
-          showClose: true,
-          message: '已停止使用该备份规则'
-        })
-        location.reload()
+        if (res.data.code === 0) {
+          // await this.$message({
+          //   type: 'success',
+          //   showClose: true,
+          //   message: '已停止使用该备份规则'
+          // })
+          location.reload()
+        }
       } else {
         const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/startautobackuprule')
-        await this.$message({
-          type: 'success',
-          showClose: true,
-          message: '已开启使用该备份规则'
-        })
-        location.reload()
+        if (res.data.code === 0) {
+          // await this.$message({
+          //   type: 'success',
+          //   showClose: true,
+          //   message: '已开启使用该备份规则'
+          // })
+          location.reload()
+        }
       }
     },
     // handleClose(done) {
