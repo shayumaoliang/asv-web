@@ -54,7 +54,7 @@
           <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
           <el-table-column label="操作">
             <template scope="scope">
-              <el-button type="text" size="small" @click="rollBackConfirm(scope)">回滚</el-button>
+              <el-button type="text" size="small" @click="rollBackConfirm(scope)" v-loading.fullscreen.lock="rollBackLoading" element-loading-text="正在回滚，请勿进行其他操作">回滚</el-button>
               <el-button @click="handkeDeleteBackupConfirm(scope)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -73,10 +73,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select v-model="backupData.backupTime" :picker-options="{
-                      start: '00:00',
-                      step: '00:30',
-                      end: '08:00'
-                    }" placeholder="请选择备份时间">
+                              start: '00:00',
+                              step: '00:30',
+                              end: '08:00'
+                            }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -117,6 +117,7 @@ export default {
   },
   data() {
     return {
+      rollBackLoading: null,
       rollBackDialog: false,
       deleteBackupConfirm: false,
       deleteBackupRuleConfirm: false,
@@ -187,20 +188,27 @@ export default {
       this.rollBackDialog = true
     },
     async rollBack() {
-      const res = await this.$http.get(this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName)
-      if (res.data.code === 0) {
-        await this.$message({
-          type: 'success',
-          showClose: true,
-          message: '成功回滚'
-        })
-        this.rollBackDialog = false
-      } else {
-        await this.$message({
-          type: 'error',
-          showClose: true,
-          message: '有问题'
-        })
+      try {
+        this.rollBackLoading = true
+        const res = await this.$http.get(this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName)
+        if (res.data.code === 0) {
+          await this.$message({
+            type: 'success',
+            showClose: true,
+            message: '成功回滚'
+          })
+          this.rollBackLoading = false
+          this.rollBackDialog = false
+        } else {
+          await this.$message({
+            type: 'error',
+            showClose: true,
+            message: res.data.msg
+          })
+          this.rollBackLoading = false
+        }
+      } catch (e) {
+        console.log(e)
       }
     },
     async handleOnOff(scope) {
@@ -323,8 +331,10 @@ export default {
               auto_backup_rule_lib_name: dbName
             })
           })
+          if (res.data.code === 0) {
+            location.reload()
+          }
         }
-        location.reload()
       } else {
         this.$message({
           showClose: true,

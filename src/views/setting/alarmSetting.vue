@@ -28,10 +28,23 @@
         </el-dialog>
       </el-tab-pane>
       <el-tab-pane label="创建报警规则" v-if="createRuleStatus === 1" name="createAlarmRule">
-        <el-form :model="alarmRuleData" label-width="100px">
+        <el-form :model="alarmRuleData" label-width="120px">
           <el-button class="title-button" type="primary" @click="createAlarmDone">填写完毕，创建报警规则</el-button>
           <h3>①设置报警规则</h3>
           <el-button class="add-button" size="small" @click="createAlarmRule">添加监控规则</el-button>
+          <el-form-item label-width="20px">
+            <el-card class="card-list">
+              <el-form-item label="是否创建即启用" class="short-item">
+                <el-radio-group v-model="alarmRuleData.onOff">
+                  <el-radio :label="true">是</el-radio>
+                  <el-radio :label="false">否</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="最大报警次数" class="short-item">
+                <el-input size="small" placeholder="推荐 3 次" class="num-input" v-model="alarmRuleData.maxAlarmNum"></el-input>
+              </el-form-item>
+            </el-card>
+          </el-form-item>
           <el-form-item v-for="(rule, index) of rules" :key="index" v-model="rules" label-width="20px">
             <el-card class="card-list">
               <el-form-item label="规则名称">
@@ -80,8 +93,21 @@
         </el-form>
       </el-tab-pane>
       <el-dialog title="编辑报警规则" :visible.sync="editRuleDialog">
-        <el-form :model="editRuleData" label-width="100px">
+        <el-form :model="editRuleData" label-width="120px">
           <h4>①编辑报警规则</h4>
+          <el-form-item label-width="20px">
+            <el-card class="card-list">
+              <el-form-item label="是否创建即启用" class="edit-item">
+                <el-radio-group v-model="editRuleData.onOff">
+                  <el-radio :label="true">是</el-radio>
+                  <el-radio :label="false">否</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item label="最大报警次数" class="edit-item">
+                <el-input size="small" class="num-input" v-model="editRuleData.maxAlarmNum"></el-input>
+              </el-form-item>
+            </el-card>
+          </el-form-item>
           <el-form-item v-model="rules" label-width="20px">
             <el-card class="card-list">
               <el-form-item label="规则名称">
@@ -233,7 +259,9 @@ export default {
         alarmExtremum: null,
         alarmTimes: null,
         alarmContrast: null,
-        threshold: null
+        threshold: null,
+        onOff: null,
+        maxAlarmNum: null
       },
       dataRange: [],
       alarmHistory: [],
@@ -245,7 +273,10 @@ export default {
       selectedRule: [],
       createRuleStatus: 0,
       allalarmRules: [],
-      alarmRuleData: {},
+      alarmRuleData: {
+        onOff: true,
+        maxAlarmNum: 3
+      },
       editContactData: {},
       allContactData: [],
       createOrBackRule: '创建报警规则',
@@ -350,6 +381,15 @@ export default {
       ],
       pickerOptions: {
         shortcuts: [{
+          text: '最近一天',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24)
+            picker.$emit('pick', [start, end])
+          }
+        },
+        {
           text: '最近一周',
           onClick(picker) {
             const end = new Date()
@@ -370,7 +410,7 @@ export default {
           onClick(picker) {
             const end = new Date()
             const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            start.setTime(start.getTime() - 3600 * 24 * 90)
             picker.$emit('pick', [start, end])
           }
         }]
@@ -378,29 +418,56 @@ export default {
     }
   },
   methods: {
+    timetrans(time) {
+      var date = new Date(time * 1000)
+      var Y = date.getFullYear() + '-'
+      var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+      var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' '
+      var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+      var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+      var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+      return Y + M + D + h + m + s
+    },
     async showAllAlarmHistory() {
-      const res = await this.$http.get(this.$apiUrl + '/api/allwarningnotes')
-      if (res.data.code === 0) {
-        const alarmRecords = res.data.warning_notes
-        for (let i = 0; i < alarmRecords.length; i++) {
-          const record = {}
-          // record.alarmServer = alarmRecords[i].
-          record.alarmTime = alarmRecords[i].notify_time
-          // record.alarmDuration = alarmRecords[i].
-          record.alarmRuleName = alarmRecords[i].warning_name
-          record.notifyPerson = alarmRecords[i].notified_body
-          record.notifyWay = alarmRecords[i].notify_way
-          record.status = alarmRecords[i].notify_status
-          this.alarmHistory.push(record)
-        }
-      } else {
-        this.$message(
-          {
-            showClose: true,
-            type: 'error',
-            message: '有问题'
+      try {
+        // const res = await this.$http.get('http://192.168.1.224:9090/api/allwarningnotes')
+        const res = await this.$http.get(this.$apiUrl + '/api/allwarningnotes')
+        if (res.data.code === 0) {
+          const alarmRecords = res.data.warning_notes
+          for (let i = 0; i < alarmRecords.length; i++) {
+            const record = {}
+            record.alarmServer = alarmRecords[i].client_ip
+            record.alarmTime = this.timetrans(alarmRecords[i].notify_time)
+            // record.alarmDuration = alarmRecords[i].
+            record.alarmRuleName = alarmRecords[i].warning_name
+            record.notifyPerson = alarmRecords[i].notified_body
+            if (alarmRecords[i].notify_way === 'EMAIL') {
+              record.notifyWay = '邮箱'
+            } else {
+              if (alarmRecords[i].notify_way === 'MSM') {
+                record.notifyWay = '短信'
+              }
+            }
+            if (alarmRecords[i].notify_status === true) {
+              record.status = '已通知'
+            } else {
+              if (alarmRecords[i].notify_status === false) {
+                record.status = '未通知'
+              }
+            }
+            this.alarmHistory.push(record)
           }
-        )
+        } else {
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: res.data.msg
+            }
+          )
+        }
+      } catch (e) {
+        console.log(e)
       }
     },
     async showAllAlarmRules() {
@@ -438,6 +505,9 @@ export default {
             rule.alarmExtremum = rules[i].func
             rule.alarmContrast = rules[i].operator
             rule.threshold = rules[i].right_value
+            rule.onOff = rules[i].is_disable
+            console.log(rule.onOff)
+            rule.maxAlarmNum = rules[i].max_step
             this.allalarmRules.push(rule)
           }
         } else {
@@ -473,6 +543,9 @@ export default {
       }
       this.editRuleData.notifyWay[0] = scope.row.notifyWay
       this.editRuleData.notifyPerson = scope.row.notifyPerson
+      console.log(scope.row)
+      this.editRuleData.maxAlarmNum = scope.row.maxAlarmNum
+      this.editRuleData.onOff = scope.row.onOff
       this.editRuleDialog = true
     },
     async editAlarmRule() {
@@ -486,67 +559,99 @@ export default {
             }
           )
         } else {
-          const ruleName = this.editRuleData.ruleName
-          let alarmTerm
-          if (this.editRuleData.alarmTerm === 'memory') {
-            alarmTerm = 'mem.memused.percent'
-          } else {
-            if (this.editRuleData.alarmTerm === 'cpu') {
-              alarmTerm = 'cpu.busy'
-            }
-          }
-          const alarmExtremum = this.editRuleData.alarmExtremum
-          let alarmTimes
-          if (this.editRuleData.alarmTimes === '一分钟') {
-            alarmTimes = 60
-          } else {
-            if (this.editRuleData.alarmTimes === '五分钟') {
-              alarmTimes = 300
-            } else {
-              if (this.editRuleData.alarmTimes === '十分钟') {
-                alarmTimes = 600
-              }
-            }
-          }
-          const alarmContrast = this.editRuleData.alarmContrast
-          const threshold = this.editRuleData.threshold
-          let notifyWay
-          if (this.editRuleData.notifyWay[0] === '邮件') {
-            notifyWay = 'EMAIL'
-          } else {
-            if (this.editRuleData.notifyWay[0] === '短信') {
-              notifyWay = 'SMS'
-            }
-          }
-          const res = await this.$http({
-            method: 'POST',
-            url: this.$apiUrl + '/admin/updatewarning',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            data: qs.stringify(
-              {
-                warning_name: ruleName,
-                metrics: alarmTerm,
-                func: alarmExtremum,
-                monitor_duration: alarmTimes,
-                operator: alarmContrast,
-                right_value: threshold,
-                notify_way: notifyWay,
-                notified_body_names: this.editRuleData.notifyPerson,
-                notified_body_num: this.editRuleData.notifyPerson.length
-              }
-            )
-          })
-          if (res.data.code === 0) {
-            location.reload()
-          } else {
+          if (!this.editRuleData.maxAlarmNum) {
             this.$message(
               {
                 showClose: true,
                 type: 'error',
-                message: res.data.msg
+                message: '最大报警次数不能为空'
               }
             )
-            this.editRuleDialog = false
+          } else {
+            if (this.editRuleData.maxAlarmNum === 0) {
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'error',
+                  message: '最大报警次数不能为零'
+                }
+              )
+            } else {
+              if (!Number.isInteger(this.editRuleData.maxAlarmNum)) {
+                this.$message(
+                  {
+                    showClose: true,
+                    type: 'error',
+                    message: '最大报警次数必须为数字'
+                  }
+                )
+              } else {
+                const ruleName = this.editRuleData.ruleName
+                let alarmTerm
+                if (this.editRuleData.alarmTerm === 'memory') {
+                  alarmTerm = 'mem.memused.percent'
+                } else {
+                  if (this.editRuleData.alarmTerm === 'cpu') {
+                    alarmTerm = 'cpu.busy'
+                  }
+                }
+                const alarmExtremum = this.editRuleData.alarmExtremum
+                let alarmTimes
+                if (this.editRuleData.alarmTimes === '一分钟') {
+                  alarmTimes = 60
+                } else {
+                  if (this.editRuleData.alarmTimes === '五分钟') {
+                    alarmTimes = 300
+                  } else {
+                    if (this.editRuleData.alarmTimes === '十分钟') {
+                      alarmTimes = 600
+                    }
+                  }
+                }
+                const alarmContrast = this.editRuleData.alarmContrast
+                const threshold = this.editRuleData.threshold
+                let notifyWay
+                if (this.editRuleData.notifyWay[0] === '邮件') {
+                  notifyWay = 'EMAIL'
+                } else {
+                  if (this.editRuleData.notifyWay[0] === '短信') {
+                    notifyWay = 'SMS'
+                  }
+                }
+                const res = await this.$http({
+                  method: 'POST',
+                  url: this.$apiUrl + '/admin/updatewarning',
+                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                  data: qs.stringify(
+                    {
+                      warning_name: ruleName,
+                      metrics: alarmTerm,
+                      func: alarmExtremum,
+                      monitor_duration: alarmTimes,
+                      operator: alarmContrast,
+                      right_value: threshold,
+                      notify_way: notifyWay,
+                      notified_body_names: this.editRuleData.notifyPerson,
+                      notified_body_num: this.editRuleData.notifyPerson.length,
+                      is_enable: this.editRuleData.onOff,
+                      max_step: this.editRuleData.maxAlarmNum
+                    }
+                  )
+                })
+                if (res.data.code === 0) {
+                  location.reload()
+                } else {
+                  this.$message(
+                    {
+                      showClose: true,
+                      type: 'error',
+                      message: res.data.msg
+                    }
+                  )
+                  this.editRuleDialog = false
+                }
+              }
+            }
           }
         }
       } catch (e) {
@@ -728,75 +833,93 @@ export default {
                     } else {
                       if (this.checkContectInfo.length !== 0) {
                         if (this.checkContect.length !== 0) {
-                          let notifyWay
-                          if (this.checkContectInfo[0] === '邮件') {
-                            notifyWay = 'EMAIL'
-                          } else {
-                            if (this.checkContectInfo[0] === '短信') {
-                              notifyWay = 'SMS'
-                            }
-                          }
-                          const threshold = this.rules[i].threshold
-                          const alarmContrast = this.rules[i].alarmContrast
-                          const alarmTimes = this.rules[i].alarmTimes
-                          let alarmTerm
-                          if (this.rules[i].alarmTerm === 'cpu') {
-                            alarmTerm = 'cpu.busy'
-                          } else {
-                            if (this.rules[i].alarmTerm === 'memory') {
-                              alarmTerm = 'mem.memused.percent'
-                            }
-                          }
-                          const alarmExtremum = this.rules[i].alarmExtremum
-                          const name = this.rules[i].name
-                          const res = await this.$http({
-                            method: 'POST',
-                            url: this.$apiUrl + '/admin/createwarning',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            data: qs.stringify(
+                          if (!this.alarmRuleData.maxAlarmNum) {
+                            this.$message(
                               {
-                                warning_name: name,
-                                metrics: alarmTerm,
-                                func: alarmExtremum,
-                                monitor_duration: alarmTimes,
-                                operator: alarmContrast,
-                                right_value: threshold,
-                                notify_way: notifyWay,
-                                notified_body_names: this.checkContect,
-                                notified_body_num: this.checkContect.length
+                                showClose: true,
+                                type: 'error',
+                                message: '最大报警次数不能为空'
                               }
                             )
-                          })
-                          if (res.data.code === 0) {
-                            // this.allalarmRules.push(
-                            //   {
-                            //     ruleName: this.rules[i].name,
-                            //     alarmTerm: this.rules[i].alarmTerm,
-                            //     ruleDescription: ''
-                            //   }
-                            // )
-                            this.createRuleStatus = 0
-                            this.createOrBackRule = '创建报警规则'
-                            this.activeTab = 'alarmRule'
-                            location.reload()
-                            // this.$message(
-                            //   {
-                            //     showClose: true,
-                            //     type: 'success',
-                            //     message: '创建成功'
-                            //   }
-                            // )
                           } else {
-                            if (res.data.code === 402) {
+                            if (this.alarmRuleData.maxAlarmNum === '0') {
                               this.$message(
                                 {
                                   showClose: true,
-                                  type: 'warning',
-                                  message: '该规则名已被占用，请更换'
+                                  type: 'error',
+                                  message: '最大报警次数不能为 0'
                                 }
                               )
+                            } else {
+                              if (!Number.isInteger(this.alarmRuleData.maxAlarmNum)) {
+                                this.$message(
+                                  {
+                                    showClose: true,
+                                    type: 'error',
+                                    message: '最大报警次数必须为数字'
+                                  }
+                                )
+                              } else {
+                                let notifyWay
+                                if (this.checkContectInfo[0] === '邮件') {
+                                  notifyWay = 'EMAIL'
+                                } else {
+                                  if (this.checkContectInfo[0] === '短信') {
+                                    notifyWay = 'SMS'
+                                  }
+                                }
+                                const threshold = this.rules[i].threshold
+                                const alarmContrast = this.rules[i].alarmContrast
+                                const alarmTimes = this.rules[i].alarmTimes
+                                let alarmTerm
+                                if (this.rules[i].alarmTerm === 'cpu') {
+                                  alarmTerm = 'cpu.busy'
+                                } else {
+                                  if (this.rules[i].alarmTerm === 'memory') {
+                                    alarmTerm = 'mem.memused.percent'
+                                  }
+                                }
+                                const alarmExtremum = this.rules[i].alarmExtremum
+                                const name = this.rules[i].name
+                                const res = await this.$http({
+                                  method: 'POST',
+                                  url: this.$apiUrl + '/admin/createwarning',
+                                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                  data: qs.stringify(
+                                    {
+                                      warning_name: name,
+                                      metrics: alarmTerm,
+                                      func: alarmExtremum,
+                                      monitor_duration: alarmTimes,
+                                      operator: alarmContrast,
+                                      right_value: threshold,
+                                      notify_way: notifyWay,
+                                      notified_body_names: this.checkContect,
+                                      notified_body_num: this.checkContect.length,
+                                      max_step: this.alarmRuleData.maxAlarmNum,
+                                      is_enable: this.alarmRuleData.onOff
+                                    }
+                                  )
+                                })
+                                if (res.data.code === 0) {
+                                  this.createRuleStatus = 0
+                                  this.createOrBackRule = '创建报警规则'
+                                  this.activeTab = 'alarmRule'
+                                  location.reload()
+                                } else {
+                                  if (res.data.code === 402) {
+                                    this.$message(
+                                      {
+                                        showClose: true,
+                                        type: 'warning',
+                                        message: '该规则名已被占用，请更换'
+                                      }
+                                    )
+                                  }
+                                  console.log('错了')
+                                }
+                              }
                             }
-                            console.log('错了')
                           }
                         } else {
                           this.$message(
@@ -962,6 +1085,7 @@ export default {
       }
     },
     async checkDataRange(date) {
+      this.alarmHistory = []
       const dates = date.split('-')
       const startYear = dates[0]
       const startMon = dates[1]
@@ -969,28 +1093,46 @@ export default {
       const endYear = dates[3]
       const endMon = dates[4]
       const endDay = dates[5]
-      const beginTime = (new Date(String(startYear) + '-' + String(startMon) + '-' + String(startDay) + ' 00:00:00:000')).getTime()
-      const endTime = (new Date(String(endYear) + '-' + String(endMon) + '-' + String(endDay) + ' 00:00:00:000')).getTime()
+      const beginTime = ((new Date(String(startYear) + '-' + String(startMon) + '-' + String(startDay) + ' 00:00:01')).getTime()) / 1000
+      const endTime = ((new Date(String(endYear) + '-' + String(endMon) + '-' + String(endDay) + ' 23:59:59')).getTime()) / 1000
       try {
+        // const res = await this.$http.get('http://192.168.1.224:9090' + '/api/warningnotes_between?begin_time=' + beginTime + '&end_time=' + endTime)
         const res = await this.$http.get(this.$apiUrl + '/api/warningnotes_between?begin_time=' + beginTime + '&end_time=' + endTime)
         if (res.data.code === 0) {
           const alarmRecords = res.data.warning_notes
-          for (let i = 0; i < alarmRecords.length; i++) {
-            const record = {}
-            // record.alarmServer = alarmRecords[i].
-            record.alarmTime = alarmRecords[i].notify_time
-            // record.alarmDuration = alarmRecords[i].
-            record.alarmRuleName = alarmRecords[i].warning_name
-            record.notifyPerson = alarmRecords[i].notified_body
-            record.notifyWay = alarmRecords[i].notify_way
-            record.status = alarmRecords[i].notify_status
-            this.alarmHistory.push(record)
+          if (alarmRecords.length === 0) {
+            this.alarmHistory = []
+          } else {
+            for (let i = 0; i < alarmRecords.length; i++) {
+              const record = {}
+              record.alarmServer = alarmRecords[i].client_ip
+              record.alarmTime = this.timetrans(alarmRecords[i].notify_time)
+              // record.alarmDuration = alarmRecords[i].
+              record.alarmRuleName = alarmRecords[i].warning_name
+              record.notifyPerson = alarmRecords[i].notified_body
+              if (alarmRecords[i].notify_way === 'EMAIL') {
+                record.notifyWay = '邮箱'
+              } else {
+                if (alarmRecords[i].notify_way === 'MSM') {
+                  record.notifyWay = '短信'
+                }
+              }
+              if (alarmRecords[i].notify_status === true) {
+                record.status = '已通知'
+              } else {
+                if (alarmRecords[i].notify_status === false) {
+                  record.status = '未通知'
+                }
+              }
+              this.alarmHistory.push(record)
+            }
           }
+        } else {
           this.$message(
             {
               showClose: true,
-              type: 'success',
-              message: '查询成功'
+              type: 'error',
+              message: res.data.msg
             }
           )
         }
@@ -1055,7 +1197,7 @@ export default {
 
 .title-button {
   float: right;
-  margin-right: 10%;
+  margin-right: 15%;
 }
 
 .table-view {
@@ -1073,5 +1215,21 @@ export default {
 
 .rule-edit-input {
   width: 98%;
+}
+
+.num-input {
+  width: 32%;
+}
+
+.short-item {
+  width: 40%;
+  float: left;
+  margin-bottom: 2%;
+}
+
+.edit-item {
+  width: 48%;
+  float: left;
+  margin-bottom: 2%;
 }
 </style>

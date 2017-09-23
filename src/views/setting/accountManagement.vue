@@ -272,14 +272,7 @@ export default {
         if (res.data.code === 0) {
           const index = this.scope.$index
           this.accountData[index].authority = authority
-          this.editContactConfirm = false
-          this.$message(
-            {
-              showClose: true,
-              type: 'success',
-              message: '修改成功'
-            }
-          )
+          location.reload()
         } else {
           this.$message(
             {
@@ -363,14 +356,7 @@ export default {
                 phone: this.createAccountData.phone,
                 email: this.createAccountData.email
               })
-              this.addAccountDialog = false
-              this.$message(
-                {
-                  showClose: true,
-                  type: 'success',
-                  message: '创建成功'
-                }
-              )
+              location.reload()
             } else {
               if (res.data.code === 504) {
                 this.$message(
@@ -385,7 +371,7 @@ export default {
                   {
                     showClose: true,
                     type: 'error',
-                    message: '有问题！！'
+                    message: res.data.msg
                   }
                 )
               }
@@ -425,7 +411,7 @@ export default {
         } else {
           this.$message({
             showClose: true,
-            message: '出问题啦',
+            message: res.data.msg,
             type: 'error'
           })
         }

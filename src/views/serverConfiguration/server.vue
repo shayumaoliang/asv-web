@@ -27,7 +27,7 @@
             <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg>
             <icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg>
             <icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
-            <el-button class="onOff-button" @click="onOffServer">
+            <el-button  v-loading="onOffLoading" class="onOff-button" @click="onOffServer">
               <icon-svg icon-class="onOff"></icon-svg> {{ onOff }}</el-button>
           </el-form-item>
           <el-form-item label="ip地址">
@@ -228,6 +228,7 @@ export default {
         ]
       },
       ip: null,
+      onOffLoading: null,
       status: '已停止',
       cpu: null,
       memory: null,
@@ -245,6 +246,7 @@ export default {
   methods: {
     async onOffServer() {
       if (this.onOff === '关闭服务') {
+        this.onOffLoading = true
         const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=stop')
         const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=stop')
         await this.showCurrentServer()
@@ -256,6 +258,7 @@ export default {
         })
         location.reload()
       } else {
+        this.onOffLoading = true
         const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=start')
         const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=start')
         await this.showCurrentServer()
