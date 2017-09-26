@@ -2,7 +2,7 @@
   <div class="dashboard-container">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>账号管理
-      <el-button class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
+      <el-button v-if="getRole()" class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
     </h4>
     <el-form class="view" label-width="120px" label-position="left">
       <el-table :data="accountData">
@@ -10,8 +10,8 @@
         <el-table-column width="150" prop="authority" label="操作权限"></el-table-column>
         <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
         <el-table-column width="150" prop="phone" label="手机号码"></el-table-column>
-        <el-table-column width="220" prop="email" label="邮箱"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column prop="email" label="邮箱"></el-table-column>
+        <el-table-column v-if="getRole()" label="操作">
           <template scope="scope">
             <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
             <el-button type="text" @click="resetPasswordDialog(scope)">重设密码</el-button>
@@ -172,6 +172,13 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     async showAllAcount() {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allusers')

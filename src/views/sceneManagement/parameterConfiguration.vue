@@ -6,8 +6,8 @@
       <el-card class="view">
         <div slot="header" class="header-card">
           <span>asv-rpc 配置</span>
-          <el-button size="small" class="delete-icon el-icon-plus" @click="addRpcServerConfig()">添加配置项</el-button>
-          <el-button size="small" type="success" class="delete-icon" @click="pushRpcServerConfigConfirm()">提交配置</el-button>
+          <el-button v-if="getRole()" size="small" class="delete-icon el-icon-plus" @click="addRpcServerConfig()">添加配置项</el-button>
+          <el-button v-if="getRole()" size="small" type="success" class="delete-icon" @click="pushRpcServerConfigConfirm()">提交配置</el-button>
         </div>
         <div v-for="(config, index) of allRpcServerConfig" :key="index">
           <el-form-item class="item-form">
@@ -17,7 +17,7 @@
             <el-input size="small" class="config-input" v-model="config.configValue">
               <template slot="prepend"> 配置项值</template>
             </el-input>
-            <el-button size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteRpcServerConfig(index)">删除该配置项</el-button>
+            <el-button v-if="getRole()" size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteRpcServerConfig(index)">删除该配置项</el-button>
           </el-form-item>
         </div>
       </el-card>
@@ -33,8 +33,8 @@
       <el-card class="view">
         <div slot="header" class="header-card">
           <span>asvServer 配置</span>
-          <el-button size="small" class="delete-icon el-icon-plus" @click="addAsvServerConfig()">添加配置项</el-button>
-          <el-button size="small" type="success" class="delete-icon" @click="pushAsvServerConfigConfirm()">提交配置</el-button>
+          <el-button v-if="getRole()" size="small" class="delete-icon el-icon-plus" @click="addAsvServerConfig()">添加配置项</el-button>
+          <el-button v-if="getRole()" size="small" type="success" class="delete-icon" @click="pushAsvServerConfigConfirm()">提交配置</el-button>
         </div>
         <div v-for="(config, index) of allAsvServerConfig" :key="index">
           <el-form-item class="item-form">
@@ -44,7 +44,7 @@
             <el-input size="small" class="config-input" v-model="config.configValue">
               <template slot="prepend"> 配置项值</template>
             </el-input>
-            <el-button size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteAsvServerConfig(index)">删除该配置项</el-button>
+            <el-button v-if="getRole()" size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteAsvServerConfig(index)">删除该配置项</el-button>
           </el-form-item>
         </div>
       </el-card>
@@ -80,6 +80,13 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     async showAllConfig() {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allconfigs')

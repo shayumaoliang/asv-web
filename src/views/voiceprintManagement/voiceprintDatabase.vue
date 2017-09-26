@@ -36,9 +36,9 @@
       <el-form label-width="120px" label-position="left" :model="voiceprintData">
         <el-card v-if="showDb === true" class="box-card">
           <div slot="header" class="clearfix">
-            <el-button size="small" class="button-backpu" type="primary" @click="startBackup">备份</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="editVoiceprintDbConfirm">{{ '修改' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="deleteVoiceprintDbConfirm">{{ '删除' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="startBackup">备份</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="editVoiceprintDbConfirm">{{ '修改' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="deleteVoiceprintDbConfirm">{{ '删除' }}</el-button>
           </div>
           <div class="form">
             <el-form-item label="子公司">
@@ -65,9 +65,9 @@
       <el-form label-width="120px" label-position="left">
         <el-card v-if="showCompanys === true" class="box-card">
           <div slot="header" class="clearfix">
-            <el-button size="small" class="button-backpu" type="primary" @click="addBusinessConfirm">{{ '添加公司子项' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="editCompanyConfirm">{{ '修改该项名称' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="deleteCompanyConfirm">{{ '删除该项' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="addBusinessConfirm">{{ '添加公司子项' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="editCompanyConfirm">{{ '修改该项名称' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="deleteCompanyConfirm">{{ '删除该项' }}</el-button>
           </div>
           <div class="form">
             <el-form-item label="公司">
@@ -84,9 +84,9 @@
       <el-form label-width="120px" label-position="left">
         <el-card v-if="showBusiness === true" class="box-card">
           <div slot="header" class="clearfix">
-            <el-button size="small" class="button-backpu" type="primary" @click="addVioceprintDbConfirm">{{ '添加声纹库' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="editBusinessConfirm">{{ '修改该项名称' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="deleteBusinessConfirm">{{ '删除该项' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="addVioceprintDbConfirm">{{ '添加声纹库' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="editBusinessConfirm">{{ '修改该项名称' }}</el-button>
+            <el-button size="small" v-if="getRole()" class="button-backpu" type="primary" @click="deleteBusinessConfirm">{{ '删除该项' }}</el-button>
 
           </div>
           <div class="form">
@@ -104,7 +104,7 @@
       <el-form label-width="90px" label-position="left">
         <el-card v-if="showGroup === true" class="box-card">
           <div slot="header" class="clearfix">
-            <el-button size="small" class="button-backpu" type="primary" @click="addCompanyConfirm">{{ '添加集团子项' }}</el-button>
+            <el-button size="small" class="button-backpu" type="primary" v-if="getRole()" @click="addCompanyConfirm">{{ '添加集团子项' }}</el-button>
           </div>
           <div class="form">
             <el-form-item label="集团">
@@ -285,6 +285,13 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     async getAllcompany() {
       const res = await this.$http.get(this.$apiUrl + '/api/getallcompanys')
       const allCompanys = res.data.companys

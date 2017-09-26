@@ -27,7 +27,7 @@
             <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg>
             <icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg>
             <icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
-            <el-button  v-loading="onOffLoading" class="onOff-button" @click="onOffServer">
+            <el-button v-if="getRole()" v-loading="onOffLoading" class="onOff-button" @click="onOffServer">
               <icon-svg icon-class="onOff"></icon-svg> {{ onOff }}</el-button>
           </el-form-item>
           <el-form-item label="ip地址">
@@ -94,7 +94,6 @@ export default {
   name: 'dashboard',
   computed: {
     ...mapGetters([
-      'name',
       'roles'
     ])
   },
@@ -244,6 +243,13 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     async onOffServer() {
       if (this.onOff === '关闭服务') {
         this.onOffLoading = true

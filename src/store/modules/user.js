@@ -1,12 +1,11 @@
-import { login, logout, getInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login, logout } from '@/api/login'
+import { getToken, getRole, setToken, setRole, removeToken } from '@/utils/auth'
 
 const user = {
   state: {
     token: getToken(),
     name: '',
-    // avatar: '',
-    roles: []
+    roles: getRole()
   },
 
   mutations: {
@@ -30,11 +29,18 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
-          const data = response.data
-          setToken(data.token)
-          commit('SET_TOKEN', data.token)
-          commit('SET_NAME', data.user)
-          commit('SET_ROLES', data.user)
+          // console.log(response)
+          // const data = response.data
+          setToken(response.token)
+          commit('SET_TOKEN', response.token)
+          commit('SET_NAME', response.user)
+          if (response.admin === true) {
+            commit('SET_ROLES', 'admin')
+            setRole('admin')
+          } else {
+            commit('SET_ROLES', 'nonAdmin')
+            setRole('nonAdmin')
+          }
           resolve()
         }).catch(error => {
           reject(error)
@@ -59,14 +65,14 @@ const user = {
     // 登出
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          removeToken()
-          resolve()
-        }).catch(error => {
-          reject(error)
-        })
+        // logout(state.token).then(() => {
+        //   commit('SET_TOKEN', '')
+        //   commit('SET_ROLES', [])
+        removeToken()
+        resolve()
+        // }).catch(error => {
+        //   reject(error)
+        // })
       })
     },
 

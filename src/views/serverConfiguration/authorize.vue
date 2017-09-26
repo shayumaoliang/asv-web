@@ -34,7 +34,7 @@
           <el-form-item>
             <el-input type="textarea" placeholder="请输入验证信息" v-model="server.lic">
             </el-input>
-            <el-button type="primary" @click="authorize(index)" class="import-button">授权</el-button>
+            <el-button type="primary"  v-if="getRole()" @click="authorize(index)" class="import-button">授权</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -60,6 +60,13 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     async authorize(index) {
       // const body = {
       //   key: 'lic',

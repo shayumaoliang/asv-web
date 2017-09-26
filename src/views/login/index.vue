@@ -29,7 +29,9 @@
   </div>
 </template>
 
+
 <script>
+import { canvas } from '@/canvas.js'
 import { isvalidUsername } from '@/utils/validate'
 // import { login } from '@/api/login'
 
@@ -51,6 +53,7 @@ export default {
       }
     }
     return {
+      canvas,
       loginForm: {
         username: 'admin',
         password: '123456'
@@ -92,9 +95,30 @@ export default {
       try {
         // await login(this.loginForm.username, this.loginForm.password)
         this.loading = true
-        await this.$store.dispatch('Login', this.loginForm)
+        const res = await this.$store.dispatch('Login', this.loginForm)
         this.loading = false
-        this.$router.push({ path: '/' })
+        if (res.data.msg === 'success') {
+          this.$router.push({ path: '/' })
+        } else {
+          if (res.data.code === 502) {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: '密码错误'
+              }
+            )
+          } else {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: res.data.msg
+              }
+            )
+          }
+        }
+
         // res.validate(valid => {
         //   if (valid) {
         //     this.loading = true
@@ -124,8 +148,7 @@ $dark_gray:#889aa4;
 $light_gray:#eee;
 .login-container {
   @include relative;
-  height: 100vh;
-  background-color: $bg;
+  height: 100vh; // background-color: $bg;
   input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0px 1000px #293444 inset !important;
     -webkit-text-fill-color: #fff !important;
@@ -136,7 +159,7 @@ $light_gray:#eee;
     -webkit-appearance: none;
     border-radius: 0px;
     padding: 12px 5px 12px 15px;
-    color: $light_gray;
+    color: $bg;
     height: 36px;
   }
   .el-input {
@@ -162,7 +185,7 @@ $light_gray:#eee;
   .title {
     font-size: 26px;
     font-weight: 400;
-    color: $light_gray;
+    color: $bg;
     margin: 5px auto 10px auto;
     text-align: center;
     font-weight: bold;

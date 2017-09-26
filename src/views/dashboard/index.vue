@@ -61,7 +61,6 @@ export default {
   name: 'dashboard',
   computed: {
     ...mapGetters([
-      'name',
       'roles'
     ])
   },

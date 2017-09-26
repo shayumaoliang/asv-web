@@ -10,7 +10,7 @@
             <el-table-column prop="ruleDescription" label="规则描述"></el-table-column>
             <el-table-column width="100" prop="notifyPerson" label="通知对象"></el-table-column>
             <el-table-column width="100" prop="notifyWay" label="通知方式"></el-table-column>
-            <el-table-column width="150" label="操作">
+            <el-table-column v-if="getRole()" label="操作">
               <template scope="scope">
                 <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.status }}</el-button>
                 <el-button type="text" size="small" @click="editRuleConfirm(scope)">编辑</el-button>
@@ -159,12 +159,12 @@
         </span>
       </el-dialog>
       <el-tab-pane label="联系人设置" name="contacts">
-        <el-button class="add-button" type="primary" @click="createContactConfirm">新建联系人</el-button>
+        <el-button v-if="getRole()" class="add-button" type="primary" @click="createContactConfirm">新建联系人</el-button>
         <el-table :data="allContactData">
           <el-table-column width="300" prop="name" label="联系人姓名"></el-table-column>
           <el-table-column width="300" prop="phone" label="手机号码"></el-table-column>
-          <el-table-column width="300" prop="email" label="邮箱"></el-table-column>
-          <el-table-column label="操作">
+          <el-table-column prop="email" label="邮箱"></el-table-column>
+          <el-table-column v-if="getRole()" label="操作">
             <template scope="scope">
               <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
               <el-button type="text" @click="deleteContactDialog(scope)">删除</el-button>
@@ -228,7 +228,7 @@
           </el-table>
         </div>
       </el-tab-pane>
-      <el-tab-pane disabled>
+      <el-tab-pane v-if="getRole()" disabled>
         <template slot="label">
           <el-button size="small" @click="createRule">{{ createOrBackRule }}</el-button>
         </template>
@@ -418,14 +418,21 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     timetrans(time) {
-      var date = new Date(time * 1000)
-      var Y = date.getFullYear() + '-'
-      var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
-      var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' '
-      var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
-      var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
-      var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+      const date = new Date(time * 1000)
+      const Y = date.getFullYear() + '-'
+      const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+      const D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + ' '
+      const h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+      const m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+      const s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
       return Y + M + D + h + m + s
     },
     async showAllAlarmHistory() {

@@ -2,12 +2,12 @@
   <div class="dashboard-container">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>场景配置
-      <el-button class="add-button" type="primary" size="small" @click="impirtSceneConfir()">导入场景</el-button>
+      <el-button v-if="getRole()" class="add-button" type="primary" size="small" @click="impirtSceneConfir()">导入场景</el-button>
     </h4>
     <el-card class="view" v-for="(scene, index) of scenes" :key="index">
       <div slot="header" class="clearfix">
         <span style="line-height: 36px;">{{ scene.name }}</span>
-        <el-button size="small" class="delete-icon el-icon-delete" @click="deleteSceneConfir(index)">删除</el-button>
+        <el-button v-if="getRole()" size="small" class="delete-icon el-icon-delete" @click="deleteSceneConfir(index)">删除</el-button>
       </div>
       <p>{{ scene.description }}</p>
     </el-card>
@@ -60,6 +60,13 @@ export default {
     }
   },
   methods: {
+    getRole() {
+      if (this.roles === 'admin') {
+        return true
+      } else {
+        return false
+      }
+    },
     async showAllScenes() {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allscenes')
