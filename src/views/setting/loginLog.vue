@@ -24,41 +24,53 @@ export default {
   data() {
     return {
       loginLogsData: [],
+      dataRange: [],
       pickerOptions: {
-        shortcuts: [{
-          text: '最近一天',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24)
-            picker.$emit('pick', [start, end])
-          }
-        },
-        {
-          text: '最近一周',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近一个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近三个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 24 * 90)
-            picker.$emit('pick', [start, end])
-          }
-        }]
+        shortcuts: [
+          {
+            text: '最近三小时',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 3)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近十二小时',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 12)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一天',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24)
+              picker.$emit('pick', [start, end])
+            }
+          },
+          {
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+              picker.$emit('pick', [start, end])
+            }
+          }]
       }
     }
   },
@@ -82,12 +94,19 @@ export default {
           log.name = logs[i].login_user_name
           log.loginTime = this.timetrans(logs[i].login_time)
           this.loginLogsData.push(log)
-          console.log(this.loginLogsData)
         }
+      } else {
+        this.$message(
+          {
+            showClose: true,
+            type: 'error',
+            message: res.data.msg
+          }
+        )
       }
     },
     async checkDataRange(date) {
-      this.alarmHistory = []
+      this.loginLogsData = []
       const dates = date.split('-')
       const startYear = dates[0]
       const startMon = dates[1]
@@ -100,7 +119,13 @@ export default {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/loginlogs_between?begin_time=' + beginTime + '&end_time=' + endTime)
         if (res.data.code === 0) {
-
+          const logs = res.data.login_logs
+          for (let i = 0; i < logs.length; i++) {
+            const log = {}
+            log.name = logs[i].login_user_name
+            log.loginTime = this.timetrans(logs[i].login_time)
+            this.loginLogsData.push(log)
+          }
         } else {
           this.$message(
             {
