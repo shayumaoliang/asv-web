@@ -66,7 +66,8 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
@@ -141,7 +142,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/updateconfig?config_name=asv-rpc',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': this.token },
           data: body
         })
         if (res.data.code === 0) {
@@ -181,7 +182,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/updateconfig?config_name=asvserver',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'Authorization': this.token },
           data: body
         })
         if (res.data.code === 0) {

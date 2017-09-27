@@ -10,6 +10,8 @@ import IEcharts from 'vue-echarts-v3/src/full.vue'
 import VueAxios from 'vue-axios'
 import axios from 'axios'
 
+// import http from './api/http.js'
+// Vue.use(http)
 Vue.use(VueAxios, axios)
 Vue.component(IEcharts.name, IEcharts)
 

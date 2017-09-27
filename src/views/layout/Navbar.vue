@@ -10,7 +10,7 @@
       <el-dropdown-menu class="user-dropdown" slot="dropdown">
         <router-link class='inlineBlock' to="/">
           <el-dropdown-item>
-            首页
+            {{ name }}
           </el-dropdown-item>
         </router-link>
         <el-dropdown-item divided>
@@ -35,7 +35,7 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'name'
     ])
   },
   data() {

@@ -16,7 +16,7 @@
           <el-table-column label="操作">
             <template scope="scope">
               <el-button v-if="getRole()" @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.onOff }}</el-button>
-              <el-button v-if="getRole()" type="text" size="small">编辑</el-button>
+              <el-button v-if="getRole()" type="text" size="small" @click="editBackupConfirm(scope)">编辑</el-button>
               <el-button v-if="getRole()" @click="handkeDeleteBackupRuleConfirm(scope)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
@@ -69,24 +69,24 @@
     <el-dialog title="创建声纹库备份规则" :visible.sync="newBackup">
       <el-form :model="backupData" label-width="130px">
         <el-form-item label="备份名称">
-          <el-input style="width: 89%;" v-model="backupData.backupName"></el-input>
+          <el-input class="time-select" v-model="backupData.backupName"></el-input>
         </el-form-item>
         <el-form-item label="备份时间">
-          <el-time-select v-model="backupData.backupTime" :picker-options="{
-                                start: '00:00',
-                                step: '00:30',
-                                end: '08:00'
-                              }" placeholder="请选择备份时间">
+          <el-time-select class="time-select" v-model="backupData.backupTime" :picker-options="{
+              start: '00:00',
+              step: '00:30',
+              end: '08:00'
+            }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
-          <el-select v-model="backupData.backupDate" clearable placeholder="请选择备份日期">
+          <el-select class="time-select" v-model="backupData.backupDate" placeholder="请选择备份日期">
             <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="备份最大副本数量">
-          <el-select v-model="backupData.copyNum" clearable placeholder="请选择保留最大副本数量">
+          <el-select class="time-select" v-model="backupData.copyNum" placeholder="请选择保留最大副本数量">
             <el-option v-for="item in copyOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
@@ -101,6 +101,37 @@
         <el-button type="primary" @click="createNewBackup">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog size="tiny" title="修改声纹库备份规则" :visible.sync="editBackupDialog">
+      <el-form :model="editBackupData" label-width="130px">
+        <el-form-item label="备份名称">
+          <el-input class="time-select" disabled v-model="editBackupData.backupName"></el-input>
+        </el-form-item>
+        <el-form-item label="备份时间">
+          <el-time-select class="time-select" v-model="editBackupData.backupTime" :picker-options="{
+            start: '00:00',
+            step: '00:30',
+            end: '08:00'
+          }" placeholder="请选择备份时间">
+          </el-time-select>
+        </el-form-item>
+        <el-form-item label="备份日期">
+          <el-select class="time-select" v-model="editBackupData.backupDate" placeholder="请选择备份日期">
+            <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备份最大副本数量">
+          <el-select class="time-select" v-model="editBackupData.copyNum" placeholder="请选择保留最大副本数量">
+            <el-option v-for="item in copyOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editBackupDialog = false">取 消</el-button>
+        <el-button type="primary" @click="editBackupRule">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -112,14 +143,23 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
     return {
+      editBackupData: {
+        backupName: null,
+        backupTime: null,
+        backupDate: null,
+        copyNum: null,
+        checkedVoiceprintDb: []
+      },
       rollBackLoading: null,
       rollBackDialog: false,
       deleteBackupConfirm: false,
+      editBackupDialog: false,
       deleteBackupRuleConfirm: false,
       newBackup: false,
       backupRule: {},
@@ -135,31 +175,31 @@ export default {
       dateOptions: [
         {
           value: 1,
-          label: '星期一'
+          label: '周一'
         },
         {
           value: 2,
-          label: '星期二'
+          label: '周二'
         },
         {
           value: 3,
-          label: '星期三'
+          label: '周三'
         },
         {
           value: 4,
-          label: '星期四'
+          label: '周四'
         },
         {
           value: 5,
-          label: '星期五'
+          label: '周五'
         },
         {
           value: 6,
-          label: '星期六'
+          label: '周六'
         },
         {
           value: 7,
-          label: '星期日'
+          label: '周日'
         }
       ],
       copyOptions: [
@@ -197,7 +237,11 @@ export default {
     async rollBack() {
       try {
         this.rollBackLoading = true
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName)
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName
+        })
         if (res.data.code === 0) {
           await this.$message({
             type: 'success',
@@ -220,12 +264,20 @@ export default {
     },
     async handleOnOff(scope) {
       if (scope.row.onOff === '停止') {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule')
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule'
+        })
         if (res.data.code === 0) {
           location.reload()
         }
       } else {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/startautobackuprule')
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/startautobackuprule'
+        })
         if (res.data.code === 0) {
           location.reload()
         }
@@ -235,6 +287,65 @@ export default {
       this.deleteBackupConfirm = true
       this.scope = scope
     },
+    async editBackupConfirm(scope) {
+      console.log(scope.row)
+      const allVoiceprintDb = []
+      const res = await this.$http.get(this.$apiUrl + '/api/noautobackuplibs')
+      for (let i = 0; i < res.data.noAutobackupRuleLibs.length; i++) {
+        const voiceprintDb = {}
+        voiceprintDb['key'] = i
+        voiceprintDb['label'] = res.data.noAutobackupRuleLibs[i]
+        allVoiceprintDb.push(voiceprintDb)
+      }
+      this.allVoiceprintDb = allVoiceprintDb
+      this.editBackupData.dbName = scope.row.voiceprintDataName
+      this.editBackupData.company = scope.row.company
+      this.editBackupData.business = scope.row.business
+      this.allVoiceprintDb.push({
+        key: res.data.noAutobackupRuleLibs.length,
+        label: this.editBackupData.company + '/' + this.editBackupData.business + '/' + this.editBackupData.dbName
+      })
+      this.editBackupData.backupName = scope.row.backupName
+      this.editBackupData.backupTime = scope.row.backupTime
+      this.editBackupData.backupDate = scope.row.backupDate
+      this.editBackupData.copyNum = Number(scope.row.backupNum)
+      this.editBackupData.checkedVoiceprintDb = [res.data.noAutobackupRuleLibs.length]
+      console.log(this.editBackupData.checkedVoiceprintDb)
+      this.editBackupDialog = true
+    },
+    async editBackupRule() {
+      try {
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/updateautobackuprule ',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
+          data: qs.stringify({
+            auto_backup_rule_name: this.editBackupData.backupName,
+            auto_backup_rule_start_time: this.editBackupData.backupTime,
+            auto_backup_rule_weekday: this.editBackupData.backupDate,
+            auto_backup_rule_duplicates: this.editBackupData.copyNum,
+            lib_name: this.editBackupData.dbName,
+            company_name: this.editBackupData.company,
+            business_name: this.editBackupData.business
+          })
+        })
+        if (res.data.code === 0) {
+          location.reload()
+        } else {
+          this.$message({
+            type: 'error',
+            showClose: true,
+            message: res.data.msg
+          })
+        }
+      } catch (e) {
+        this.$message({
+          type: 'error',
+          showClose: true,
+          message: e
+        })
+      }
+    },
     handkeDeleteBackupRuleConfirm(scope) {
       this.deleteBackupRuleConfirm = true
       this.scope = scope
@@ -242,7 +353,11 @@ export default {
     async handleDeleteBackup() {
       const scope = this.scope
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackup?backup_name=' + scope.row.backupName)
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackup?backup_name=' + scope.row.backupName
+        })
         if (res.data.code === 0) {
           location.reload()
         } else {
@@ -260,7 +375,11 @@ export default {
     async deleteBackupRule() {
       const scope = this.scope
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackuprule')
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackuprule'
+        })
         if (res.data.code === 0) {
           location.reload()
         } else {
@@ -314,10 +433,10 @@ export default {
       this.newBackup = true
       const allVoiceprintDb = []
       const res = await this.$http.get(this.$apiUrl + '/api/noautobackuplibs')
-      for (let i = 0; i < res.data.noAutobacpRuleLibs.length; i++) {
+      for (let i = 0; i < res.data.noAutobackupRuleLibs.length; i++) {
         const voiceprintDb = {}
         voiceprintDb['key'] = i
-        voiceprintDb['label'] = res.data.noAutobacpRuleLibs[i]
+        voiceprintDb['label'] = res.data.noAutobackupRuleLibs[i]
         allVoiceprintDb.push(voiceprintDb)
       }
       this.allVoiceprintDb = allVoiceprintDb
@@ -329,7 +448,7 @@ export default {
           const res = await this.$http({
             method: 'POST',
             url: this.$apiUrl + '/admin/createautobackuprule',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
             data: qs.stringify({
               auto_backup_rule_name: this.backupData.backupName,
               auto_backup_rule_start_time: this.backupData.backupTime,
@@ -351,7 +470,7 @@ export default {
       }
     },
     handleChange(value, direction, movedKeys) {
-      // console.log(value, direction, movedKeys)
+      console.log(value, direction, movedKeys)
     }
   },
   async mounted() {
@@ -373,6 +492,19 @@ export default {
 }
 
 .transfer {
-  font-size: 10px;
+  font-size: 5px;
+}
+
+.el-checkbox__label {
+  font-size: 5px;
+  padding-left: 2px;
+}
+
+.time-select {
+  width: 80%;
+}
+
+.el-form-item {
+margin: 8px;
 }
 </style>

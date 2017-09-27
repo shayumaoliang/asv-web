@@ -32,19 +32,19 @@
 
 <script>
 import { canvas } from '@/canvas.js'
-import { isvalidUsername } from '@/utils/validate'
+// import { isvalidUsername } from '@/utils/validate'
 // import { login } from '@/api/login'
 
 export default {
   name: 'login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
-      } else {
-        callback()
-      }
-    }
+    // const validateUsername = (rule, value, callback) => {
+    //   if (!isvalidUsername(value)) {
+    //     callback(new Error('请输入正确的用户名'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
     const validatePass = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('密码不能小于6位'))
@@ -59,7 +59,7 @@ export default {
         password: '123456'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        // username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePass }]
       },
       pwdType: 'password',
@@ -75,68 +75,53 @@ export default {
         this.pwdType = 'password'
       }
     },
-    // handleLogin() {
-    //   this.$refs.loginForm.validate(valid => {
-    //     if (valid) {
-    //       this.loading = true
-    //       this.$store.dispatch('Login', this.loginForm).then(() => {
-    //         this.loading = false
-    //         this.$router.push({ path: '/' })
-    //       }).catch(() => {
-    //         this.loading = false
-    //       })
-    //     } else {
-    //       console.log('error submit!!')
-    //       return false
-    //     }
-    //   })
-    // }
-    async handleLogin() {
-      try {
-        // await login(this.loginForm.username, this.loginForm.password)
-        this.loading = true
-        const res = await this.$store.dispatch('Login', this.loginForm)
-        this.loading = false
-        if (res.data.msg === 'success') {
-          this.$router.push({ path: '/' })
+    handleLogin() {
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          this.$store.dispatch('Login', this.loginForm).then(() => {
+            this.loading = false
+            this.$router.push({ path: '/' })
+          }).catch(() => {
+            this.loading = false
+          })
         } else {
-          if (res.data.code === 502) {
-            this.$message(
-              {
-                showClose: true,
-                type: 'error',
-                message: '密码错误'
-              }
-            )
-          } else {
-            this.$message(
-              {
-                showClose: true,
-                type: 'error',
-                message: res.data.msg
-              }
-            )
-          }
+          console.log('error submit!!')
+          return false
         }
-
-        // res.validate(valid => {
-        //   if (valid) {
-        //     this.loading = true
-        //     this.$store.dispatch('Login', this.loginForm).then(() => {
-        //       this.loading = false
-        //       this.$router.push({ path: '/' })
-        //     }).catch(() => {
-        //       this.loading = false
-        //     })
-        //   } else {
-        //     console.log('error submit!!')
-        //     return false
-        //   }
-        // })
-      } catch (e) {
-        console.log(e)
-      }
+      })
     }
+    // async handleLogin() {
+    //   try {
+    //     // await login(this.loginForm.username, this.loginForm.password)
+    //     this.loading = true
+    //     const res = await this.$store.dispatch('Login', this.loginForm)
+    //     this.loading = false
+    //     if (res.data.msg === 'success') {
+    //       this.$router.push({ path: '/' })
+    //     } else {
+    //       if (res.data.code === 502) {
+    //         this.$message(
+    //           {
+    //             showClose: true,
+    //             type: 'error',
+    //             message: '密码错误'
+    //           }
+    //         )
+    //       } else {
+    //         this.$message(
+    //           {
+    //             showClose: true,
+    //             type: 'error',
+    //             message: res.data.msg
+    //           }
+    //         )
+    //       }
+    //     }
+    //   } catch (e) {
+    //     console.log(e)
+    //   }
+    // }
   }
 }
 </script>

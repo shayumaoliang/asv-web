@@ -232,7 +232,8 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
@@ -319,13 +320,21 @@ export default {
       this.voiceprintData = voiceprintData
     },
     async startBackup() {
-      const res = await this.$http.get(this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/createbackupname')
+      const res = await this.$http({
+        method: 'GET',
+        header: { 'Authorization': this.token },
+        url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/createbackupname'
+      })
       this.voiceprintData.backupName = res.data.backup_name
       this.backup = true
     },
     async handleBackup() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup')
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup'
+        })
         this.backup = false
         if (res.data.code === 0) {
           this.$message({
@@ -387,7 +396,10 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/createcompany',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': this.token
+          },
           data: qs.stringify({
             company_name: this.addCompanyData
           })
@@ -424,7 +436,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/updatecompany',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
             company_id: this.companyId,
             company_name: this.editCompanyData
@@ -456,7 +468,11 @@ export default {
     },
     async deleteCompany() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/deletecompany?company_name=' + this.currentCompanyName)
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/deletecompany?company_name=' + this.currentCompanyName
+        })
         if (res.data.code === 0) {
           location.reload()
         } else {
@@ -478,7 +494,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/createbusiness',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
             business_name: this.addBusinessData
           })
@@ -505,7 +521,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/updatebusiness',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
             business_id: this.bussinessId,
             business_name: this.editBusinessData
@@ -537,7 +553,11 @@ export default {
     },
     async deleteBusiness() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + this.currentCompanyName + '/deletebusiness?business_name=' + this.currentBusinessName)
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/deletebusiness?business_name=' + this.currentBusinessName
+        })
         if (res.data.code === 0) {
           location.reload()
         } else {
@@ -575,7 +595,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/' + '/' + this.currentCompanyName + '/' + this.currentBusinessName + '/createasvlib',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
             lib_name: this.addVioceprintDbData.name,
             lib_scene: this.addVioceprintDbData.scene
@@ -605,7 +625,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/updateasvlib',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
             lib_id: this.voiceprintData.id,
             lib_name: this.editVioceprintDbData.name,
@@ -630,7 +650,11 @@ export default {
     },
     async deleteVoiceprintDb() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/deleteasvlib?lib_name=' + this.voiceprintData.DbName)
+        const res = await this.$http({
+          method: 'GET',
+          header: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/deleteasvlib?lib_name=' + this.voiceprintData.DbName
+        })
         if (res.data.code === 0) {
           location.reload()
         } else {

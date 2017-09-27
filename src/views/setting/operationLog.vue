@@ -4,11 +4,11 @@
       <icon-svg icon-class="vertical"></icon-svg>操作日志日志</h3>
     <el-date-picker class="data-picker" v-model="dataRange" type="daterange" align="right" placeholder="选择时间范围查看登录日志" :picker-options="pickerOptions" @change="checkDataRange">
     </el-date-picker>
-    <el-table :data="operationData">
+    <el-table :data="operationData" height="500">
       <el-table-column prop="name" label="账号"></el-table-column>
-      <el-table-column prop="loginTime" label="操作内容"></el-table-column>
+      <el-table-column prop="operation" label="操作内容"></el-table-column>
       <el-table-column prop="operationTime" label="时间"></el-table-column>
-      <el-table-column prop="operationResult" label="结果"></el-table-column>
+      <el-table-column prop="result" label="结果"></el-table-column>
     </el-table>
   </div>
 </template>
@@ -90,11 +90,17 @@ export default {
     async getAllLoginLog() {
       const res = await this.$http.get(this.$apiUrl + '/api/alloperationlogs')
       if (res.data.code === 0) {
-        const logs = res.data.login_logs
+        const logs = res.data.operation_logs
         for (let i = 0; i < logs.length; i++) {
           const log = {}
-          log.name = logs[i].login_user_name
-          log.operationTime = this.timetrans(logs[i].login_time)
+          log.name = logs[i].operation_user_name
+          log.operation = logs[i].operation
+          log.operationTime = this.timetrans(logs[i].operation_time)
+          if (logs[i].result === true) {
+            log.result = '成功'
+          } else {
+            log.result = '失败'
+          }
           this.operationData.push(log)
         }
       } else {
@@ -121,11 +127,17 @@ export default {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/operationlogs_between?begin_time=' + beginTime + '&end_time=' + endTime)
         if (res.data.code === 0) {
-          const logs = res.data.login_logs
+          const logs = res.data.operation_logs
           for (let i = 0; i < logs.length; i++) {
             const log = {}
-            log.name = logs[i].login_user_name
-            log.loginTime = this.timetrans(logs[i].login_time)
+            log.name = logs[i].operation_user_name
+            log.operation = logs[i].operation
+            log.operationTime = this.timetrans(logs[i].operation_time)
+            if (logs[i].result === true) {
+              log.result = '成功'
+            } else {
+              log.result = '失败'
+            }
             this.operationData.push(log)
           }
         } else {

@@ -4,7 +4,7 @@
       <icon-svg icon-class="vertical"></icon-svg>登录日志</h3>
     <el-date-picker class="data-picker" v-model="dataRange" type="daterange" align="right" placeholder="选择时间范围查看登录日志" :picker-options="pickerOptions" @change="checkDataRange">
     </el-date-picker>
-    <el-table :data="loginLogsData">
+    <el-table :data="loginLogsData" height="500">
       <el-table-column prop="name" label="账号"></el-table-column>
       <el-table-column prop="loginTime" label="上线时间"></el-table-column>
     </el-table>

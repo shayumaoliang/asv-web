@@ -47,7 +47,8 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
@@ -93,7 +94,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/createscene',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify(
             {
               scene_name: this.newSenceData.name,
@@ -147,7 +148,11 @@ export default {
     },
     async deleteScene() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/deletescene?scenename=' + this.scenes[this.sceneIndex].name)
+        const res = await this.$http(
+          {
+            url: this.$apiUrl + '/admin/deletescene?scenename=' + this.scenes[this.sceneIndex].name,
+            header: { 'Authorization': this.token }
+          })
         if (res.data.code === 0) {
           this.deleteSceneDialog = false
           this.scenes.splice(this.sceneIndex, 1)

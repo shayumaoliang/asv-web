@@ -153,13 +153,13 @@ const Err404 = _import('404')
 
 Vue.use(Router)
 
- /**
-  * icon : the icon show in the sidebar
-  * hidden : if `hidden:true` will not show in the sidebar
-  * redirect : if `redirect:noredirect` will not redirct in the levelbar
-  * noDropdown : if `noDropdown:true` will not has submenu in the sidebar
-  * meta : `{ role: ['admin'] }`  will control the page role
-  **/
+/**
+ * icon : the icon show in the sidebar
+ * hidden : if `hidden:true` will not show in the sidebar
+ * redirect : if `redirect:noredirect` will not redirct in the levelbar
+ * noDropdown : if `noDropdown:true` will not has submenu in the sidebar
+ * meta : `{ role: ['admin'] }`  will control the page role
+ **/
 export const constantRouterMap = [
   { path: '/login', component: Login, hidden: true },
   { path: '/404', component: Err404, hidden: true },
@@ -212,7 +212,7 @@ export const constantRouterMap = [
     name: '设置',
     icon: 'setting',
     children: [
-      { path: 'accountManagement', component: accountManagement, name: '账号管理' },
+      { path: 'accountManagement', component: accountManagement, name: '账号管理', meta: { role: ['admin'] }},
       { path: 'alarmSetting', component: alarmSetting, name: '报警设置' },
       { path: 'loginLog', component: loginLog, name: '登陆日志' },
       { path: 'operationLog', component: operationLog, name: '操作日志' },

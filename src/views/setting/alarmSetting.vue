@@ -245,7 +245,8 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
@@ -628,7 +629,7 @@ export default {
                 const res = await this.$http({
                   method: 'POST',
                   url: this.$apiUrl + '/admin/updatewarning',
-                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                  headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
                   data: qs.stringify(
                     {
                       warning_name: ruleName,
@@ -680,7 +681,7 @@ export default {
             const res = await this.$http({
               method: 'POST',
               url: this.$apiUrl + '/admin/updatenotifiedbody',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
               data: qs.stringify(
                 {
                   body_name: this.editContactData.name,
@@ -755,7 +756,13 @@ export default {
     },
     async deletealarmRuleDone() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName)
+        const res = await this.$http({
+          method: 'GET',
+          url: this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName,
+          header: {
+            'Authorization': this.token
+          }
+        })
         if (res.data.code === 0) {
           this.allalarmRules.splice(this.scope.$index, 1)
           this.deleteDialogConfirm = false
@@ -891,7 +898,7 @@ export default {
                                 const res = await this.$http({
                                   method: 'POST',
                                   url: this.$apiUrl + '/admin/createwarning',
-                                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                  headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
                                   data: qs.stringify(
                                     {
                                       warning_name: name,
@@ -991,7 +998,7 @@ export default {
               const res = await this.$http({
                 method: 'POST',
                 url: this.$apiUrl + '/admin/createnotifiedbody',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
                 data: qs.stringify(
                   {
                     body_name: this.createContactData.name,
@@ -1066,7 +1073,11 @@ export default {
     },
     async deleteContact() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName)
+        const res = await this.$http({
+          method: 'GET',
+          url: this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName,
+          header: { 'Authorization': this.token }
+        })
         console.log(this.scope.row)
         if (res.data.code === 0) {
           this.allContactData.splice(this.scope.$index, 1)

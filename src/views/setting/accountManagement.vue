@@ -1,4 +1,4 @@
-<template>
+<template v-if="getRole()">
   <div class="dashboard-container">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>账号管理
@@ -102,7 +102,8 @@ export default {
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
@@ -267,7 +268,7 @@ export default {
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/updateuser',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify(
             {
               username: this.editAccountData.accountName,
@@ -345,7 +346,7 @@ export default {
             const res = await this.$http({
               method: 'POST',
               url: this.$apiUrl + '/admin/createuser',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
               data: qs.stringify(
                 {
                   username: this.createAccountData.accountName,
@@ -406,7 +407,13 @@ export default {
     },
     async deleteAccount() {
       try {
-        const res = await this.$http.get(this.$apiUrl + '/admin/deleteuser?username=' + this.scope.row.accountName)
+        const res = await this.$http(
+          {
+            method: 'GET',
+            url: this.$apiUrl + '/admin/deleteuser?username=' + this.scope.row.accountName,
+            header: { 'Authorization': this.token }
+          }
+        )
         if (res.data.code === 0) {
           this.accountData.splice(this.scope.$index, 1)
           this.deleteAccountConfirm = false
@@ -432,7 +439,7 @@ export default {
           const res = await this.$http({
             method: 'POST',
             url: this.$apiUrl + '/admin/updateuser',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
             data: qs.stringify(
               {
                 username: this.editAccountData.accountName,

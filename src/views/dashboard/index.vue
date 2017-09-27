@@ -56,16 +56,20 @@
 </template>
 
 <script>
+import http from '@/api/http.js'
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
   computed: {
     ...mapGetters([
-      'roles'
+      'roles',
+      'name',
+      'token'
     ])
   },
   data() {
     return {
+      http,
       switchValue: '',
       allServer: null,
       running: null,
@@ -81,7 +85,7 @@ export default {
 
     },
     async getServerList() {
-      const res = await this.$http.get(this.$apiUrl + '/servicesinfo')
+      const res = await this.http.get(this.$apiUrl + '/servicesinfo')
       this.allServer = res.data.service_total
       this.running = res.data.active_total
       this.stoped = res.data.inactive_total
