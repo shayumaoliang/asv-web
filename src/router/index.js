@@ -212,7 +212,7 @@ export const constantRouterMap = [
     name: '设置',
     icon: 'setting',
     children: [
-      { path: 'accountManagement', component: accountManagement, name: '账号管理', meta: { role: ['admin'] }},
+      { path: 'accountManagement', component: accountManagement, name: '账号管理'},
       { path: 'alarmSetting', component: alarmSetting, name: '报警设置' },
       { path: 'loginLog', component: loginLog, name: '登陆日志' },
       { path: 'operationLog', component: operationLog, name: '操作日志' },
@@ -229,6 +229,9 @@ export default new Router({
   routes: constantRouterMap
 })
 
+export const asyncRouterMap = [
+  // { path: 'operationLog', component: operationLog, name: '操作日志', meta: { role: ['admin'] }}
+]
 // export const asyncRouterMap = [
 //   {
 //     path: '/serverConfiguration',

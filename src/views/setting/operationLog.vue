@@ -4,6 +4,7 @@
       <icon-svg icon-class="vertical"></icon-svg>操作日志日志</h3>
     <el-date-picker class="data-picker" v-model="dataRange" type="daterange" align="right" placeholder="选择时间范围查看登录日志" :picker-options="pickerOptions" @change="checkDataRange">
     </el-date-picker>
+    <el-button class="data-picker" @click="getAllOperationLog">全部记录</el-button>
     <el-table :data="operationData" height="500">
       <el-table-column prop="name" label="账号"></el-table-column>
       <el-table-column prop="operation" label="操作内容"></el-table-column>
@@ -87,7 +88,9 @@ export default {
       const s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
       return Y + M + D + h + m + s
     },
-    async getAllLoginLog() {
+    async getAllOperationLog() {
+      this.dataRange = []
+      this.operationData = []
       const res = await this.$http.get(this.$apiUrl + '/api/alloperationlogs')
       if (res.data.code === 0) {
         const logs = res.data.operation_logs
@@ -155,7 +158,7 @@ export default {
     }
   },
   async mounted() {
-    await this.getAllLoginLog()
+    await this.getAllOperationLog()
   }
 }
 </script>

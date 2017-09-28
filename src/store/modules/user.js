@@ -1,9 +1,10 @@
-import { login, logout } from '@/api/login'
-import { getToken, getRole, setToken, setRole, removeToken } from '@/utils/auth'
+import { login } from '@/api/login'
+import { getToken, getRole, setToken, setRole, removeToken, getUser, setUser } from '@/utils/auth'
 
 const user = {
   state: {
     token: getToken(),
+    userName: getUser(),
     name: '',
     roles: getRole()
   },
@@ -32,6 +33,7 @@ const user = {
           // console.log(response)
           // const data = response.data
           setToken(response.token)
+          setUser(response.user)
           commit('SET_TOKEN', response.token)
           commit('SET_NAME', response.user)
           if (response.admin === true) {

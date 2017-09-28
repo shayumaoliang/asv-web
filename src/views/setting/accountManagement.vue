@@ -1,8 +1,9 @@
 <template v-if="getRole()">
   <div class="dashboard-container">
+    <div v-if="getRole()">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>账号管理
-      <el-button v-if="getRole()" class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
+      <el-button class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
     </h4>
     <el-form class="view" label-width="120px" label-position="left">
       <el-table :data="accountData">
@@ -11,7 +12,7 @@
         <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
         <el-table-column width="150" prop="phone" label="手机号码"></el-table-column>
         <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column v-if="getRole()" label="操作">
+        <el-table-column label="操作">
           <template scope="scope">
             <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
             <el-button type="text" @click="resetPasswordDialog(scope)">重设密码</el-button>
@@ -20,6 +21,17 @@
         </el-table-column>
       </el-table>
     </el-form>
+    </div>
+    <div v-else>
+      <el-form label-position="right" label-width="150px">
+        <el-form-item label="当前登录账号">
+       {{ userName }}
+        </el-form-item>
+        <el-form-item label="账号权限">
+       {{ '非管理员权限' }}
+        </el-form-item>
+      </el-form>
+    </div>
     <el-dialog title="编辑账号信息" :visible.sync="editContactConfirm" size="tiny">
       <el-form :model="editAccountData" label-width="50px">
         <el-form-item label="权限">
@@ -103,7 +115,8 @@ export default {
     ...mapGetters([
       'name',
       'roles',
-      'token'
+      'token',
+      'userName'
     ])
   },
   data() {
