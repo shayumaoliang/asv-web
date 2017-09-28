@@ -7,12 +7,13 @@
             <el-table-column width="200" prop="ruleName" label="规则名称"></el-table-column>
             <el-table-column width="100" prop="status" label="状态"></el-table-column>
             <el-table-column width="150" prop="alarmTerm" label="监控项"></el-table-column>
+            <el-table-column width="150" prop="maxAlarmNum" label="最大报警次数"></el-table-column>
             <el-table-column prop="ruleDescription" label="规则描述"></el-table-column>
             <el-table-column width="100" prop="notifyPerson" label="通知对象"></el-table-column>
             <el-table-column width="100" prop="notifyWay" label="通知方式"></el-table-column>
             <el-table-column v-if="getRole()" label="操作">
               <template scope="scope">
-                <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.status }}</el-button>
+                <el-button @click="handleRuleOnOff(scope)" type="text" size="small">{{ scope.row.ruleOnOff }}</el-button>
                 <el-button type="text" size="small" @click="editRuleConfirm(scope)">编辑</el-button>
                 <el-button @click="deleteDialog(scope)" type="text" size="small">删除</el-button>
               </template>
@@ -97,7 +98,7 @@
           <h4>①编辑报警规则</h4>
           <el-form-item label-width="20px">
             <el-card class="card-list">
-              <el-form-item label="是否创建即启用" class="edit-item">
+              <el-form-item label="是否修改即启用" class="edit-item">
                 <el-radio-group v-model="editRuleData.onOff">
                   <el-radio :label="true">是</el-radio>
                   <el-radio :label="false">否</el-radio>
@@ -478,6 +479,49 @@ export default {
         console.log(e)
       }
     },
+    async handleRuleOnOff(scope) {
+      if (scope.row.ruleOnOff === '启用') {
+        try {
+          const res = await this.$http({
+            method: 'GET',
+            url: this.$apiUrl + '/admin/startwarning?warning_name=' + scope.row.ruleName,
+            headers: { 'Authorization': this.token }
+          })
+          if (res.data.code === 0) {
+            location.reload()
+          }
+        } catch (e) {
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: e
+            }
+          )
+        }
+      } else {
+        if (scope.row.ruleOnOff === '关闭') {
+          try {
+            const res = await this.$http({
+              method: 'GET',
+              url: this.$apiUrl + '/admin/stopwarning?warning_name=' + scope.row.ruleName,
+              headers: { 'Authorization': this.token }
+            })
+            if (res.data.code === 0) {
+              location.reload()
+            }
+          } catch (e) {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: e
+              }
+            )
+          }
+        }
+      }
+    },
     async showAllAlarmRules() {
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allwarnings')
@@ -488,7 +532,7 @@ export default {
               notifyPerson: []
             }
             rule.ruleName = rules[i].warning_name
-            rule.status = '启用'
+            // rule.status = '启用'
             if (rules[i].metrics === 'mem.memused.percent') {
               rule.alarmTerm = '内存使用率'
             } else {
@@ -513,8 +557,14 @@ export default {
             rule.alarmExtremum = rules[i].func
             rule.alarmContrast = rules[i].operator
             rule.threshold = rules[i].right_value
-            rule.onOff = rules[i].is_disable
-            console.log(rule.onOff)
+            if (rules[i].is_disable === true) {
+              rule.status = '启用'
+              rule.ruleOnOff = '关闭'
+            } else {
+              rule.status = '未启用'
+              rule.ruleOnOff = '启用'
+            }
+            // rule.status = rules[i].is_disable
             rule.maxAlarmNum = rules[i].max_step
             this.allalarmRules.push(rule)
           }
@@ -551,9 +601,12 @@ export default {
       }
       this.editRuleData.notifyWay[0] = scope.row.notifyWay
       this.editRuleData.notifyPerson = scope.row.notifyPerson
-      console.log(scope.row)
-      this.editRuleData.maxAlarmNum = scope.row.maxAlarmNum
-      this.editRuleData.onOff = scope.row.onOff
+      this.editRuleData.maxAlarmNum = Number(scope.row.maxAlarmNum)
+      if (scope.row.status === '启用') {
+        this.editRuleData.onOff = true
+      } else {
+        this.editRuleData.onOff = false
+      }
       this.editRuleDialog = true
     },
     async editAlarmRule() {
@@ -585,7 +638,7 @@ export default {
                 }
               )
             } else {
-              if (!Number.isInteger(this.editRuleData.maxAlarmNum)) {
+              if (isNaN(this.editRuleData.maxAlarmNum) === true) {
                 this.$message(
                   {
                     showClose: true,

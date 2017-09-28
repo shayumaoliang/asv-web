@@ -6,10 +6,10 @@
     </h4>
     <el-card class="view" v-for="(scene, index) of scenes" :key="index">
       <div slot="header" class="clearfix">
-        <span style="line-height: 36px;">{{ scene.name }}</span>
+        <span style="line-height: 36px;">场景名称:&nbsp&nbsp {{ scene.name }}</span>
         <el-button v-if="getRole()" size="small" class="delete-icon el-icon-delete" @click="deleteSceneConfir(index)">删除</el-button>
       </div>
-      <p>{{ scene.description }}</p>
+      <p>场景描述:&nbsp&nbsp {{ scene.description }}</p>
     </el-card>
     <el-form :model="newSenceData" label-width="100px">
       <el-dialog title="导入场景" :visible.sync="impirtSceneDialog" size="tiny">
