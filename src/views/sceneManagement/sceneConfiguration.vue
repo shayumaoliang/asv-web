@@ -25,7 +25,7 @@
         <el-form-item label="模型路径">
           <el-input v-model="newSenceData.modelPath"></el-input>
         </el-form-item>
-        <el-form-item label="模型描述">
+        <el-form-item label="场景描述">
           <el-input type="textarea" v-model="newSenceData.description"></el-input>
         </el-form-item>
         <span slot="footer" class="dialog-footer">
