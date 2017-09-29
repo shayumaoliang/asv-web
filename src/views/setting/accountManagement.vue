@@ -23,12 +23,16 @@
     </el-form>
     </div>
     <div v-else>
-      <el-form label-position="right" label-width="150px">
+      <icon-svg icon-class="vertical"></icon-svg>账号信息
+      <el-form style="margin-top: 50px;" label-position="right" label-width="150px">
         <el-form-item label="当前登录账号">
        {{ userName }}
         </el-form-item>
         <el-form-item label="账号权限">
        {{ '非管理员权限' }}
+        </el-form-item>
+        <el-form-item label="权限描述">
+       {{ '非管理员账号无法进行各项操作，只能查看各项服务状态等信息。' }}
         </el-form-item>
       </el-form>
     </div>
