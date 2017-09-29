@@ -383,7 +383,6 @@ export default {
         })
         if (res.data.code === 0) {
           location.reload()
-          console.log(this.token)
         } else {
           await this.$message({
             type: 'error',

@@ -5,11 +5,15 @@
       <el-button v-if="getRole()" class="add-button" type="primary" size="small" @click="impirtSceneConfir()">导入场景</el-button>
     </h4>
     <el-card class="view" v-for="(scene, index) of scenes" :key="index">
-      <div slot="header" class="clearfix">
-        <span style="line-height: 36px;">场景名称:&nbsp&nbsp {{ scene.name }}</span>
-        <el-button v-if="getRole()" size="small" class="delete-icon el-icon-delete" @click="deleteSceneConfir(index)">删除</el-button>
-      </div>
-      <p>场景描述:&nbsp&nbsp {{ scene.description }}</p>
+      <el-form :model="scene" label-width="100px">
+        <el-form-item label="场景名称">
+          {{ scene.name }}
+          <el-button v-if="getRole()" size="small" class="delete-icon el-icon-delete" @click="deleteSceneConfir(index)">删除</el-button>
+        </el-form-item>
+        <el-form-item label="场景描述">
+          {{ scene.description }}
+        </el-form-item>
+      </el-form>
     </el-card>
     <el-form :model="newSenceData" label-width="100px">
       <el-dialog title="导入场景" :visible.sync="impirtSceneDialog" size="tiny">
@@ -151,7 +155,7 @@ export default {
         const res = await this.$http(
           {
             url: this.$apiUrl + '/admin/deletescene?scenename=' + this.scenes[this.sceneIndex].name,
-            header: { 'Authorization': this.token }
+            headers: { 'Authorization': this.token }
           })
         if (res.data.code === 0) {
           this.deleteSceneDialog = false
