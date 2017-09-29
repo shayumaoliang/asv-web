@@ -11,7 +11,8 @@
           <el-button v-if="getRole()" size="small" class="delete-icon el-icon-delete" @click="deleteSceneConfir(index)">删除</el-button>
         </el-form-item>
         <el-form-item label="场景描述">
-          {{ scene.description }}
+          <el-input type="textarea" disabled :autosize="{ minRows: 5, maxRows: 5}" placeholder="请输入内容" v-model="scene.description">
+          </el-input>
         </el-form-item>
       </el-form>
     </el-card>
