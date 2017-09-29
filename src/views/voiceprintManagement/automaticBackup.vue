@@ -5,19 +5,19 @@
     <el-tabs>
       <el-tab-pane label="自动备份设置">
         <el-table :data="allBackupRules" height="500">
-          <el-table-column width="100" prop="company" label="公司"></el-table-column>
-          <el-table-column width="100" prop="business" label="业务"></el-table-column>
-          <el-table-column width="100" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column width="120" prop="company" label="公司"></el-table-column>
+          <el-table-column width="120" prop="business" label="业务"></el-table-column>
+          <el-table-column prop="voiceprintDataName" label="声纹库"></el-table-column>
           <el-table-column width="150" prop="backupName" label="备份名称"></el-table-column>
           <el-table-column width="100" prop="backupTime" label="备份时间"></el-table-column>
           <el-table-column width="100" prop="backupDate" label="备份日期"></el-table-column>
           <el-table-column width="150" prop="backupNum" label="备份最大副本数量"></el-table-column>
           <el-table-column width="150" prop="backupStatus" label="备份规则启用状态"></el-table-column>
-          <el-table-column label="操作">
+          <el-table-column v-if="getRole()" label="操作">
             <template scope="scope">
-              <el-button v-if="getRole()" @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.onOff }}</el-button>
-              <el-button v-if="getRole()" type="text" size="small" @click="editBackupConfirm(scope)">编辑</el-button>
-              <el-button v-if="getRole()" @click="handkeDeleteBackupRuleConfirm(scope)" type="text" size="small">删除</el-button>
+              <el-button @click="handleOnOff(scope)" type="text" size="small">{{ scope.row.onOff }}</el-button>
+              <el-button type="text" size="small" @click="editBackupConfirm(scope)">编辑</el-button>
+              <el-button @click="handkeDeleteBackupRuleConfirm(scope)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -45,17 +45,17 @@
       </el-dialog>
       <el-tab-pane label="查看备份" @click="showAllBackup">
         <el-table :data="allBackup" height="500">
-          <el-table-column width="100" prop="company" label="公司"></el-table-column>
-          <el-table-column width="100" prop="business" label="业务"></el-table-column>
-          <el-table-column width="150" prop="voiceprintDataName" label="声纹库"></el-table-column>
-          <el-table-column width="150" prop="backupName" label="备份名称"></el-table-column>
+          <el-table-column width="180" prop="company" label="公司"></el-table-column>
+          <el-table-column width="180" prop="business" label="业务"></el-table-column>
+          <el-table-column width="180" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column prop="backupName" label="备份名称"></el-table-column>
           <el-table-column width="200" prop="backupTime" label="备份时间"></el-table-column>
           <el-table-column width="100" prop="backupType" label="备份类型"></el-table-column>
           <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
-          <el-table-column label="操作">
+          <el-table-column v-if="getRole()" label="操作">
             <template scope="scope">
-              <el-button v-if="getRole()" type="text" size="small" @click="rollBackConfirm(scope)" v-loading.fullscreen.lock="rollBackLoading" element-loading-text="正在回滚，请勿进行其他操作">回滚</el-button>
-              <el-button v-if="getRole()" @click="handkeDeleteBackupConfirm(scope)" type="text" size="small">删除</el-button>
+              <el-button type="text" size="small" @click="rollBackConfirm(scope)" v-loading.fullscreen.lock="rollBackLoading" element-loading-text="正在回滚，请勿进行其他操作">回滚</el-button>
+              <el-button @click="handkeDeleteBackupConfirm(scope)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
