@@ -144,13 +144,17 @@ export default {
             this.operationData.push(log)
           }
         } else {
-          this.$message(
-            {
-              showClose: true,
-              type: 'error',
-              message: res.data.msg
-            }
-          )
+          if (res.data.code === 1202) {
+            return
+          } else {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: res.data.msg
+              }
+            )
+          }
         }
       } catch (e) {
         console.log(e)

@@ -130,13 +130,15 @@ export default {
             this.loginLogsData.push(log)
           }
         } else {
-          this.$message(
-            {
-              showClose: true,
-              type: 'error',
-              message: res.data.msg
-            }
-          )
+          if (res.data.code !== 1102) {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: res.data.msg
+              }
+            )
+          }
         }
       } catch (e) {
         console.log(e)
