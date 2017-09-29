@@ -322,7 +322,7 @@ export default {
     async startBackup() {
       const res = await this.$http({
         method: 'GET',
-        header: { 'Authorization': this.token },
+        headers: { 'Authorization': this.token },
         url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/createbackupname'
       })
       this.voiceprintData.backupName = res.data.backup_name
@@ -332,7 +332,7 @@ export default {
       try {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup'
         })
         this.backup = false
@@ -470,7 +470,7 @@ export default {
       try {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/deletecompany?company_name=' + this.currentCompanyName
         })
         if (res.data.code === 0) {
@@ -555,7 +555,7 @@ export default {
       try {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/deletebusiness?business_name=' + this.currentBusinessName
         })
         if (res.data.code === 0) {
@@ -652,7 +652,7 @@ export default {
       try {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/deleteasvlib?lib_name=' + this.voiceprintData.DbName
         })
         if (res.data.code === 0) {

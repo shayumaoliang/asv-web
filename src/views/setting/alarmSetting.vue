@@ -812,7 +812,7 @@ export default {
         const res = await this.$http({
           method: 'GET',
           url: this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName,
-          header: {
+          headers: {
             'Authorization': this.token
           }
         })
@@ -1129,7 +1129,7 @@ export default {
         const res = await this.$http({
           method: 'GET',
           url: this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName,
-          header: { 'Authorization': this.token }
+          headers: { 'Authorization': this.token }
         })
         console.log(this.scope.row)
         if (res.data.code === 0) {

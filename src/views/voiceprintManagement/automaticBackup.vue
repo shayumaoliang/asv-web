@@ -239,7 +239,7 @@ export default {
         this.rollBackLoading = true
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + this.scope.row.company + '/' + this.scope.row.business + '/' + this.scope.row.voiceprintDataName + '/rollback?backup_name=' + this.scope.row.backupName
         })
         if (res.data.code === 0) {
@@ -266,7 +266,7 @@ export default {
       if (scope.row.onOff === '停止') {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule'
         })
         if (res.data.code === 0) {
@@ -275,7 +275,7 @@ export default {
       } else {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/startautobackuprule'
         })
         if (res.data.code === 0) {
@@ -355,16 +355,17 @@ export default {
       try {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackup?backup_name=' + scope.row.backupName
         })
         if (res.data.code === 0) {
           location.reload()
+          console.log(res.data)
         } else {
           await this.$message({
             type: 'error',
             showClose: true,
-            message: '操作失败'
+            message: res.data.msg
           })
           this.deleteBackupConfirm = false
         }
@@ -377,16 +378,17 @@ export default {
       try {
         const res = await this.$http({
           method: 'GET',
-          header: { 'Authorization': this.token },
+          headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackuprule'
         })
         if (res.data.code === 0) {
           location.reload()
+          console.log(this.token)
         } else {
           await this.$message({
             type: 'error',
             showClose: true,
-            message: '操作失败'
+            message: res.data.msg
           })
           this.deleteBackupRuleConfirm = false
         }
