@@ -87,6 +87,8 @@ export default {
       return Y + M + D + h + m + s
     },
     async getAllLoginLog() {
+      this.loginLogsData = []
+      this.dataRange = []
       const res = await this.$http.get(this.$apiUrl + '/api/allloginlogs')
       if (res.data.code === 0) {
         const logs = res.data.login_logs
