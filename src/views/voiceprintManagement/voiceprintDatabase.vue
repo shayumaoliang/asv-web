@@ -333,7 +333,7 @@ export default {
         const res = await this.$http({
           method: 'GET',
           headers: { 'Authorization': this.token },
-          url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup'
+          url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup?backup_name=' + this.voiceprintData.backupName
         })
         this.backup = false
         if (res.data.code === 0) {
