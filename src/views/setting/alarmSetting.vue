@@ -841,6 +841,9 @@ export default {
         threshold: null
       })
     },
+    deleteAlarmRule(index) {
+      this.rules.splice(index, 1)
+    },
     async createAlarmDone() {
       try {
         for (const i in this.rules) {
