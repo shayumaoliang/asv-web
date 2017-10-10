@@ -1,38 +1,38 @@
 <template v-if="getRole()">
   <div class="dashboard-container">
     <div v-if="getRole()">
-    <h4>
-      <icon-svg icon-class="vertical"></icon-svg>账号管理
-      <el-button class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
-    </h4>
-    <el-form class="view" label-width="120px" label-position="left">
-      <el-table :data="accountData">
-        <el-table-column width="150" prop="accountName" label="账号"></el-table-column>
-        <el-table-column width="150" prop="authority" label="操作权限"></el-table-column>
-        <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
-        <el-table-column width="150" prop="phone" label="手机号码"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column label="操作">
-          <template scope="scope">
-            <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
-            <el-button type="text" @click="resetPasswordDialog(scope)">重设密码</el-button>
-            <el-button type="text" @click="deleteAccountDialog(scope)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-form>
+      <h4>
+        <icon-svg icon-class="vertical"></icon-svg>账号管理
+        <el-button class="createNewAccount" size="small" type="primary" @click="addAccountConfirm">添加账号</el-button>
+      </h4>
+      <el-form class="view" label-width="120px" label-position="left">
+        <el-table :data="accountData">
+          <el-table-column width="150" prop="accountName" label="账号"></el-table-column>
+          <el-table-column width="150" prop="authority" label="操作权限"></el-table-column>
+          <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
+          <el-table-column width="150" prop="phone" label="手机号码"></el-table-column>
+          <el-table-column prop="email" label="邮箱"></el-table-column>
+          <el-table-column label="操作">
+            <template scope="scope">
+              <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
+              <el-button type="text" @click="resetPasswordDialog(scope)">重设密码</el-button>
+              <el-button type="text" @click="deleteAccountDialog(scope)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form>
     </div>
     <div v-else>
       <icon-svg icon-class="vertical"></icon-svg>账号信息
       <el-form style="margin-top: 50px;" label-position="right" label-width="150px">
         <el-form-item label="当前登录账号">
-       {{ userName }}
+          {{ userName }}
         </el-form-item>
         <el-form-item label="账号权限">
-       {{ '非管理员权限' }}
+          {{ '非管理员权限' }}
         </el-form-item>
         <el-form-item label="权限描述">
-       {{ '非管理员账号无法进行各项操作，只能查看各项服务状态等信息。' }}
+          {{ '非管理员账号无法进行各项操作，只能查看各项服务状态等信息。' }}
         </el-form-item>
       </el-form>
     </div>
@@ -284,7 +284,7 @@ export default {
         }
         const res = await this.$http({
           method: 'POST',
-          url: this.$apiUrl + '/admin/updateuser',
+          url: this.$apiUrl + 'password',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify(
             {
@@ -455,7 +455,7 @@ export default {
         if (valid) {
           const res = await this.$http({
             method: 'POST',
-            url: this.$apiUrl + '/admin/updateuser',
+            url: this.$apiUrl + '/admin/updateuserpassword',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
             data: qs.stringify(
               {
@@ -470,6 +470,12 @@ export default {
               showClose: true,
               message: '重设密码成功',
               type: 'success'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: res.data.msg,
+              type: 'error'
             })
           }
         } else {
