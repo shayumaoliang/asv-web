@@ -73,7 +73,7 @@ export default {
       switchValue: '',
       allServer: null,
       running: null,
-      alarm: null,
+      alarm: 0,
       stoped: null,
       runningServers: [],
       stopedServers: [],
@@ -89,6 +89,7 @@ export default {
       this.allServer = res.data.service_total
       this.running = res.data.active_total
       this.stoped = res.data.inactive_total
+      // this.alarm = res.data.
       this.runningServers = res.data.active_services
       this.stopedServers = res.data.inactive_services
     }

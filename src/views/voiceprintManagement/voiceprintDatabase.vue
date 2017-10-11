@@ -54,7 +54,7 @@
               {{ voiceprintData.scene }}
             </el-form-item>
             <el-form-item label="声纹库标识符">
-              {{ voiceprintData.DbId }}
+              {{ voiceprintData.uid }}
             </el-form-item>
             <el-form-item label="声纹库规模">
               {{ voiceprintData.DbCount }}
@@ -140,12 +140,16 @@
             <el-form-item label="声纹库名称">
               <el-input class="center-input" v-model="addVioceprintDbData.name">
               </el-input>
-              <el-form-item>
-                <el-select class="center-input" v-model="addVioceprintDbData.scene" placeholder="请选择场景">
-                  <el-option v-for="(scene, index) in scenes" :key="index" :label="scene.name" :value="scene.name">
-                  </el-option>
-                </el-select>
-              </el-form-item>
+            </el-form-item>
+            <el-form-item label="声纹库标识符">
+              <el-input class="center-input" v-model="addVioceprintDbData.uid">
+              </el-input>
+            </el-form-item>
+            <el-form-item label="场景">
+              <el-select class="center-input" v-model="addVioceprintDbData.scene" placeholder="请选择场景">
+                <el-option v-for="(scene, index) in scenes" :key="index" :label="scene.name" :value="scene.name">
+                </el-option>
+              </el-select>
             </el-form-item>
             <span slot="footer" class="dialog-footer">
               <el-button @click="addVioceprintDbDialog = false">取 消</el-button>
@@ -176,13 +180,18 @@
             <el-form-item label="声纹库名称">
               <el-input class="center-input" v-model="editVioceprintDbData.name">
               </el-input>
-              <el-form-item>
-                <el-select class="center-input" v-model="editVioceprintDbData.scene" placeholder="请选择场景">
-                  <el-option v-for="(scene, index) in scenes" :key="index" :label="scene.name" :value="scene.name">
-                  </el-option>
-                </el-select>
-              </el-form-item>
             </el-form-item>
+            <el-form-item label="声纹库标识符">
+              <el-input class="center-input" v-model="editVioceprintDbData.uid">
+              </el-input>
+            </el-form-item>
+            <el-form-item label="场景">
+              <el-select class="center-input" v-model="editVioceprintDbData.scene" placeholder="请选择场景">
+                <el-option v-for="(scene, index) in scenes" :key="index" :label="scene.name" :value="scene.name">
+                </el-option>
+              </el-select>
+            </el-form-item>
+
             <span slot="footer" class="dialog-footer">
               <el-button @click="editVioceprintDbDialog = false">取 消</el-button>
               <el-button type="primary" @click="editVoiceprintDb">确 定</el-button>
@@ -242,12 +251,14 @@ export default {
       addCompanyData: null,
       addVioceprintDbData: {
         name: null,
+        uid: null,
         scene: null
       },
       editBusinessData: null,
       editCompanyData: null,
       editVioceprintDbData: {
         name: null,
+        uid: null,
         scene: null
       },
       addCompanyDialog: false,
@@ -314,7 +325,7 @@ export default {
       voiceprintData.businessName = businessName
       voiceprintData.DbName = db
       voiceprintData.scene = res.data.scene
-      voiceprintData.DbId = res.data.libNodeId
+      voiceprintData.uid = res.data.libNodeId
       voiceprintData.DbCount = res.data.count
       voiceprintData.id = res.data.lib_id
       this.voiceprintData = voiceprintData
@@ -572,6 +583,7 @@ export default {
       }
     },
     async getScenes() {
+      this.scenes = []
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allscenes')
         if (res.data.code === 0) {
@@ -598,6 +610,7 @@ export default {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
             lib_name: this.addVioceprintDbData.name,
+            lib_nodeid: this.addVioceprintDbData.uid,
             lib_scene: this.addVioceprintDbData.scene
           })
         })
@@ -618,6 +631,7 @@ export default {
       await this.getScenes()
       this.editVioceprintDbData.name = this.voiceprintData.DbName
       this.editVioceprintDbData.scene = this.voiceprintData.scene
+      this.editVioceprintDbData.uid = this.voiceprintData.uid
       this.editVioceprintDbDialog = true
     },
     async editVoiceprintDb() {
@@ -629,6 +643,7 @@ export default {
           data: qs.stringify({
             lib_id: this.voiceprintData.id,
             lib_name: this.editVioceprintDbData.name,
+            lib_nodeid: this.editVioceprintDbData.uid,
             lib_scene: this.editVioceprintDbData.scene
           })
         })
