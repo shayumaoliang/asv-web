@@ -693,6 +693,14 @@ export default {
       }
     },
     async showInfo() {
+      this.ExpireDate = null
+      this.maxConcurrency = null
+      this.cpu = null
+      this.memory = null
+      this.OS = null
+      this.process = null
+      this.cpuStatus = {}
+      this.memoryStatus = {}
       const info = await this.$http.get('http://' + this.ip + ':1999/deviceinfos')
       const authorizeInfo = await this.$http.get('http://' + this.ip + ':1999/devicelicenceinfo')
       const authorize = authorizeInfo.data
