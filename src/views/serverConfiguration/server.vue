@@ -216,8 +216,8 @@ export default {
               }
             },
             data: [
-              { value: 80.2, name: '已使用' },
-              { value: 19.8, name: '未使用' }
+              { value: null, name: '已使用' },
+              { value: null, name: '未使用' }
 
             ]
           }
@@ -257,8 +257,8 @@ export default {
               }
             },
             data: [
-              { value: 50, name: '已使用' },
-              { value: 50, name: '未使用' }
+              { value: null, name: '已使用' },
+              { value: null, name: '未使用' }
 
             ]
           }
@@ -699,8 +699,88 @@ export default {
       this.memory = null
       this.OS = null
       this.process = null
-      this.cpuStatus = {}
-      this.memoryStatus = {}
+      this.cpuStatus = {
+        title: {
+          show: false,
+          text: 'CPU'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {d}%'
+        },
+        series: [
+          {
+            name: 'CPU',
+            type: 'pie',
+            radius: ['50%', '70%'],
+            avoidLabelOverlap: true,
+            label: {
+              normal: {
+                show: true,
+                position: 'inner'
+              },
+              emphasis: {
+                show: false,
+                textStyle: {
+                  fontSize: '20',
+                  fontWeight: 'bold'
+                }
+              }
+            },
+            labelLine: {
+              normal: {
+                show: true
+              }
+            },
+            data: [
+              { value: 0, name: '已使用' },
+              { value: 100, name: '未使用' }
+
+            ]
+          }
+        ]
+      }
+      this.memoryStatus = {
+        title: {
+          show: false,
+          text: '内存'
+        },
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {d}%'
+        },
+        series: [
+          {
+            name: '内存',
+            type: 'pie',
+            radius: ['50%', '70%'],
+            avoidLabelOverlap: true,
+            label: {
+              normal: {
+                show: true,
+                position: 'inner'
+              },
+              emphasis: {
+                show: false,
+                textStyle: {
+                  fontSize: '20',
+                  fontWeight: 'bold'
+                }
+              }
+            },
+            labelLine: {
+              normal: {
+                show: true
+              }
+            },
+            data: [
+              { value: 0, name: '已使用' },
+              { value: 100, name: '未使用' }
+
+            ]
+          }
+        ]
+      }
       const info = await this.$http.get('http://' + this.ip + ':1999/deviceinfos')
       const authorizeInfo = await this.$http.get('http://' + this.ip + ':1999/devicelicenceinfo')
       const authorize = authorizeInfo.data
