@@ -182,7 +182,7 @@
               </el-input>
             </el-form-item>
             <el-form-item label="声纹库标识符">
-              <el-input class="center-input" v-model="editVioceprintDbData.uid">
+              <el-input disabled class="center-input" v-model="editVioceprintDbData.uid">
               </el-input>
             </el-form-item>
             <el-form-item label="场景">

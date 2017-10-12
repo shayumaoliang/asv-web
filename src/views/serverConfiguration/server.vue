@@ -4,33 +4,61 @@
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>服务器列表</h4>
       <el-card>
-        <div v-for="(server, index) in alarmServers" :key="index" class="item" @click="showAlarmServers(index)">
-          <a>
-            <icon-svg icon-class="warning"></icon-svg>{{ server }}</a>
-        </div>
-        <div v-for="(server,index) in runningServers" :key="index" class="item" @click="showRunningServers(index)">
-          <a>
-            <icon-svg icon-class="on"></icon-svg>{{ server }}</a>
-        </div>
-        <div v-for="(server, index) in stopedServers" :key="index" class="item" @click="showStopedServers(index)">
-          <a>
-            <icon-svg icon-class="off"></icon-svg>{{ server }}</a>
-        </div>
+        <el-button type="text" style="margin-left: 10%;margin-bottom: 5px;" @click="addServerGroupConfirm">添加服务器分组</el-button>
+        <el-menu unique-opened mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentServer">
+          <div v-for="(serverGroup, index) of allServerGroups" :key="index">
+            <el-submenu :index="`${index}`">
+              <template slot="title">
+                <icon-svg icon-class="group"></icon-svg>&nbsp&nbsp&nbsp{{ serverGroup.groupName }}
+              </template>
+              <div v-for="(sever, serverIndex) of allServerGroups[index].servers" :key="serverIndex">
+                <el-menu-item :index="`${index}-${serverIndex}`">
+                  <icon-svg :icon-class="sever.onOffIcon"></icon-svg>&nbsp&nbsp&nbsp{{ sever.machine_name }}
+                </el-menu-item>
+              </div>
+            </el-submenu>
+          </div>
+        </el-menu>
       </el-card>
     </div>
+    <el-dialog size="tiny" title="添加服务器组" :visible.sync="addServerGroupDialog">
+      <el-input v-model="addServerGroupData">
+        <template slot="prepend">分组名称</template>
+      </el-input>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addServerGroupDialog = false">取 消</el-button>
+        <el-button type="primary" @click="addServerGroup">确 定</el-button>
+      </span>
+    </el-dialog>
     <div class="detail">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>详情</h4>
-      <el-card>
+      <el-card v-if="showServer === true">
         <el-form ref="serverStatus" :model="serverStatus" label-width="70px">
           <el-form-item label="状态">
-            <icon-svg icon-class="on" v-if="status === '运行中'"></icon-svg>
-            <icon-svg icon-class="off" v-if="status === '已停止'"></icon-svg>
-            <icon-svg icon-class="warning" v-if="status === '报警中'"></icon-svg>{{ status }}
+            <icon-svg :icon-class="onOffIcon"></icon-svg>{{ status }}
             <el-button v-if="getRole()" v-loading="onOffLoading" class="onOff-button" @click="onOffServer">
               <icon-svg icon-class="onOff"></icon-svg> {{ onOff }}</el-button>
+            <el-button v-if="getRole()" class="drop-button" @click="editServerNameConfirm">修改服务器名称</el-button>
+            <el-button v-if="getRole()" class="drop-button" @click="dropOutOfGroupConfirm">从当前分组中移除此服务器</el-button>
+            <el-dialog size="tiny" title="移除" :visible.sync="dropOutOfGroupDialog">
+              <span>是否确定将此服务器从该服务器组中移除</span>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="dropOutOfGroupDialog = false">取 消</el-button>
+                <el-button type="primary" @click="dropOutOfGroup">确 定</el-button>
+              </span>
+            </el-dialog>
+            <el-dialog size="tiny" title="修改服务器名称" :visible.sync="editServerNameDialog">
+              <el-input v-model="editServerNameData">
+                <template slot="prepend">服务器</template>
+              </el-input>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="editServerNameDialog = false">取 消</el-button>
+                <el-button type="primary" @click="editServerName">确 定</el-button>
+              </span>
+            </el-dialog>
           </el-form-item>
-          <el-form-item label="ip地址">
+          <el-form-item label="服务器">
             {{ ip }}
           </el-form-item>
           <el-form-item label="配置">
@@ -84,21 +112,73 @@
           </el-form-item>
         </el-form>
       </el-card>
+      <el-form ref="serverStatus" :model="serverStatus" label-width="70px">
+        <el-card v-if="showServerGroup === true">
+          <div slot="header" class="clearfix">
+            <el-button size="small" type="primary" @click="addServerConfirm">{{ '添加服务器' }}</el-button>
+            <el-button size="small" type="primary" @click="editServerGroupConfirm">{{ '修改服务器组名称' }}</el-button>
+            <el-button size="small" type="primary" @click="deletetServerGroupConfirm">{{ '删除该服务器组' }}</el-button>
+          </div>
+          <span>当前分组下共有{{ numberOfServers }}个服务器</span>
+        </el-card>
+      </el-form>
+      <el-dialog size="tiny" title="添加服务器" :visible.sync="addServerDialog">
+        <el-input v-model="addServerData">
+          <template slot="prepend">服务器地址</template>
+        </el-input>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="addServerDialog = false">取 消</el-button>
+          <el-button type="primary" @click="addServer">确 定</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog size="tiny" title="修改服务器组" :visible.sync="editServerGroupDialog">
+        <el-input v-model="editServerGroupData">
+          <template slot="prepend">服务器组名称</template>
+        </el-input>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editServerGroupDialog = false">取 消</el-button>
+          <el-button type="primary" @click="editServerGroup">确 定</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog size="tiny" title="删除" :visible.sync="deletetServerGroupDialog">
+        <span>是否删除该分组</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="deletetServerGroupDialog = false">取 消</el-button>
+          <el-button type="primary" @click="deletetGroup">确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
+const qs = require('qs')
 import { mapGetters } from 'vuex'
 export default {
   name: 'dashboard',
   computed: {
     ...mapGetters([
-      'roles'
+      'roles',
+      'token'
     ])
   },
   data() {
     return {
+      onOffIcon: null,
+      numberOfServers: null,
+      showServer: false,
+      showServerGroup: false,
+      addServerGroupDialog: false,
+      editServerGroupDialog: false,
+      addServerDialog: false,
+      deletetServerGroupDialog: false,
+      dropOutOfGroupDialog: false,
+      editServerNameDialog: false,
+      editServerNameData: null,
+      addServerGroupData: null,
+      addServerData: null,
+      editServerGroupData: null,
+      allServerGroups: [],
       showDetail: false,
       allProcess: [],
       onOff: '开启服务',
@@ -228,7 +308,7 @@ export default {
       },
       ip: null,
       onOffLoading: null,
-      status: '已停止',
+      status: null,
       cpu: null,
       memory: null,
       OS: null,
@@ -239,7 +319,12 @@ export default {
       serverStatus: {},
       runningServers: [],
       stopedServers: [],
-      alarmServers: []
+      alarmServers: [],
+      allStopedServers: [],
+      allRunningServers: [],
+      currentServerGroup: null,
+      groupIndex: null,
+      serverIndex: null
     }
   },
   methods: {
@@ -250,56 +335,362 @@ export default {
         return false
       }
     },
-    async onOffServer() {
-      if (this.onOff === '关闭服务') {
-        this.onOffLoading = true
-        const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=stop')
-        const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=stop')
-        await this.showCurrentServer()
-        console.log(rpcRes, serverRes)
+    addServerGroupConfirm() {
+      this.addServerGroupData = null
+      this.addServerGroupDialog = true
+    },
+    addServerConfirm() {
+      this.addServerData = null
+      this.addServerDialog = true
+    },
+    editServerGroupConfirm() {
+      this.editServerGroupDialog = true
+    },
+    editServerNameConfirm() {
+      this.editServerNameDialog = true
+    },
+    deletetServerGroupConfirm() {
+      this.deletetServerGroupDialog = true
+    },
+    dropOutOfGroupConfirm() {
+      this.dropOutOfGroupDialog = true
+    },
+    async editServerName() {
+      try {
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/' + this.allServerGroups[this.groupIndex].groupName + '/updatemachine',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': this.token
+          },
+          data: qs.stringify({
+            machine_id: this.allServerGroups[this.groupIndex].servers[this.serverIndex].id,
+            machine_name: this.editServerNameData
+          })
+        })
+        if (res.data.code === 0) {
+          location.reload()
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: res.data.msg
+          })
+        }
+      } catch (e) {
         this.$message({
           showClose: true,
-          type: 'success',
-          message: '服务已关闭'
+          type: 'error',
+          message: e
         })
-        location.reload()
+      }
+    },
+    async editServerGroup() {
+      try {
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/updatemachinegroup',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': this.token
+          },
+          data: qs.stringify({
+            machine_group_id: this.allServerGroups[this.groupIndex].id,
+            machine_group_name: this.editServerGroupData
+          })
+        })
+        if (res.data.code === 0) {
+          // this.$message({
+          //   showClose: true,
+          //   type: 'success',
+          //   message: '修改成功'
+          // })
+          location.reload()
+          // this.allServerGroups[this.groupIndex].groupName = this.editServerGroupData
+          // this.editServerGroupDialog = false
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'success',
+            message: res.data.msg
+          })
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: e
+        })
+      }
+    },
+    async addServerGroup() {
+      try {
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/createmachinegroup',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': this.token
+          },
+          data: qs.stringify({
+            machine_group_name: this.addServerGroupData
+          })
+        })
+        if (res.data.code === 0) {
+          // this.$message({
+          //   showClose: true,
+          //   type: 'success',
+          //   message: '创建成功'
+          // })
+          location.reload()
+          // this.allServerGroups.push({
+          //   groupName: this.addServerGroupData
+          // })
+          // this.addServerGroupDialog = false
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: res.data.msg
+          })
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: e
+        })
+      }
+    },
+    async addServer() {
+      try {
+        const res = await this.$http({
+          method: 'POST',
+          url: this.$apiUrl + '/admin/' + this.currentServerGroup + '/createmachine',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': this.token
+          },
+          data: qs.stringify({
+            machine_name: this.addServerData
+          })
+        })
+        if (res.data.code === 0) {
+          // this.$message({
+          //   showClose: true,
+          //   type: 'success',
+          //   message: '添加成功'
+          // })
+          location.reload()
+          // this.allServerGroups[this.groupIndex].servers.push({
+          //   machine_name: this.addServerData
+          // })
+          // this.addServerDialog = false
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: res.data.msg
+          })
+        }
+      } catch (error) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: error
+        })
+      }
+    },
+    async getCurrentServer(key) {
+      this.showServer = true
+      this.showServerGroup = false
+      const any = key.split('-')
+      const groupIndex = Number(any[0])
+      const serverIndex = Number(any[1])
+      this.ip = this.allServerGroups[groupIndex].servers[serverIndex].machine_name
+      this.currentServerGroup = this.allServerGroups[groupIndex].groupName
+      this.groupIndex = groupIndex
+      this.serverIndex = serverIndex
+      if (this.allServerGroups[groupIndex].servers[serverIndex].onOffIcon === 'on') {
+        this.onOff = '关闭服务'
+        this.onOffIcon = 'on'
+        this.status = '已开启'
       } else {
-        this.onOffLoading = true
-        const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=start')
-        const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=start')
-        await this.showCurrentServer()
-        console.log(rpcRes, serverRes)
+        if (this.allServerGroups[groupIndex].servers[serverIndex].onOffIcon === 'off') {
+          this.onOff = '开启服务'
+          this.onOffIcon = 'off'
+          this.status = '已关闭'
+        } else {
+          this.onOff = '关闭服务'
+          this.status = '正在报警'
+          // this.onOffIcon = 'warmming'
+        }
+      }
+      await this.showInfo()
+    },
+    openOrclose(key, keyPath) {
+      this.showServer = false
+      this.showServerGroup = true
+      this.numberOfServers = this.allServerGroups[key].servers.length
+      this.currentServerGroup = this.allServerGroups[key].groupName
+      this.groupIndex = key
+    },
+    handleOpen(key, keyPath) {
+      this.openOrclose(key, keyPath)
+    },
+    handleClose(key, keyPath) {
+      this.openOrclose(key, keyPath)
+    },
+    async onOffServer() {
+      try {
+        if (this.onOff === '关闭服务') {
+          this.onOffLoading = true
+          const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=stop')
+          const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=stop')
+          if (rpcRes.data.code === 0 && serverRes.data.code === 0) {
+            await this.getServerList()
+            await this.showInfo()
+            this.onOff = '开启服务'
+            this.onOffIcon = 'off'
+            this.status = '已关闭'
+            this.$message({
+              showClose: true,
+              type: 'success',
+              message: '服务已关闭'
+            })
+            this.onOffLoading = false
+          } else {
+            this.$message({
+              showClose: true,
+              type: 'error',
+              message: rpcRes.data.msg
+            })
+          }
+        } else {
+          this.onOffLoading = true
+          const rpcRes = await this.$http.get('http://' + this.ip + ':1999/asvrpc/control?op=start')
+          const serverRes = await this.$http.get('http://' + this.ip + ':1999/asvserver/control?op=start')
+          if (rpcRes.data.code === 0 && serverRes.data.code === 0) {
+            await this.getServerList()
+            await this.showInfo()
+            this.onOff = '关闭服务'
+            this.onOffIcon = 'on'
+            this.status = '已开启'
+            this.$message({
+              showClose: true,
+              type: 'success',
+              message: '服务已开启'
+            })
+            this.onOffLoading = false
+          } else {
+            this.$message({
+              showClose: true,
+              type: 'error',
+              message: rpcRes.data.msg
+            })
+          }
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: '服务未安装'
+        })
+        this.onOffLoading = false
+      }
+    },
+    async dropOutOfGroup() {
+      try {
+        const res = await this.$http({
+          method: 'GET',
+          headers: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/' + this.currentServerGroup + '/deletemachine?machine_name=' + this.ip
+        })
+        if (res.data.code === 0) {
+          // this.$message({
+          //   showClose: true,
+          //   type: 'success',
+          //   message: '移除成功'
+          // })
+          location.reload()
+          // this.allServerGroups[this.groupIndex].servers.splice(this.serverIndex, 1)
+          // this.dropOutOfGroupDialog = false
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: res.data.msg
+          })
+        }
+      } catch (e) {
         this.$message({
           showClose: true,
           type: 'success',
-          message: '服务已开启'
+          message: e
         })
-        location.reload()
       }
     },
     async getServerList() {
-      const res = await this.$http.get(this.$apiUrl + '/servicesinfo')
-      this.runningServers = res.data.active_services
-      this.stopedServers = res.data.inactive_services
-      // this.alarmServers = res.data.alarmServers
+      this.allServerGroups = []
+      try {
+        const res = await this.$http.get(this.$apiUrl + '/api/allmachinegroups')
+        const allServerGroups = res.data.machineGroups
+        for (let i = 0; i < allServerGroups.length; i++) {
+          const onServers = allServerGroups[i].active_machines
+          for (let index = 0; index < onServers.length; index++) {
+            onServers[index]['onOffIcon'] = 'on'
+          }
+          const offServers = allServerGroups[i].inactive_machines
+          for (let index = 0; index < offServers.length; index++) {
+            offServers[index]['onOffIcon'] = 'off'
+          }
+          onServers.push.apply(onServers, offServers)
+          const serverGroup = {}
+          serverGroup['groupName'] = allServerGroups[i].machine_group_name
+          serverGroup['servers'] = onServers
+          serverGroup['id'] = allServerGroups[i].id
+          this.allServerGroups.push(serverGroup)
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: e
+        })
+      }
     },
-    async showAlarmServers(index) {
-      this.ip = this.alarmServers[index]
-      this.status = '报警中'
-      // this.onOff = ''
-      await this.showInfo()
-    },
-    async showRunningServers(index) {
-      this.ip = this.runningServers[index]
-      this.status = '运行中'
-      this.onOff = '关闭服务'
-      await this.showInfo()
-    },
-    async showStopedServers(index) {
-      this.ip = this.stopedServers[index]
-      this.status = '已停止'
-      this.onOff = '开启服务'
-      await this.showInfo()
+    async deletetGroup() {
+      try {
+        const res = await this.$http({
+          method: 'GET',
+          headers: { 'Authorization': this.token },
+          url: this.$apiUrl + '/admin/deletemachinegroup?machine_group_name=' + this.allServerGroups[this.groupIndex].groupName
+        })
+        if (res.data.code === 0) {
+          // this.$message({
+          //   showClose: true,
+          //   type: 'success',
+          //   message: '删除成功'
+          // })
+          // this.allServerGroups.splice(this.groupIndex, 1)
+          // this.deletetServerGroupDialog = false
+          // await this.getServerList()
+          location.reload()
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: res.data.msg
+          })
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: e
+        })
+      }
     },
     async showInfo() {
       const info = await this.$http.get('http://' + this.ip + ':1999/deviceinfos')
@@ -321,24 +712,10 @@ export default {
       const info = await this.$http.get('http://' + this.ip + ':1999/procinfo')
       this.allProcess = info.data
       this.showDetail = true
-    },
-    async showCurrentServer() {
-      if (this.runningServers.length !== 0) {
-        this.ip = this.runningServers[0]
-        this.status = '运行中'
-        this.onOff = '关闭服务'
-      } else {
-        this.ip = this.stopedServers[0]
-        this.status = '已停止'
-        this.onOff = '开启服务'
-      }
-      console.log(this.runningServers)
-      await this.showInfo()
     }
   },
-  async mounted() {
-    await this.getServerList()
-    this.showCurrentServer()
+  mounted() {
+    this.getServerList()
   }
 }
 </script>
@@ -397,5 +774,9 @@ export default {
 
 .onOff-button {
   margin-left: 10%;
+}
+
+.drop-button {
+  margin-right: 10px;
 }
 </style>

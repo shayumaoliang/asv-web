@@ -21,35 +21,44 @@
     <div class="detail">
       <p class="title">
         <icon-svg icon-class="vertical"></icon-svg>详情</p>
-      <el-card class="bigCard">
-        <div slot="header" class="clearfix">
-          <span class="line">
-            <icon-svg icon-class="running"></icon-svg> 运行中：{{ running }}</span>
+      <el-card v-for="(serverGroup, index) of allServerGroups" :key="index" class="group-card">
+        <div slot="header">
+          <icon-svg icon-class="group"></icon-svg>&nbsp&nbsp&nbsp{{ allServerGroups[index].groupName }}，&nbsp&nbsp&nbsp共&nbsp&nbsp{{ serverGroup.allserverNumber }}&nbsp&nbsp台服务器
         </div>
-        <div v-for="(server, index) in runningServers" :key="index" class="running item">
+        <div v-for="(server, serverIndex) of allServerGroups[index].machines" :key="serverIndex" class="running item">
           <router-link to="serverConfiguration/server">
-            <icon-svg icon-class="on"></icon-svg>{{ server }}</router-link>
+            <icon-svg icon-class="on"></icon-svg>{{ server.machine_name }}</router-link>
         </div>
-      </el-card>
-      <el-card class="bigCard">
-        <div slot="header" class="clearfix">
-          <span class="line">
-            <icon-svg icon-class="stop"></icon-svg> 已停止：{{ stoped }}</span>
-        </div>
-        <div v-for="(server, index) in stopedServers" :key="index" class="stoped item">
-          <router-link to="serverConfiguration/server">
-            <icon-svg icon-class="off"></icon-svg>{{ server }}</router-link>
-        </div>
-      </el-card>
-      <el-card class="bigCard">
-        <div slot="header" class="clearfix">
-          <span class="line">
-            <icon-svg icon-class="alarm"></icon-svg> 报警中：{{ alarm }}</span>
-        </div>
-        <div v-for="(server, index) in alarmServers" :key="index" class="stoped item">
-          <router-link to="serverConfiguration/server">
-            <icon-svg icon-class="warning"></icon-svg>{{ server.ip }}</router-link>
-        </div>
+        <el-card class="bigCard">
+          <div slot="header" class="clearfix">
+            <span class="line">
+              <icon-svg icon-class="running"></icon-svg> 运行中：{{ allServerGroups[index].runningNumber }}</span>
+          </div>
+          <div v-for="(server, onServerIndex) of allServerGroups[index].runningServers" :key="onServerIndex" class="running item">
+            <router-link to="serverConfiguration/server">
+              <icon-svg icon-class="on"></icon-svg>{{ server.machine_name }}</router-link>
+          </div>
+        </el-card>
+        <el-card class="bigCard">
+          <div slot="header" class="clearfix">
+            <span class="line">
+              <icon-svg icon-class="stop"></icon-svg> 已停止：{{ allServerGroups[index].stopedNumber }}</span>
+          </div>
+          <div v-for="(server, offServerIndex) of allServerGroups[index].stopedServers" :key="offServerIndex" class="stoped item">
+            <router-link to="serverConfiguration/server">
+              <icon-svg icon-class="off"></icon-svg>{{ server.machine_name }}</router-link>
+          </div>
+        </el-card>
+        <el-card class="bigCard">
+          <div slot="header" class="clearfix">
+            <span class="line">
+              <icon-svg icon-class="alarm"></icon-svg> 报警中：{{ allServerGroups[index].alarmingNumber }}</span>
+          </div>
+          <div v-for="(server, alarmIndex) of allServerGroups[index].alarmingServers" :key="alarmIndex" class="stoped item">
+            <router-link to="serverConfiguration/server">
+              <icon-svg icon-class="warning"></icon-svg>{{ server.machine_name }}</router-link>
+          </div>
+        </el-card>
       </el-card>
     </div>
   </div>
@@ -77,7 +86,8 @@ export default {
       stoped: null,
       runningServers: [],
       stopedServers: [],
-      alarmServers: []
+      alarmServers: [],
+      allServerGroups: []
     }
   },
   methods: {
@@ -85,13 +95,24 @@ export default {
 
     },
     async getServerList() {
-      const res = await this.http.get(this.$apiUrl + '/servicesinfo')
-      this.allServer = res.data.service_total
-      this.running = res.data.active_total
-      this.stoped = res.data.inactive_total
-      // this.alarm = res.data.
-      this.runningServers = res.data.active_services
-      this.stopedServers = res.data.inactive_services
+      const res = await this.$http.get(this.$apiUrl + '/api/allmachinegroups')
+      // const res = await this.$http.get(this.$apiUrl + '/servicesinfo')
+      const serverGroups = res.data.machineGroups
+      for (let i = 0; i < serverGroups.length; i++) {
+        const allServer = Number(serverGroups[i].machine_total)
+        const runningNumber = Number(serverGroups[i].active_total)
+        this.allServer += allServer
+        this.running += runningNumber
+        const allServerGroups = {}
+        allServerGroups['runningServers'] = serverGroups[i].active_machines
+        allServerGroups['stopedServers'] = serverGroups[i].inactive_machines
+        // allServerGroups['alarmingServers'] = serverGroups[i].alarm_machines
+        allServerGroups['allserverNumber'] = serverGroups[i].machine_total
+        allServerGroups['runningNumber'] = serverGroups[i].active_total
+        allServerGroups['stopedNumber'] = serverGroups[i].inactive_total
+        allServerGroups['groupName'] = serverGroups[i].machine_group_name
+        this.allServerGroups.push(allServerGroups)
+      }
     }
   },
   mounted() {
@@ -171,8 +192,15 @@ export default {
   width: 100%
 }
 
+.group-card {
+  width: 45%;
+  margin-left: 1.5%;
+  float: left;
+  margin-bottom: 10px;
+}
+
 .bigCard {
-  width: 93%;
+  width: 100%;
   height: auto;
   margin-top: 5px;
 }
