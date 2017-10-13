@@ -121,6 +121,9 @@
           </div>
           <span>当前分组下共有{{ numberOfServers }}个服务器</span>
         </el-card>
+        <el-card v-if="showTips === true">
+          <span>点击左侧服务器列表查看服务器详情</span>
+        </el-card>
       </el-form>
       <el-dialog size="tiny" title="添加服务器" :visible.sync="addServerDialog">
         <el-input v-model="addServerData">
@@ -169,6 +172,7 @@ export default {
       numberOfServers: null,
       showServer: false,
       showServerGroup: false,
+      showTips: true,
       addServerGroupDialog: false,
       editServerGroupDialog: false,
       addServerDialog: false,
@@ -506,6 +510,7 @@ export default {
     async getCurrentServer(key) {
       this.showServer = true
       this.showServerGroup = false
+      this.showTips = false
       const any = key.split('-')
       const groupIndex = Number(any[0])
       const serverIndex = Number(any[1])
@@ -533,6 +538,7 @@ export default {
     openOrclose(key, keyPath) {
       this.showServer = false
       this.showServerGroup = true
+      this.showTips = false
       this.numberOfServers = this.allServerGroups[key].servers.length
       this.currentServerGroup = this.allServerGroups[key].groupName
       this.groupIndex = key
@@ -803,34 +809,35 @@ export default {
       this.showDetail = true
     },
     showCurrentServerInfo() {
-      // if (this.$route.params.groupIndex) {
-      const server = this.allServerGroups[this.$route.params.groupIndex].servers
-      for (let i = 0; i < server.length; i++) {
-        if (server[i].id === this.$route.params.srverId) {
-          this.ip = server[i].machine_name
-        }
-      }
-      if (this.$route.params.status === 'on') {
-        this.onOff = '关闭服务'
-        this.onOffIcon = 'on'
-        this.status = '已开启'
-      } else {
-        if (this.$route.params.status === 'off') {
-          this.onOff = '开启服务'
-          this.onOffIcon = 'off'
-          this.status = '未开启'
-        } else {
-          if (this.$route.params.status === 'alarm') {
-            this.onOff = '关闭服务'
-            this.status = '正在报警'
-            // this.onOffIcon = 'warmming'
+      if (Object.keys(this.$route.params).length > 0) {
+        const server = this.allServerGroups[this.$route.params.groupIndex].servers
+        for (let i = 0; i < server.length; i++) {
+          if (server[i].id === this.$route.params.srverId) {
+            this.ip = server[i].machine_name
           }
         }
+        if (this.$route.params.status === 'on') {
+          this.onOff = '关闭服务'
+          this.onOffIcon = 'on'
+          this.status = '已开启'
+        } else {
+          if (this.$route.params.status === 'off') {
+            this.onOff = '开启服务'
+            this.onOffIcon = 'off'
+            this.status = '未开启'
+          } else {
+            if (this.$route.params.status === 'alarm') {
+              this.onOff = '关闭服务'
+              this.status = '正在报警'
+              // this.onOffIcon = 'warmming'
+            }
+          }
+        }
+        this.showServer = true
+        this.showServerGroup = false
+        this.showTips = false
+        this.showInfo()
       }
-      this.showServer = true
-      this.showServerGroup = false
-      this.showInfo()
-      // }
     }
   },
   async mounted() {
