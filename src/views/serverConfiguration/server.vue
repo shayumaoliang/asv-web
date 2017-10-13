@@ -5,7 +5,7 @@
         <icon-svg icon-class="vertical"></icon-svg>服务器列表</h4>
       <el-card>
         <el-button type="text" style="margin-left: 10%;margin-bottom: 5px;" @click="addServerGroupConfirm">添加服务器分组</el-button>
-        <el-menu unique-opened mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentServer">
+        <el-menu :default-active="defaultActive" unique-opened mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentServer">
           <div v-for="(serverGroup, index) of allServerGroups" :key="index">
             <el-submenu :index="`${index}`">
               <template slot="title">
@@ -164,6 +164,7 @@ export default {
   },
   data() {
     return {
+      defaultActive: '0',
       onOffIcon: null,
       numberOfServers: null,
       showServer: false,
@@ -520,7 +521,7 @@ export default {
         if (this.allServerGroups[groupIndex].servers[serverIndex].onOffIcon === 'off') {
           this.onOff = '开启服务'
           this.onOffIcon = 'off'
-          this.status = '已关闭'
+          this.status = '未开启'
         } else {
           this.onOff = '关闭服务'
           this.status = '正在报警'
@@ -553,7 +554,7 @@ export default {
             await this.showInfo()
             this.onOff = '开启服务'
             this.onOffIcon = 'off'
-            this.status = '已关闭'
+            this.status = '未开启'
             this.$message({
               showClose: true,
               type: 'success',
@@ -800,10 +801,41 @@ export default {
       const info = await this.$http.get('http://' + this.ip + ':1999/procinfo')
       this.allProcess = info.data
       this.showDetail = true
+    },
+    showCurrentServerInfo() {
+      // if (this.$route.params.groupIndex) {
+      const server = this.allServerGroups[this.$route.params.groupIndex].servers
+      for (let i = 0; i < server.length; i++) {
+        if (server[i].id === this.$route.params.srverId) {
+          this.ip = server[i].machine_name
+        }
+      }
+      if (this.$route.params.status === 'on') {
+        this.onOff = '关闭服务'
+        this.onOffIcon = 'on'
+        this.status = '已开启'
+      } else {
+        if (this.$route.params.status === 'off') {
+          this.onOff = '开启服务'
+          this.onOffIcon = 'off'
+          this.status = '未开启'
+        } else {
+          if (this.$route.params.status === 'alarm') {
+            this.onOff = '关闭服务'
+            this.status = '正在报警'
+            // this.onOffIcon = 'warmming'
+          }
+        }
+      }
+      this.showServer = true
+      this.showServerGroup = false
+      this.showInfo()
+      // }
     }
   },
-  mounted() {
-    this.getServerList()
+  async mounted() {
+    await this.getServerList()
+    await this.showCurrentServerInfo()
   }
 }
 </script>

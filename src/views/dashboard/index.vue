@@ -25,18 +25,14 @@
         <div slot="header">
           <icon-svg icon-class="group"></icon-svg>&nbsp&nbsp&nbsp{{ allServerGroups[index].groupName }}，&nbsp&nbsp&nbsp共&nbsp&nbsp{{ serverGroup.allserverNumber }}&nbsp&nbsp台服务器
         </div>
-        <div v-for="(server, serverIndex) of allServerGroups[index].machines" :key="serverIndex" class="running item">
-          <router-link to="serverConfiguration/server">
-            <icon-svg icon-class="on"></icon-svg>{{ server.machine_name }}</router-link>
-        </div>
         <el-card class="bigCard">
           <div slot="header" class="clearfix">
             <span class="line">
               <icon-svg icon-class="running"></icon-svg> 运行中：{{ allServerGroups[index].runningNumber }}</span>
           </div>
           <div v-for="(server, onServerIndex) of allServerGroups[index].runningServers" :key="onServerIndex" class="running item">
-            <router-link to="serverConfiguration/server">
-              <icon-svg icon-class="on"></icon-svg>{{ server.machine_name }}</router-link>
+            <a @click="showRunningServerInfo(onServerIndex, index)">
+              <icon-svg icon-class="on"></icon-svg>{{ server.machine_name }}</a>
           </div>
         </el-card>
         <el-card class="bigCard">
@@ -45,8 +41,8 @@
               <icon-svg icon-class="stop"></icon-svg> 已停止：{{ allServerGroups[index].stopedNumber }}</span>
           </div>
           <div v-for="(server, offServerIndex) of allServerGroups[index].stopedServers" :key="offServerIndex" class="stoped item">
-            <router-link to="serverConfiguration/server">
-              <icon-svg icon-class="off"></icon-svg>{{ server.machine_name }}</router-link>
+            <a @click="showStopedServerInfo(offServerIndex, index)">
+              <icon-svg icon-class="off"></icon-svg>{{ server.machine_name }}</a>
           </div>
         </el-card>
         <el-card class="bigCard">
@@ -91,8 +87,27 @@ export default {
     }
   },
   methods: {
-    switchChange() {
-
+    showRunningServerInfo(onServerIndex, index) {
+      this.$router.push({
+        name: '服务器',
+        params: {
+          groupIndex: index,
+          serverIndex: onServerIndex,
+          srverId: this.allServerGroups[index].runningServers[onServerIndex].id,
+          status: 'on'
+        }
+      })
+    },
+    showStopedServerInfo(offServerIndex, index) {
+      this.$router.push({
+        name: '服务器',
+        params: {
+          groupIndex: index,
+          serverIndex: offServerIndex + this.allServerGroups[index].runningNumber,
+          srverId: this.allServerGroups[index].stopedServers[offServerIndex].id,
+          status: 'off'
+        }
+      })
     },
     async getServerList() {
       const res = await this.$http.get(this.$apiUrl + '/api/allmachinegroups')
