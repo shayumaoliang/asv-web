@@ -304,8 +304,8 @@ export default {
               }
             },
             data: [
-              { value: 20, name: '已使用' },
-              { value: 80, name: '未使用' }
+              { value: 0, name: '已使用' },
+              { value: 100, name: '未使用' }
 
             ]
           }
@@ -700,108 +700,124 @@ export default {
       }
     },
     async showInfo() {
-      this.ExpireDate = null
-      this.maxConcurrency = null
-      this.cpu = null
-      this.memory = null
-      this.OS = null
-      this.process = null
-      this.cpuStatus = {
-        title: {
-          show: false,
-          text: 'CPU'
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b}: {d}%'
-        },
-        series: [
-          {
-            name: 'CPU',
-            type: 'pie',
-            radius: ['50%', '70%'],
-            avoidLabelOverlap: true,
-            label: {
-              normal: {
-                show: true,
-                position: 'inner'
-              },
-              emphasis: {
-                show: false,
-                textStyle: {
-                  fontSize: '20',
-                  fontWeight: 'bold'
+      try {
+        this.ExpireDate = null
+        this.maxConcurrency = null
+        this.cpu = null
+        this.memory = null
+        this.OS = null
+        this.process = null
+        this.cpuStatus = {
+          title: {
+            show: false,
+            text: 'CPU'
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {d}%'
+          },
+          series: [
+            {
+              name: 'CPU',
+              type: 'pie',
+              radius: ['50%', '70%'],
+              avoidLabelOverlap: true,
+              label: {
+                normal: {
+                  show: true,
+                  position: 'inner'
+                },
+                emphasis: {
+                  show: false,
+                  textStyle: {
+                    fontSize: '20',
+                    fontWeight: 'bold'
+                  }
                 }
-              }
-            },
-            labelLine: {
-              normal: {
-                show: true
-              }
-            },
-            data: [
-              { value: 0, name: '已使用' },
-              { value: 100, name: '未使用' }
-
-            ]
-          }
-        ]
-      }
-      this.memoryStatus = {
-        title: {
-          show: false,
-          text: '内存'
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b}: {d}%'
-        },
-        series: [
-          {
-            name: '内存',
-            type: 'pie',
-            radius: ['50%', '70%'],
-            avoidLabelOverlap: true,
-            label: {
-              normal: {
-                show: true,
-                position: 'inner'
               },
-              emphasis: {
-                show: false,
-                textStyle: {
-                  fontSize: '20',
-                  fontWeight: 'bold'
+              labelLine: {
+                normal: {
+                  show: true
                 }
-              }
-            },
-            labelLine: {
-              normal: {
-                show: true
-              }
-            },
-            data: [
-              { value: 0, name: '已使用' },
-              { value: 100, name: '未使用' }
+              },
+              data: [
+                { value: 0, name: '已使用' },
+                { value: 100, name: '未使用' }
 
-            ]
-          }
-        ]
+              ]
+            }
+          ]
+        }
+        this.memoryStatus = {
+          title: {
+            show: false,
+            text: '内存'
+          },
+          tooltip: {
+            trigger: 'item',
+            formatter: '{a} <br/>{b}: {d}%'
+          },
+          series: [
+            {
+              name: '内存',
+              type: 'pie',
+              radius: ['50%', '70%'],
+              avoidLabelOverlap: true,
+              label: {
+                normal: {
+                  show: true,
+                  position: 'inner'
+                },
+                emphasis: {
+                  show: false,
+                  textStyle: {
+                    fontSize: '20',
+                    fontWeight: 'bold'
+                  }
+                }
+              },
+              labelLine: {
+                normal: {
+                  show: true
+                }
+              },
+              data: [
+                { value: 0, name: '已使用' },
+                { value: 100, name: '未使用' }
+
+              ]
+            }
+          ]
+        }
+        const info = await this.$http.get('http://' + this.ip + ':1999/deviceinfos')
+        const authorizeInfo = await this.$http.get('http://' + this.ip + ':1999/devicelicenceinfo')
+        if (info.data.code === 0 && authorizeInfo.data.code === 0) {
+          const authorize = authorizeInfo.data
+          this.ExpireDate = authorize.exp
+          this.maxConcurrency = authorize.max_con
+          const serverInfo = info.data
+          this.cpu = serverInfo.cpu_info.cpu_number
+          this.memory = serverInfo.memory_info.mem_total
+          this.OS = serverInfo.os
+          this.process = serverInfo.proc_num
+          this.cpuStatus.series[0].data[0].value = parseFloat(serverInfo.cpu_info.cpu_busy) * 100
+          this.cpuStatus.series[0].data[1].value = parseFloat(serverInfo.cpu_info.cpu_idle) * 100
+          this.memoryStatus.series[0].data[0].value = parseFloat(serverInfo.memory_info.mem_used) * 100
+          this.memoryStatus.series[0].data[1].value = parseFloat(serverInfo.memory_info.mem_free) * 100
+        } else {
+          this.$message({
+            showClose: true,
+            type: 'error',
+            message: info.data.msg
+          })
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: e
+        })
       }
-      const info = await this.$http.get('http://' + this.ip + ':1999/deviceinfos')
-      const authorizeInfo = await this.$http.get('http://' + this.ip + ':1999/devicelicenceinfo')
-      const authorize = authorizeInfo.data
-      this.ExpireDate = authorize.exp
-      this.maxConcurrency = authorize.max_con
-      const serverInfo = info.data
-      this.cpu = serverInfo.cpu_info.cpu_number
-      this.memory = serverInfo.memory_info.mem_total
-      this.OS = serverInfo.os
-      this.process = serverInfo.proc_num
-      this.cpuStatus.series[0].data[0].value = parseFloat(serverInfo.cpu_info.cpu_busy) * 100
-      this.cpuStatus.series[0].data[1].value = parseFloat(serverInfo.cpu_info.cpu_idle) * 100
-      this.memoryStatus.series[0].data[0].value = parseFloat(serverInfo.memory_info.mem_used) * 100
-      this.memoryStatus.series[0].data[1].value = parseFloat(serverInfo.memory_info.mem_free) * 100
     },
     async showallProscess() {
       const info = await this.$http.get('http://' + this.ip + ':1999/procinfo')
