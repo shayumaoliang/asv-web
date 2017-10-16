@@ -119,7 +119,7 @@
                   <el-option v-for="item in alarmTerms" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTimes" placeholder="请选择监测时间段">
+                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTimes" placeholder="请选择监测周期">
                   <el-option v-for="item in alarmTims" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
@@ -657,18 +657,19 @@ export default {
                   }
                 }
                 const alarmExtremum = this.editRuleData.alarmExtremum
-                let alarmTimes
-                if (this.editRuleData.alarmTimes === '一分钟') {
-                  alarmTimes = 60
-                } else {
-                  if (this.editRuleData.alarmTimes === '五分钟') {
-                    alarmTimes = 300
-                  } else {
-                    if (this.editRuleData.alarmTimes === '十分钟') {
-                      alarmTimes = 600
-                    }
-                  }
-                }
+                let alarmTimes = this.editRuleData.alarmTimes
+                // if (this.editRuleData.alarmTimes === '一分钟') {
+                //   alarmTimes = 60
+                // } else {
+                //   if (this.editRuleData.alarmTimes === '五分钟') {
+                //     alarmTimes = 300
+                //   } else {
+                //     if (this.editRuleData.alarmTimes === '十分钟') {
+                //       alarmTimes = 600
+                //     }
+                //   }
+                // }
+                console.log(this.editRuleData.alarmTimes)
                 const alarmContrast = this.editRuleData.alarmContrast
                 const threshold = this.editRuleData.threshold
                 let notifyWay

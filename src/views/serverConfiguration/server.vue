@@ -4,7 +4,7 @@
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>服务器列表</h4>
       <el-card>
-        <el-button type="text" style="margin-left: 10%;margin-bottom: 5px;" @click="addServerGroupConfirm">添加服务器分组</el-button>
+        <el-button v-if="getRole()" type="text" style="margin-left: 10%;margin-bottom: 5px;" @click="addServerGroupConfirm">添加服务器分组</el-button>
         <el-menu :default-active="defaultActive" unique-opened mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentServer">
           <div v-for="(serverGroup, index) of allServerGroups" :key="index">
             <el-submenu :index="`${index}`">
