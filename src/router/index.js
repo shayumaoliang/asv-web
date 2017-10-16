@@ -212,7 +212,7 @@ export const constantRouterMap = [
     name: '设置',
     icon: 'setting',
     children: [
-      { path: 'accountManagement', component: accountManagement, name: '账号管理'},
+      { path: 'accountManagement', component: accountManagement, name: '账号管理' },
       { path: 'alarmSetting', component: alarmSetting, name: '报警设置' },
       { path: 'loginLog', component: loginLog, name: '登陆日志' },
       { path: 'operationLog', component: operationLog, name: '操作日志' },
@@ -224,7 +224,8 @@ export const constantRouterMap = [
 ]
 
 export default new Router({
-  mode: 'history', // 后端支持可开
+  // mode: 'history', // 后端支持可开
+  // base: '/',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
