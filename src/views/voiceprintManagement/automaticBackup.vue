@@ -26,14 +26,14 @@
         <span>是否删除该备份规则？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteBackupRuleConfirm = false">取 消</el-button>
-          <el-button type="primary" @click="deleteBackupRule()">确 定</el-button>
+          <el-button type="primary" @click="deleteBackupRule()" v-loading="NewBackUpLoading">确 定</el-button>
         </span>
       </el-dialog>
       <el-dialog title="删除提示" :visible.sync="deleteBackupConfirm" size="tiny">
         <span>是否删除该备份？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteBackupConfirm = false">取 消</el-button>
-          <el-button type="primary" @click="handleDeleteBackup()">确 定</el-button>
+          <el-button type="primary" @click="handleDeleteBackup()" v-loading="NewBackUpLoading">确 定</el-button>
         </span>
       </el-dialog>
       <el-dialog title="确认回滚到该备份点？" :visible.sync="rollBackDialog" size="tiny">
@@ -66,17 +66,17 @@
         </template>
       </el-tab-pane>
     </el-tabs>
-    <el-dialog title="创建声纹库备份规则" :visible.sync="newBackup">
+    <Modal title="创建声纹库备份规则" v-model="newBackup" :styles="{top: '20px'}" width="1000">
       <el-form :model="backupData" label-width="130px">
         <el-form-item label="备份名称">
           <el-input class="time-select" v-model="backupData.backupName"></el-input>
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select class="time-select" v-model="backupData.backupTime" :picker-options="{
-              start: '00:00',
-              step: '00:30',
-              end: '08:00'
-            }" placeholder="请选择备份时间">
+                                                              start: '00:00',
+                                                              step: '00:30',
+                                                              end: '08:00'
+                                                            }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -91,16 +91,16 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="备份对象">
-          <el-transfer class="transfer" v-model="checkedVoiceprintDb" filterable :titles="['所有声纹库', '已选声纹库']" :button-texts="['移除', '添加']" @change="handleChange" :data="allVoiceprintDb">
-          </el-transfer>
+        <el-form-item label="选择备份对象">
+          <Transfer :data="allVoiceprintDb" :target-keys="targetKeys" :list-style="listStyle" :render-format="render3" :operations="['移除','添加']" :titles="['无备份规则声纹库', '已选声纹库 ']" @on-change="handleChange3">
+          </Transfer>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="newBackup = false">取 消</el-button>
-        <el-button type="primary" @click="createNewBackup">确 定</el-button>
+        <el-button type="primary" @click="createNewBackup" v-loading="NewBackUpLoading">确 定</el-button>
       </span>
-    </el-dialog>
+    </Modal>
     <el-dialog size="tiny" title="修改声纹库备份规则" :visible.sync="editBackupDialog">
       <el-form :model="editBackupData" label-width="130px">
         <el-form-item label="备份名称">
@@ -108,10 +108,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select class="time-select" v-model="editBackupData.backupTime" :picker-options="{
-            start: '00:00',
-            step: '00:30',
-            end: '08:00'
-          }" placeholder="请选择备份时间">
+                                                        start: '00:00',
+                                                        step: '00:30',
+                                                        end: '08:00'
+                                                      }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -149,6 +149,12 @@ export default {
   },
   data() {
     return {
+      NewBackUpLoading: false,
+      targetKeys: [],
+      listStyle: {
+        width: '300px',
+        height: '300px'
+      },
       editBackupData: {
         backupName: null,
         backupTime: null,
@@ -171,7 +177,8 @@ export default {
         copyNum: null
       },
       allVoiceprintDb: [],
-      checkedVoiceprintDb: [],
+      checkedVoiceprintDb: null,
+      allCheckedVoiceprintDb: [],
       dateOptions: [
         {
           value: 1,
@@ -244,7 +251,7 @@ export default {
         })
         if (res.data.code === 0) {
           await this.$message({
-            type: 'success',
+            type: 'ss',
             showClose: true,
             message: '成功回滚'
           })
@@ -270,7 +277,20 @@ export default {
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/stopautobackuprule'
         })
         if (res.data.code === 0) {
-          location.reload()
+          scope.row.onOff = '开启'
+          scope.row.backupStatus = '暂停中'
+          this.$message({
+            type: 'ss',
+            showClose: true,
+            message: '成功停止使用该备份规则'
+          })
+          // location.reload()
+        } else {
+          this.$message({
+            type: 'error',
+            showClose: true,
+            message: res.data.msg
+          })
         }
       } else {
         const res = await this.$http({
@@ -279,7 +299,20 @@ export default {
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/startautobackuprule'
         })
         if (res.data.code === 0) {
-          location.reload()
+          scope.row.onOff = '停止'
+          scope.row.backupStatus = '运行中'
+          this.$message({
+            type: 'ss',
+            showClose: true,
+            message: '成功开始使用该备份规则'
+          })
+          // location.reload()
+        } else {
+          this.$message({
+            type: 'error',
+            showClose: true,
+            message: res.data.msg
+          })
         }
       }
     },
@@ -288,29 +321,29 @@ export default {
       this.scope = scope
     },
     async editBackupConfirm(scope) {
-      console.log(scope.row)
-      const allVoiceprintDb = []
-      const res = await this.$http.get(this.$apiUrl + '/api/noautobackuplibs')
-      for (let i = 0; i < res.data.noAutobackupRuleLibs.length; i++) {
-        const voiceprintDb = {}
-        voiceprintDb['key'] = i
-        voiceprintDb['label'] = res.data.noAutobackupRuleLibs[i]
-        allVoiceprintDb.push(voiceprintDb)
-      }
-      this.allVoiceprintDb = allVoiceprintDb
+      this.scope = scope
+      console.log(this.scope)
+      // const allVoiceprintDb = []
+      // const res = await this.$http.get(this.$apiUrl + '/api/noautobackuplibs')
+      // for (let i = 0; i < res.data.noAutobackupRuleLibs.length; i++) {
+      //   const voiceprintDb = {}
+      //   voiceprintDb['key'] = i
+      //   voiceprintDb['label'] = res.data.noAutobackupRuleLibs[i]
+      //   allVoiceprintDb.push(voiceprintDb)
+      // }
+      // this.allVoiceprintDb = allVoiceprintDb
       this.editBackupData.dbName = scope.row.voiceprintDataName
       this.editBackupData.company = scope.row.company
       this.editBackupData.business = scope.row.business
-      this.allVoiceprintDb.push({
-        key: res.data.noAutobackupRuleLibs.length,
-        label: this.editBackupData.company + '/' + this.editBackupData.business + '/' + this.editBackupData.dbName
-      })
+      // this.allVoiceprintDb.push({
+      //   key: res.data.noAutobackupRuleLibs.length,
+      //   label: this.editBackupData.company + '/' + this.editBackupData.business + '/' + this.editBackupData.dbName
+      // })
       this.editBackupData.backupName = scope.row.backupName
       this.editBackupData.backupTime = scope.row.backupTime
       this.editBackupData.backupDate = scope.row.backupDate
       this.editBackupData.copyNum = Number(scope.row.backupNum)
-      this.editBackupData.checkedVoiceprintDb = [res.data.noAutobackupRuleLibs.length]
-      console.log(this.editBackupData.checkedVoiceprintDb)
+      // this.editBackupData.checkedVoiceprintDb = [res.data.noAutobackupRuleLibs.length]
       this.editBackupDialog = true
     },
     async editBackupRule() {
@@ -330,7 +363,46 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          // this.allBackupRules[this.scope.$index] = {
+          //   backupTime: this.editBackupData.backupTime,
+          //   backupDate: this.editBackupData.backupDate,
+          //   backupNum: this.editBackupData.copyNum
+          // }
+          this.allBackupRules[this.scope.$index].backupTime = this.editBackupData.backupTime
+          if (this.editBackupData.backupDate === 1) {
+            this.allBackupRules[this.scope.$index].backupDate = '周一'
+          } else {
+            if (this.editBackupData.backupDate === 2) {
+              this.allBackupRules[this.scope.$index].backupDate = '周二'
+            } else {
+              if (this.editBackupData.backupDate === 3) {
+                this.allBackupRules[this.scope.$index].backupDate = '周三'
+              } else {
+                if (this.editBackupData.backupDate === 4) {
+                  this.allBackupRules[this.scope.$index].backupDate = '周四'
+                } else {
+                  if (this.editBackupData.backupDate === 5) {
+                    this.allBackupRules[this.scope.$index].backupDate = '周五'
+                  } else {
+                    if (this.editBackupData.backupDate === 6) {
+                      this.allBackupRules[this.scope.$index].backupDate = '周六'
+                    } else {
+                      this.allBackupRules[this.scope.$index].backupDate = '周日'
+                    }
+                  }
+                }
+              }
+            }
+          }
+          // this.allBackupRules[this.scope.$index].backupDate = this.editBackupData.backupDate
+          this.allBackupRules[this.scope.$index].backupNum = this.editBackupData.copyNum
+          this.editBackupDialog = false
+          this.$message({
+            type: 'ss',
+            showClose: true,
+            message: '修改成功'
+          })
+          // location.reload()
         } else {
           this.$message({
             type: 'error',
@@ -351,6 +423,7 @@ export default {
       this.scope = scope
     },
     async handleDeleteBackup() {
+      this.NewBackUpLoading = true
       const scope = this.scope
       try {
         const res = await this.$http({
@@ -359,8 +432,14 @@ export default {
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackup?backup_name=' + scope.row.backupName
         })
         if (res.data.code === 0) {
-          location.reload()
-          console.log(res.data)
+          this.NewBackUpLoading = false
+          this.allBackup.splice(scope.$index, 1)
+          this.$message({
+            type: 'success',
+            showClose: true,
+            message: '删除成功'
+          })
+          this.deleteBackupConfirm = false
         } else {
           await this.$message({
             type: 'error',
@@ -374,6 +453,7 @@ export default {
       }
     },
     async deleteBackupRule() {
+      this.NewBackUpLoading = true
       const scope = this.scope
       try {
         const res = await this.$http({
@@ -382,9 +462,16 @@ export default {
           url: this.$apiUrl + '/admin/' + scope.row.company + '/' + scope.row.business + '/' + scope.row.voiceprintDataName + '/deletebackuprule'
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.NewBackUpLoading = false
+          this.allBackupRules.splice(scope.$index, 1)
+          this.$message({
+            type: 'success',
+            showClose: true,
+            message: '删除成功'
+          })
+          this.deleteBackupRuleConfirm = false
         } else {
-          await this.$message({
+          this.$message({
             type: 'error',
             showClose: true,
             message: res.data.msg
@@ -432,7 +519,9 @@ export default {
     },
     async createBackup() {
       this.newBackup = true
+      this.targetKeys = []
       const allVoiceprintDb = []
+      this.allVoiceprintDb = []
       const res = await this.$http.get(this.$apiUrl + '/api/noautobackuplibs')
       for (let i = 0; i < res.data.noAutobackupRuleLibs.length; i++) {
         const voiceprintDb = {}
@@ -443,8 +532,9 @@ export default {
       this.allVoiceprintDb = allVoiceprintDb
     },
     async createNewBackup() {
-      if (this.backupData.copyNum && this.backupData.backupDate && this.backupData.backupName && this.backupData.backupTime && this.checkedVoiceprintDb.length > 0) {
-        for (const i of this.checkedVoiceprintDb) {
+      if (this.backupData.copyNum && this.backupData.backupDate && this.backupData.backupName && this.backupData.backupTime && this.targetKeys.length > 0) {
+        this.NewBackUpLoading = true
+        for (const i of this.targetKeys) {
           const dbName = this.allVoiceprintDb[i].label
           const res = await this.$http({
             method: 'POST',
@@ -459,6 +549,7 @@ export default {
             })
           })
           if (res.data.code === 0) {
+            this.NewBackUpLoading = false
             location.reload()
           }
         }
@@ -470,8 +561,18 @@ export default {
         })
       }
     },
-    handleChange(value, direction, movedKeys) {
-      console.log(value, direction, movedKeys)
+    handleChange(value, label) {
+      console.log(value, label)
+    },
+    // getTargetKeys() {
+    //   return this.allVoiceprintDb.map(item => item.key)
+    // },
+    handleChange3(newTargetKeys, direction, moveKeys) {
+      console.log(newTargetKeys, direction, moveKeys)
+      this.targetKeys = newTargetKeys
+    },
+    render3(item) {
+      return item.label
     }
   },
   async mounted() {
@@ -498,14 +599,14 @@ export default {
 
 .el-checkbox__label {
   font-size: 5px;
-  padding-left: 2px;
+  padding-left: 0px;
 }
 
 .time-select {
-  width: 80%;
+  width: 47%;
 }
 
 .el-form-item {
-margin: 8px;
+  margin: 8px;
 }
 </style>

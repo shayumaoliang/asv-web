@@ -284,7 +284,7 @@ export default {
         }
         const res = await this.$http({
           method: 'POST',
-          url: this.$apiUrl + 'password',
+          url: this.$apiUrl + '/admin/updateuser',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify(
             {

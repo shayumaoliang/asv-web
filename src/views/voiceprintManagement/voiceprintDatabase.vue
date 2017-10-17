@@ -248,6 +248,9 @@ export default {
   data() {
     return {
       addBusinessData: null,
+      companyIndex: null,
+      businessIndex: null,
+      dbIndex: null,
       addCompanyData: null,
       addVioceprintDbData: {
         name: null,
@@ -282,7 +285,7 @@ export default {
       cancelBackup: false,
       voiceprintData: {},
       companyId: null,
-      bussinessId: null,
+      businessId: null,
       vioceprintDbId: null,
       companys: [],
       allBusiness: [],
@@ -313,12 +316,13 @@ export default {
       this.showDb = true
       this.showBusiness = false
       const any = key.split('-')
-      const conmpantIndex = Number(any[1])
+      const companyIndex = Number(any[1])
       const businessIndex = Number(any[2])
       const dbIndex = Number(any[3])
-      const companyName = this.companys[conmpantIndex].company_name
-      const businessName = this.companys[conmpantIndex].businesses[businessIndex].business_name
-      const db = this.companys[conmpantIndex].businesses[businessIndex].libs[dbIndex].lib_name
+      this.dbIndex = dbIndex
+      const companyName = this.companys[companyIndex].company_name
+      const businessName = this.companys[companyIndex].businesses[businessIndex].business_name
+      const db = this.companys[companyIndex].businesses[businessIndex].libs[dbIndex].lib_name
       const res = await this.$http.get(this.$apiUrl + '/lib/' + companyName + '/' + businessName + '/' + db)
       const voiceprintData = {}
       voiceprintData.companyName = companyName
@@ -363,22 +367,28 @@ export default {
       }
     },
     openOrclose(key, keyPath) {
+      console.log(key, keyPath)
       if (key !== '0') {
         if (keyPath.length === 2) {
           const any = key.split('-')
-          const conmpantIndex = Number(any[1])
-          this.currentCompanyName = this.companys[conmpantIndex].company_name
-          this.companyId = this.companys[conmpantIndex].id
-          this.allBusiness = this.companys[conmpantIndex].businesses
+          const companyIndex = Number(any[1])
+          this.companyIndex = companyIndex
+          this.currentCompanyName = this.companys[companyIndex].company_name
+          this.companyId = this.companys[companyIndex].id
+          this.allBusiness = this.companys[companyIndex].businesses
           this.showCompanys = true
           this.showBusiness = false
           this.showDb = false
         } else {
           if (keyPath.length === 3) {
             const any = key.split('-')
+            const companyIndex = Number(any[1])
+            this.companyIndex = companyIndex
             const businessIndex = Number(any[2])
+            this.businessIndex = businessIndex
+            this.allBusiness = this.companys[companyIndex].businesses
             this.currentBusinessName = this.allBusiness[businessIndex].business_name
-            this.bussinessId = this.allBusiness[businessIndex].id
+            this.businessId = this.allBusiness[businessIndex].id
             this.allVioceprintDb = this.allBusiness[businessIndex].libs
             this.showBusiness = true
             this.showDb = false
@@ -416,11 +426,9 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          this.companys.push(
-            {
-              company_name: this.addCompanyData
-            }
-          )
+          await this.getAllcompany()
+          const index = this.companys.length - 1
+          this.companyId = this.companys[index].id
           this.addCompanyDialog = false
           this.$message({
             showClose: true,
@@ -454,7 +462,14 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.currentCompanyName = this.editCompanyData
+          this.companys[this.companyIndex].company_name = this.editCompanyData
+          this.editCompanyDialog = false
+          this.$message({
+            showClose: true,
+            message: '修改成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -467,14 +482,16 @@ export default {
       }
     },
     deleteCompanyConfirm() {
-      if (this.allBusiness.length !== 0) {
-        this.$message({
-          showClose: true,
-          message: '其子项不为空，无法删除',
-          type: 'error'
-        })
-      } else {
-        this.deleteCompanyConDialog = true
+      if (this.allBusiness) {
+        if (this.allBusiness.length !== 0) {
+          this.$message({
+            showClose: true,
+            message: '其子项不为空，无法删除',
+            type: 'error'
+          })
+        } else {
+          this.deleteCompanyConDialog = true
+        }
       }
     },
     async deleteCompany() {
@@ -485,7 +502,13 @@ export default {
           url: this.$apiUrl + '/admin/deletecompany?company_name=' + this.currentCompanyName
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.companys.splice(this.companyIndex, 1)
+          this.deleteCompanyConDialog = false
+          this.$message({
+            showClose: true,
+            message: '删除成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -499,6 +522,7 @@ export default {
     },
     addBusinessConfirm() {
       this.addBusinessDialog = true
+      console.log(this.companys[this.companyIndex])
     },
     async addBusiness() {
       try {
@@ -511,7 +535,15 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          await this.getAllcompany()
+          const index = this.companys[this.companyIndex].businesses.length - 1
+          this.businessId = this.companys[this.companyIndex].businesses[index].id
+          this.addBusinessDialog = false
+          this.$message({
+            showClose: true,
+            message: '添加成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -520,7 +552,11 @@ export default {
           })
         }
       } catch (e) {
-        console.log(e)
+        this.$message({
+          showClose: true,
+          message: e,
+          type: 'error'
+        })
       }
     },
     editBusinessConfirm() {
@@ -534,12 +570,19 @@ export default {
           url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/updatebusiness',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
           data: qs.stringify({
-            business_id: this.bussinessId,
+            business_id: this.businessId,
             business_name: this.editBusinessData
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.currentBusinessName = this.editBusinessData
+          this.companys[this.companyIndex].businesses[this.businessIndex].business_name = this.editBusinessData
+          this.editBusinessDialog = false
+          this.$message({
+            showClose: true,
+            message: '修改成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -552,14 +595,16 @@ export default {
       }
     },
     deleteBusinessConfirm() {
-      if (this.allVioceprintDb.length !== 0) {
-        this.$message({
-          showClose: true,
-          message: '其子项不为空，无法删除',
-          type: 'error'
-        })
-      } else {
-        this.deleteBusinessDialog = true
+      if (this.allVioceprintDb) {
+        if (this.allVioceprintDb.length !== 0) {
+          this.$message({
+            showClose: true,
+            message: '其子项不为空，无法删除',
+            type: 'error'
+          })
+        } else {
+          this.deleteBusinessDialog = true
+        }
       }
     },
     async deleteBusiness() {
@@ -570,7 +615,13 @@ export default {
           url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/deletebusiness?business_name=' + this.currentBusinessName
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.companys[this.companyIndex].businesses.splice(this.businessIndex, 1)
+          this.deleteBusinessDialog = false
+          this.$message({
+            showClose: true,
+            message: '删除成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -615,7 +666,15 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          await this.getAllcompany()
+          // const index = this.companys[this.companyIndex].businesses[this.businessIndex].libs.length - 1
+          // this.businessIndex = this.companys[this.companyIndex].businesses[index].libs.id
+          this.addVioceprintDbDialog = false
+          this.$message({
+            showClose: true,
+            message: '添加成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -648,7 +707,15 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.voiceprintData.DbName = this.editVioceprintDbData.name
+          this.voiceprintData.scene = this.editVioceprintDbData.scene
+          this.voiceprintData.uid = this.editVioceprintDbData.uid
+          this.editVioceprintDbDialog = false
+          this.$message({
+            showClose: true,
+            message: '修改成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -671,7 +738,13 @@ export default {
           url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/deleteasvlib?lib_name=' + this.voiceprintData.DbName
         })
         if (res.data.code === 0) {
-          location.reload()
+          await this.getAllcompany()
+          this.deleteVoiceprintDbDialog = false
+          this.$message({
+            showClose: true,
+            message: '删除成功',
+            type: 'success'
+          })
         } else {
           this.$message({
             showClose: true,

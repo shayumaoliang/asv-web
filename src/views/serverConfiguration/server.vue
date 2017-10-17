@@ -406,14 +406,14 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          // this.$message({
-          //   showClose: true,
-          //   type: 'success',
-          //   message: '修改成功'
-          // })
-          location.reload()
-          // this.allServerGroups[this.groupIndex].groupName = this.editServerGroupData
-          // this.editServerGroupDialog = false
+          this.$message({
+            showClose: true,
+            type: 'success',
+            message: '修改成功'
+          })
+          // location.reload()
+          this.allServerGroups[this.groupIndex].groupName = this.editServerGroupData
+          this.editServerGroupDialog = false
         } else {
           this.$message({
             showClose: true,
@@ -443,16 +443,15 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          // this.$message({
-          //   showClose: true,
-          //   type: 'success',
-          //   message: '创建成功'
-          // })
-          location.reload()
-          // this.allServerGroups.push({
-          //   groupName: this.addServerGroupData
-          // })
-          // this.addServerGroupDialog = false
+          this.$message({
+            showClose: true,
+            type: 'success',
+            message: '创建成功'
+          })
+          this.allServerGroups.push({
+            groupName: this.addServerGroupData
+          })
+          this.addServerGroupDialog = false
         } else {
           this.$message({
             showClose: true,
@@ -482,12 +481,14 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          // this.$message({
-          //   showClose: true,
-          //   type: 'success',
-          //   message: '添加成功'
-          // })
-          location.reload()
+          await this.$message({
+            showClose: true,
+            type: 'success',
+            message: '添加成功'
+          })
+          this.addServerDialog = false
+          this.$router.go({ path: this.$route.path })
+          // this.$route.reload()
           // this.allServerGroups[this.groupIndex].servers.push({
           //   machine_name: this.addServerData
           // })
@@ -615,14 +616,16 @@ export default {
           url: this.$apiUrl + '/admin/' + this.currentServerGroup + '/deletemachine?machine_name=' + this.ip
         })
         if (res.data.code === 0) {
-          // this.$message({
-          //   showClose: true,
-          //   type: 'success',
-          //   message: '移除成功'
-          // })
-          location.reload()
-          // this.allServerGroups[this.groupIndex].servers.splice(this.serverIndex, 1)
-          // this.dropOutOfGroupDialog = false
+          this.$message({
+            showClose: true,
+            type: 'success',
+            message: '移除成功'
+          })
+          // location.reload()
+          this.allServerGroups[this.groupIndex].servers.splice(this.serverIndex, 1)
+          this.dropOutOfGroupDialog = false
+          this.showServer = false
+          this.showServerGroup = true
         } else {
           this.$message({
             showClose: true,
@@ -675,15 +678,15 @@ export default {
           url: this.$apiUrl + '/admin/deletemachinegroup?machine_group_name=' + this.allServerGroups[this.groupIndex].groupName
         })
         if (res.data.code === 0) {
-          // this.$message({
-          //   showClose: true,
-          //   type: 'success',
-          //   message: '删除成功'
-          // })
-          // this.allServerGroups.splice(this.groupIndex, 1)
-          // this.deletetServerGroupDialog = false
-          // await this.getServerList()
-          location.reload()
+          this.$message({
+            showClose: true,
+            type: 'success',
+            message: '删除成功'
+          })
+          this.allServerGroups.splice(this.groupIndex, 1)
+          this.deletetServerGroupDialog = false
+          await this.getServerList()
+          // location.reload()
         } else {
           this.$message({
             showClose: true,
@@ -815,7 +818,7 @@ export default {
         this.$message({
           showClose: true,
           type: 'error',
-          message: e
+          message: '未部署服务'
         })
       }
     },
