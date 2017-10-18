@@ -412,7 +412,7 @@ export default {
           onClick(picker) {
             const end = new Date()
             const start = new Date()
-            start.setTime(start.getTime() - 3600 * 24 * 90)
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
             picker.$emit('pick', [start, end])
           }
         }]
@@ -488,7 +488,15 @@ export default {
             headers: { 'Authorization': this.token }
           })
           if (res.data.code === 0) {
-            location.reload()
+            // location.reload()
+            this.showAllAlarmRules()
+            this.$message(
+              {
+                showClose: true,
+                type: 'success',
+                message: '成功启用'
+              }
+            )
           }
         } catch (e) {
           this.$message(
@@ -508,7 +516,15 @@ export default {
               headers: { 'Authorization': this.token }
             })
             if (res.data.code === 0) {
-              location.reload()
+              // location.reload()
+              this.showAllAlarmRules()
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'success',
+                  message: '成功关闭'
+                }
+              )
             }
           } catch (e) {
             this.$message(
@@ -523,6 +539,7 @@ export default {
       }
     },
     async showAllAlarmRules() {
+      this.allalarmRules = []
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allwarnings')
         if (res.data.code === 0) {
@@ -701,7 +718,15 @@ export default {
                   )
                 })
                 if (res.data.code === 0) {
-                  location.reload()
+                  this.editRuleDialog = false
+                  this.showAllAlarmRules()
+                  this.$message(
+                    {
+                      showClose: true,
+                      type: 'success',
+                      message: '修改成功'
+                    }
+                  )
                 } else {
                   this.$message(
                     {
@@ -818,7 +843,8 @@ export default {
           }
         })
         if (res.data.code === 0) {
-          this.allalarmRules.splice(this.scope.$index, 1)
+          // this.allalarmRules.splice(this.scope.$index, 1)
+          this.showAllAlarmRules()
           this.deleteDialogConfirm = false
           this.$message(
             {
@@ -976,7 +1002,15 @@ export default {
                                   this.createRuleStatus = 0
                                   this.createOrBackRule = '创建报警规则'
                                   this.activeTab = 'alarmRule'
-                                  location.reload()
+                                  // location.reload()
+                                  this.showAllAlarmRules()
+                                  this.$message(
+                                    {
+                                      showClose: true,
+                                      type: 'success',
+                                      message: '创建成功'
+                                    }
+                                  )
                                 } else {
                                   if (res.data.code === 402) {
                                     this.$message(
@@ -1031,6 +1065,7 @@ export default {
       this.addContactDialog = true
     },
     async showAllContact() {
+      this.allContactData = []
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allnotifiedbodies')
         if (res.data.code === 0) {
@@ -1065,13 +1100,14 @@ export default {
                 )
               })
               if (res.data.code === 0) {
-                this.allContactData.push(
-                  {
-                    name: this.createContactData.name,
-                    phone: this.createContactData.phone,
-                    email: this.createContactData.email
-                  }
-                )
+                // this.allContactData.push(
+                //   {
+                //     name: this.createContactData.name,
+                //     phone: this.createContactData.phone,
+                //     email: this.createContactData.email
+                //   }
+                // )
+                this.showAllContact()
                 this.addContactDialog = false
                 this.$message(
                   {
@@ -1137,7 +1173,7 @@ export default {
         })
         console.log(this.scope.row)
         if (res.data.code === 0) {
-          this.allContactData.splice(this.scope.$index, 1)
+          // this.allContactData.splice(this.scope.$index, 1)
           this.deleteContactConfirm = false
           this.$message(
             {
@@ -1146,6 +1182,7 @@ export default {
               message: '删除联系人 ' + this.scope.row.name + ' 成功'
             }
           )
+          this.showAllContact()
         } else {
           this.$message(
             {

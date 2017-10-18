@@ -198,6 +198,7 @@ export default {
       }
     },
     async showAllAcount() {
+      this.accountData = []
       try {
         const res = await this.$http.get(this.$apiUrl + '/api/allusers')
         if (res.data.code === 0) {
@@ -297,7 +298,16 @@ export default {
         if (res.data.code === 0) {
           const index = this.scope.$index
           this.accountData[index].authority = authority
-          location.reload()
+          this.showAllAcount()
+          this.editContactConfirm = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '修改成功'
+            }
+          )
+          // location.reload()
         } else {
           this.$message(
             {
@@ -374,14 +384,22 @@ export default {
               )
             })
             if (res.data.code === 0) {
-              this.accountData.push({
-                accountName: this.createAccountData.accountName,
-                authority: authority,
-                name: this.createAccountData.name,
-                phone: this.createAccountData.phone,
-                email: this.createAccountData.email
-              })
-              location.reload()
+              this.showAllAcount()
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'success',
+                  message: '创建成功'
+                }
+              )
+              // this.accountData.push({
+              //   accountName: this.createAccountData.accountName,
+              //   authority: authority,
+              //   name: this.createAccountData.name,
+              //   phone: this.createAccountData.phone,
+              //   email: this.createAccountData.email
+              // })
+              // location.reload()
             } else {
               if (res.data.code === 504) {
                 this.$message(
@@ -428,11 +446,11 @@ export default {
           {
             method: 'GET',
             url: this.$apiUrl + '/admin/deleteuser?username=' + this.scope.row.accountName,
-            header: { 'Authorization': this.token }
+            headers: { 'Authorization': this.token }
           }
         )
         if (res.data.code === 0) {
-          this.accountData.splice(this.scope.$index, 1)
+          this.showAllAcount()
           this.deleteAccountConfirm = false
           this.$message({
             showClose: true,

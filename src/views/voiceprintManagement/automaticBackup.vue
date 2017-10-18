@@ -73,10 +73,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select class="time-select" v-model="backupData.backupTime" :picker-options="{
-                                                              start: '00:00',
-                                                              step: '00:30',
-                                                              end: '08:00'
-                                                            }" placeholder="请选择备份时间">
+                                                                start: '00:00',
+                                                                step: '00:30',
+                                                                end: '08:00'
+                                                              }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -108,10 +108,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select class="time-select" v-model="editBackupData.backupTime" :picker-options="{
-                                                        start: '00:00',
-                                                        step: '00:30',
-                                                        end: '08:00'
-                                                      }" placeholder="请选择备份时间">
+                                                          start: '00:00',
+                                                          step: '00:30',
+                                                          end: '08:00'
+                                                        }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -549,8 +549,14 @@ export default {
             })
           })
           if (res.data.code === 0) {
+            this.showAllBackup()
+            this.$message({
+              showClose: true,
+              message: '创建成功',
+              type: 'success'
+            })
             this.NewBackUpLoading = false
-            location.reload()
+            // location.reload()
           }
         }
       } else {

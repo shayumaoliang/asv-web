@@ -375,7 +375,14 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          location.reload()
+          this.editServerNameDialog = false
+          this.getServerList()
+          // location.reload()
+          this.$message({
+            showClose: true,
+            type: 'success',
+            message: '修改成功'
+          })
         } else {
           this.$message({
             showClose: true,
@@ -406,6 +413,7 @@ export default {
           })
         })
         if (res.data.code === 0) {
+          this.getServerList()
           this.$message({
             showClose: true,
             type: 'success',
@@ -443,14 +451,15 @@ export default {
           })
         })
         if (res.data.code === 0) {
+          this.getServerList()
           this.$message({
             showClose: true,
             type: 'success',
             message: '创建成功'
           })
-          this.allServerGroups.push({
-            groupName: this.addServerGroupData
-          })
+          // this.allServerGroups.push({
+          //   groupName: this.addServerGroupData
+          // })
           this.addServerGroupDialog = false
         } else {
           this.$message({
@@ -481,13 +490,14 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          await this.$message({
+          this.getServerList()
+          this.$message({
             showClose: true,
             type: 'success',
             message: '添加成功'
           })
           this.addServerDialog = false
-          this.$router.go({ path: this.$route.path })
+          // this.$router.go({ path: this.$route.path })
           // this.$route.reload()
           // this.allServerGroups[this.groupIndex].servers.push({
           //   machine_name: this.addServerData
@@ -622,7 +632,8 @@ export default {
             message: '移除成功'
           })
           // location.reload()
-          this.allServerGroups[this.groupIndex].servers.splice(this.serverIndex, 1)
+          // this.allServerGroups[this.groupIndex].servers.splice(this.serverIndex, 1)
+          this.getServerList()
           this.dropOutOfGroupDialog = false
           this.showServer = false
           this.showServerGroup = true
@@ -683,7 +694,8 @@ export default {
             type: 'success',
             message: '删除成功'
           })
-          this.allServerGroups.splice(this.groupIndex, 1)
+          this.getServerList()
+          // this.allServerGroups.splice(this.groupIndex, 1)
           this.deletetServerGroupDialog = false
           await this.getServerList()
           // location.reload()
