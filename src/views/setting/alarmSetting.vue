@@ -655,7 +655,8 @@ export default {
                 }
               )
             } else {
-              if (isNaN(this.editRuleData.maxAlarmNum) === true) {
+              console.log(this.editRuleData.maxAlarmNum)
+              if (Number.isInteger(Number(this.editRuleData.maxAlarmNum)) === false) {
                 this.$message(
                   {
                     showClose: true,
@@ -949,7 +950,7 @@ export default {
                                 }
                               )
                             } else {
-                              if (!Number.isInteger(this.alarmRuleData.maxAlarmNum)) {
+                              if (Number.isInteger(Number(this.alarmRuleData.maxAlarmNum)) === false) {
                                 this.$message(
                                   {
                                     showClose: true,
