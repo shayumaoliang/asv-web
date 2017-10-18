@@ -770,9 +770,10 @@ export default {
               )
             })
             if (res.data.code === 0) {
-              this.allContactData[index].name = this.editContactData.name
-              this.allContactData[index].phone = this.editContactData.phone
-              this.allContactData[index].email = this.editContactData.email
+              // this.allContactData[index].name = this.editContactData.name
+              // this.allContactData[index].phone = this.editContactData.phone
+              // this.allContactData[index].email = this.editContactData.email
+              this.showAllContact()
               this.editContactConfirm = false
               this.$message(
                 {
@@ -1171,7 +1172,6 @@ export default {
           url: this.$apiUrl + '/admin/deletewarning?warning_name=' + this.scope.row.ruleName,
           headers: { 'Authorization': this.token }
         })
-        console.log(this.scope.row)
         if (res.data.code === 0) {
           // this.allContactData.splice(this.scope.$index, 1)
           this.deleteContactConfirm = false

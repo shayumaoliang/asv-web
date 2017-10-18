@@ -90,6 +90,7 @@ export default {
     },
     async showAllConfig() {
       try {
+        this.allAsvServerConfig = []
         const res = await this.$http.get(this.$apiUrl + '/api/allconfigs')
         if (res.data.code === 0) {
           let rpcConfigData
@@ -147,6 +148,7 @@ export default {
         })
         if (res.data.code === 0) {
           this.pushRpcServerConfigDialog = false
+          this.showAllConfig()
           this.$message(
             {
               showClose: true,
@@ -187,6 +189,7 @@ export default {
         })
         if (res.data.code === 0) {
           this.pushAsvServerConfigDialog = false
+          this.showAllConfig()
           this.$message(
             {
               showClose: true,

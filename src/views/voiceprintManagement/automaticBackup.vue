@@ -73,10 +73,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select class="time-select" v-model="backupData.backupTime" :picker-options="{
-                                                                start: '00:00',
-                                                                step: '00:30',
-                                                                end: '08:00'
-                                                              }" placeholder="请选择备份时间">
+                                                                  start: '00:00',
+                                                                  step: '00:30',
+                                                                  end: '08:00'
+                                                                }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -108,10 +108,10 @@
         </el-form-item>
         <el-form-item label="备份时间">
           <el-time-select class="time-select" v-model="editBackupData.backupTime" :picker-options="{
-                                                          start: '00:00',
-                                                          step: '00:30',
-                                                          end: '08:00'
-                                                        }" placeholder="请选择备份时间">
+                                                            start: '00:00',
+                                                            step: '00:30',
+                                                            end: '08:00'
+                                                          }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
         <el-form-item label="备份日期">
@@ -251,10 +251,11 @@ export default {
         })
         if (res.data.code === 0) {
           await this.$message({
-            type: 'ss',
+            type: 'success',
             showClose: true,
             message: '成功回滚'
           })
+          // this.showAllBackup()
           this.rollBackLoading = false
           this.rollBackDialog = false
         } else {
@@ -280,9 +281,9 @@ export default {
           scope.row.onOff = '开启'
           scope.row.backupStatus = '暂停中'
           this.$message({
-            type: 'ss',
+            type: 'success',
             showClose: true,
-            message: '成功停止使用该备份规则'
+            message: '成功停用该备份规则'
           })
           // location.reload()
         } else {
@@ -302,9 +303,9 @@ export default {
           scope.row.onOff = '停止'
           scope.row.backupStatus = '运行中'
           this.$message({
-            type: 'ss',
+            type: 'success',
             showClose: true,
-            message: '成功开始使用该备份规则'
+            message: '成功启用该备份规则'
           })
           // location.reload()
         } else {
@@ -368,37 +369,38 @@ export default {
           //   backupDate: this.editBackupData.backupDate,
           //   backupNum: this.editBackupData.copyNum
           // }
-          this.allBackupRules[this.scope.$index].backupTime = this.editBackupData.backupTime
-          if (this.editBackupData.backupDate === 1) {
-            this.allBackupRules[this.scope.$index].backupDate = '周一'
-          } else {
-            if (this.editBackupData.backupDate === 2) {
-              this.allBackupRules[this.scope.$index].backupDate = '周二'
-            } else {
-              if (this.editBackupData.backupDate === 3) {
-                this.allBackupRules[this.scope.$index].backupDate = '周三'
-              } else {
-                if (this.editBackupData.backupDate === 4) {
-                  this.allBackupRules[this.scope.$index].backupDate = '周四'
-                } else {
-                  if (this.editBackupData.backupDate === 5) {
-                    this.allBackupRules[this.scope.$index].backupDate = '周五'
-                  } else {
-                    if (this.editBackupData.backupDate === 6) {
-                      this.allBackupRules[this.scope.$index].backupDate = '周六'
-                    } else {
-                      this.allBackupRules[this.scope.$index].backupDate = '周日'
-                    }
-                  }
-                }
-              }
-            }
-          }
+          // this.allBackupRules[this.scope.$index].backupTime = this.editBackupData.backupTime
+          // if (this.editBackupData.backupDate === 1) {
+          //   this.allBackupRules[this.scope.$index].backupDate = '周一'
+          // } else {
+          //   if (this.editBackupData.backupDate === 2) {
+          //     this.allBackupRules[this.scope.$index].backupDate = '周二'
+          //   } else {
+          //     if (this.editBackupData.backupDate === 3) {
+          //       this.allBackupRules[this.scope.$index].backupDate = '周三'
+          //     } else {
+          //       if (this.editBackupData.backupDate === 4) {
+          //         this.allBackupRules[this.scope.$index].backupDate = '周四'
+          //       } else {
+          //         if (this.editBackupData.backupDate === 5) {
+          //           this.allBackupRules[this.scope.$index].backupDate = '周五'
+          //         } else {
+          //           if (this.editBackupData.backupDate === 6) {
+          //             this.allBackupRules[this.scope.$index].backupDate = '周六'
+          //           } else {
+          //             this.allBackupRules[this.scope.$index].backupDate = '周日'
+          //           }
+          //         }
+          //       }
+          //     }
+          //   }
+          // }
           // this.allBackupRules[this.scope.$index].backupDate = this.editBackupData.backupDate
-          this.allBackupRules[this.scope.$index].backupNum = this.editBackupData.copyNum
+          // this.allBackupRules[this.scope.$index].backupNum = this.editBackupData.copyNum
+          this.showAllBackupRule()
           this.editBackupDialog = false
           this.$message({
-            type: 'ss',
+            type: 'success',
             showClose: true,
             message: '修改成功'
           })
@@ -433,7 +435,8 @@ export default {
         })
         if (res.data.code === 0) {
           this.NewBackUpLoading = false
-          this.allBackup.splice(scope.$index, 1)
+          this.showAllBackup()
+          // this.allBackup.splice(scope.$index, 1)
           this.$message({
             type: 'success',
             showClose: true,
@@ -463,7 +466,8 @@ export default {
         })
         if (res.data.code === 0) {
           this.NewBackUpLoading = false
-          this.allBackupRules.splice(scope.$index, 1)
+          // this.allBackupRules.splice(scope.$index, 1)
+          this.showAllBackupRule()
           this.$message({
             type: 'success',
             showClose: true,
@@ -483,6 +487,7 @@ export default {
       }
     },
     async showAllBackupRule() {
+      this.allBackupRules = []
       const res = await this.$http.get(this.$apiUrl + '/api/autobackups')
       for (let i = 0; i < res.data.autoBackuprRuleInfos.length; i++) {
         const backupRule = {}
@@ -504,17 +509,26 @@ export default {
       }
     },
     async showAllBackup() {
+      this.allBackup = []
       const res = await this.$http.get(this.$apiUrl + '/api/backups')
-      for (let i = 0; i < res.data.allbackups.length; i++) {
-        const backup = {}
-        backup['company'] = res.data.allbackups[i].company_name
-        backup['business'] = res.data.allbackups[i].business_name
-        backup['voiceprintDataName'] = res.data.allbackups[i].lib_name
-        backup['backupName'] = res.data.allbackups[i].backup_name
-        backup['backupTime'] = res.data.allbackups[i].backup_time
-        backup['backupType'] = res.data.allbackups[i].backup_type
-        backup['backupStatus'] = res.data.allbackups[i].backup_status
-        this.allBackup.push(backup)
+      if (res.data.code === 0) {
+        for (let i = 0; i < res.data.allbackups.length; i++) {
+          const backup = {}
+          backup['company'] = res.data.allbackups[i].company_name
+          backup['business'] = res.data.allbackups[i].business_name
+          backup['voiceprintDataName'] = res.data.allbackups[i].lib_name
+          backup['backupName'] = res.data.allbackups[i].backup_name
+          backup['backupTime'] = res.data.allbackups[i].backup_time
+          backup['backupType'] = res.data.allbackups[i].backup_type
+          backup['backupStatus'] = res.data.allbackups[i].backup_status
+          this.allBackup.push(backup)
+        }
+      } else {
+        this.$message({
+          showClose: true,
+          message: res.data.msg,
+          type: 'error'
+        })
       }
     },
     async createBackup() {
@@ -549,13 +563,14 @@ export default {
             })
           })
           if (res.data.code === 0) {
-            this.showAllBackup()
+            this.showAllBackupRule()
             this.$message({
               showClose: true,
               message: '创建成功',
               type: 'success'
             })
             this.NewBackUpLoading = false
+            this.newBackup = false
             // location.reload()
           }
         }

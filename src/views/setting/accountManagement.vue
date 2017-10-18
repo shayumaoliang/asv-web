@@ -384,6 +384,7 @@ export default {
               )
             })
             if (res.data.code === 0) {
+              this.addAccountDialog = false
               this.showAllAcount()
               this.$message(
                 {
@@ -451,7 +452,7 @@ export default {
         )
         if (res.data.code === 0) {
           this.showAllAcount()
-          this.deleteAccountConfirm = false
+          this.deleteAccountDialog = false
           this.$message({
             showClose: true,
             message: '成功删除',

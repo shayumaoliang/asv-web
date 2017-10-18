@@ -308,9 +308,26 @@ export default {
       }
     },
     async getAllcompany() {
-      const res = await this.$http.get(this.$apiUrl + '/api/getallcompanys')
-      const allCompanys = res.data.companys
-      this.companys = allCompanys
+      try {
+        this.companys = []
+        const res = await this.$http.get(this.$apiUrl + '/api/getallcompanys')
+        const allCompanys = res.data.companys
+        if (res.data.code === 0) {
+          this.companys = allCompanys
+        } else {
+          this.$message({
+            showClose: true,
+            message: res.data.msg,
+            type: 'error'
+          })
+        }
+      } catch (e) {
+        this.$message({
+          showClose: true,
+          message: e,
+          type: 'error'
+        })
+      }
     },
     async getCurrentDb(key) {
       this.showDb = true
@@ -350,8 +367,8 @@ export default {
           headers: { 'Authorization': this.token },
           url: this.$apiUrl + '/admin/' + this.voiceprintData.companyName + '/' + this.voiceprintData.businessName + '/' + this.voiceprintData.DbName + '/manualbackup?backup_name=' + this.voiceprintData.backupName
         })
-        this.backup = false
         if (res.data.code === 0) {
+          this.backup = false
           this.$message({
             showClose: true,
             message: '成功开始备份',
@@ -462,6 +479,7 @@ export default {
           })
         })
         if (res.data.code === 0) {
+          this.getAllcompany()
           this.currentCompanyName = this.editCompanyData
           this.companys[this.companyIndex].company_name = this.editCompanyData
           this.editCompanyDialog = false
@@ -502,7 +520,8 @@ export default {
           url: this.$apiUrl + '/admin/deletecompany?company_name=' + this.currentCompanyName
         })
         if (res.data.code === 0) {
-          this.companys.splice(this.companyIndex, 1)
+          // this.companys.splice(this.companyIndex, 1)
+          this.getAllcompany()
           this.deleteCompanyConDialog = false
           this.$message({
             showClose: true,
@@ -535,7 +554,7 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          await this.getAllcompany()
+          this.getAllcompany()
           const index = this.companys[this.companyIndex].businesses.length - 1
           this.businessId = this.companys[this.companyIndex].businesses[index].id
           this.addBusinessDialog = false
@@ -575,7 +594,8 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          this.currentBusinessName = this.editBusinessData
+          this.getAllcompany()
+          // this.currentBusinessName = this.editBusinessData
           this.companys[this.companyIndex].businesses[this.businessIndex].business_name = this.editBusinessData
           this.editBusinessDialog = false
           this.$message({
@@ -615,7 +635,8 @@ export default {
           url: this.$apiUrl + '/admin/' + this.currentCompanyName + '/deletebusiness?business_name=' + this.currentBusinessName
         })
         if (res.data.code === 0) {
-          this.companys[this.companyIndex].businesses.splice(this.businessIndex, 1)
+          this.getAllcompany()
+          // this.companys[this.companyIndex].businesses.splice(this.businessIndex, 1)
           this.deleteBusinessDialog = false
           this.$message({
             showClose: true,

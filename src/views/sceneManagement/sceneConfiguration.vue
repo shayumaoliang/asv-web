@@ -30,7 +30,7 @@
         </el-form-item>
         <span slot="footer" class="dialog-footer">
           <el-button @click="impirtSceneDialog = false">取 消</el-button>
-          <el-button type="primary" @click="impirtScene">确 定</el-button>
+          <el-button type="primary" @click="importScene">确 定</el-button>
         </span>
       </el-dialog>
     </el-form>
@@ -75,6 +75,7 @@ export default {
     },
     async showAllScenes() {
       try {
+        this.scenes = []
         const res = await this.$http.get(this.$apiUrl + '/api/allscenes')
         if (res.data.code === 0) {
           const scenes = res.data.scenes
@@ -94,7 +95,7 @@ export default {
       this.impirtSceneDialog = true
       console.log(index)
     },
-    async impirtScene() {
+    async importScene() {
       try {
         const res = await this.$http({
           method: 'POST',
@@ -109,14 +110,15 @@ export default {
           )
         })
         if (res.data.code === 0) {
-          this.scenes.push(
-            {
-              name: this.newSenceData.name,
-              modelPath: this.newSenceData.modelPath,
-              description: this.newSenceData.description
-            }
-          )
+          // this.scenes.push(
+          //   {
+          //     name: this.newSenceData.name,
+          //     modelPath: this.newSenceData.modelPath,
+          //     description: this.newSenceData.description
+          //   }
+          // )
           this.impirtSceneDialog = false
+          this.showAllScenes()
           this.$message(
             {
               showClose: true,
@@ -160,7 +162,8 @@ export default {
           })
         if (res.data.code === 0) {
           this.deleteSceneDialog = false
-          this.scenes.splice(this.sceneIndex, 1)
+          // this.scenes.splice(this.sceneIndex, 1)
+          this.showAllScenes()
           this.$message(
             {
               showClose: true,
