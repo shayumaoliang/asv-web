@@ -233,9 +233,10 @@ export default {
               if (this.accountData[i].authority === ['无任何权限'] || this.accountData[i].authority === ['接收报警权限']) {
                 return
               } else {
-                this.$store.dispatch('LogOut').then(() => {
-                  location.reload()
-                })
+                document.cookie = 'Authorization' + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+                // this.$store.dispatch('LogOut').then(() => {
+                //   location.reload()
+                // })
               }
             }
           }
@@ -315,9 +316,12 @@ export default {
             {
               showClose: true,
               type: 'success',
-              message: '修改成功'
+              message: '修改成功,一秒后将刷新页面'
             }
           )
+          setTimeout(function() {
+            location.reload()
+          }, 1000)
           // this.$router.push({ path: '/login' })
           // location.reload()
         } else {
