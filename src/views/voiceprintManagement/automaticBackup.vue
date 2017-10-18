@@ -45,12 +45,13 @@
       </el-dialog>
       <el-tab-pane label="查看备份" @click="showAllBackup">
         <el-table :data="allBackup" height="500">
-          <el-table-column width="180" prop="company" label="公司"></el-table-column>
-          <el-table-column width="180" prop="business" label="业务"></el-table-column>
-          <el-table-column width="180" prop="voiceprintDataName" label="声纹库"></el-table-column>
-          <el-table-column prop="backupName" label="备份名称"></el-table-column>
-          <el-table-column width="200" prop="backupTime" label="备份时间"></el-table-column>
+          <el-table-column width="120" prop="company" label="公司"></el-table-column>
+          <el-table-column width="120" prop="business" label="业务"></el-table-column>
+          <el-table-column width="120" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column width="120" prop="backupName" label="备份名称"></el-table-column>
           <el-table-column width="100" prop="backupType" label="备份类型"></el-table-column>
+          <el-table-column width="180" prop="backupTime" label="备份时间"></el-table-column>
+          <el-table-column width="180" prop="backupDir" label="备份储存位置"></el-table-column>
           <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
           <el-table-column v-if="getRole()" label="操作">
             <template scope="scope">
@@ -521,6 +522,7 @@ export default {
           backup['backupTime'] = res.data.allbackups[i].backup_time
           backup['backupType'] = res.data.allbackups[i].backup_type
           backup['backupStatus'] = res.data.allbackups[i].backup_status
+          backup['backupDir'] = res.data.allbackups[i].backup_dir
           this.allBackup.push(backup)
         }
       } else {

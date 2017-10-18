@@ -182,7 +182,7 @@
               </el-input>
             </el-form-item>
             <el-form-item label="声纹库标识符">
-              <el-input disabled class="center-input" v-model="editVioceprintDbData.uid">
+              <el-input class="center-input" v-model="editVioceprintDbData.uid">
               </el-input>
             </el-form-item>
             <el-form-item label="场景">
@@ -191,7 +191,6 @@
                 </el-option>
               </el-select>
             </el-form-item>
-
             <span slot="footer" class="dialog-footer">
               <el-button @click="editVioceprintDbDialog = false">取 消</el-button>
               <el-button type="primary" @click="editVoiceprintDb">确 定</el-button>
