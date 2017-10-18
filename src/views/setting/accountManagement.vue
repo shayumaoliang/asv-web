@@ -228,6 +228,17 @@ export default {
             }
             this.accountData.push(user)
           }
+          for (let i = 0; i < this.accountData.length; i++) {
+            if (this.accountData[i].accountName === this.userName) {
+              if (this.accountData[i].authority === ['无任何权限'] || this.accountData[i].authority === ['接收报警权限']) {
+                return
+              } else {
+                this.$store.dispatch('LogOut').then(() => {
+                  location.reload()
+                })
+              }
+            }
+          }
         }
       } catch (e) {
         console.log(e)
@@ -300,13 +311,14 @@ export default {
           this.accountData[index].authority = authority
           this.showAllAcount()
           this.editContactConfirm = false
-          this.$message(
+          await this.$message(
             {
               showClose: true,
               type: 'success',
               message: '修改成功'
             }
           )
+          // this.$router.push({ path: '/login' })
           // location.reload()
         } else {
           this.$message(
