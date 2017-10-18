@@ -384,7 +384,6 @@ export default {
       }
     },
     openOrclose(key, keyPath) {
-      console.log(key, keyPath)
       if (key !== '0') {
         if (keyPath.length === 2) {
           const any = key.split('-')
@@ -481,7 +480,7 @@ export default {
         if (res.data.code === 0) {
           this.getAllcompany()
           this.currentCompanyName = this.editCompanyData
-          this.companys[this.companyIndex].company_name = this.editCompanyData
+          // this.companys[this.companyIndex].company_name = this.editCompanyData
           this.editCompanyDialog = false
           this.$message({
             showClose: true,
@@ -541,7 +540,6 @@ export default {
     },
     addBusinessConfirm() {
       this.addBusinessDialog = true
-      console.log(this.companys[this.companyIndex])
     },
     async addBusiness() {
       try {
