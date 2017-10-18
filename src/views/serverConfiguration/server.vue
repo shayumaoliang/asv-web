@@ -117,7 +117,7 @@
           <div slot="header" class="clearfix">
             <el-button size="small" type="primary" @click="addServerConfirm">{{ '添加服务器' }}</el-button>
             <el-button size="small" type="primary" @click="editServerGroupConfirm">{{ '修改服务器组名称' }}</el-button>
-            <el-button size="small" type="primary" @click="deletetServerGroupConfirm">{{ '删除该服务器组' }}</el-button>
+            <el-button size="small" type="primary" @click="deleteServerGroupConfirm">{{ '删除该服务器组' }}</el-button>
           </div>
           <span>当前分组下共有{{ numberOfServers }}个服务器</span>
         </el-card>
@@ -143,11 +143,11 @@
           <el-button type="primary" @click="editServerGroup">确 定</el-button>
         </span>
       </el-dialog>
-      <el-dialog size="tiny" title="删除" :visible.sync="deletetServerGroupDialog">
+      <el-dialog size="tiny" title="删除" :visible.sync="deleteServerGroupDialog">
         <span>是否删除该分组</span>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="deletetServerGroupDialog = false">取 消</el-button>
-          <el-button type="primary" @click="deletetGroup">确 定</el-button>
+          <el-button @click="deleteServerGroupDialog = false">取 消</el-button>
+          <el-button type="primary" @click="deleteGroup">确 定</el-button>
         </span>
       </el-dialog>
     </div>
@@ -176,7 +176,7 @@ export default {
       addServerGroupDialog: false,
       editServerGroupDialog: false,
       addServerDialog: false,
-      deletetServerGroupDialog: false,
+      deleteServerGroupDialog: false,
       dropOutOfGroupDialog: false,
       editServerNameDialog: false,
       editServerNameData: null,
@@ -354,8 +354,16 @@ export default {
     editServerNameConfirm() {
       this.editServerNameDialog = true
     },
-    deletetServerGroupConfirm() {
-      this.deletetServerGroupDialog = true
+    deleteServerGroupConfirm() {
+      if (this.allServerGroups[this.groupIndex].servers.length === 0) {
+        this.deleteServerGroupDialog = true
+      } else {
+        this.$message({
+          showClose: true,
+          type: 'error',
+          message: '该分组下有服务器，无法删除'
+        })
+      }
     },
     dropOutOfGroupConfirm() {
       this.dropOutOfGroupDialog = true
@@ -681,7 +689,7 @@ export default {
         })
       }
     },
-    async deletetGroup() {
+    async deleteGroup() {
       try {
         const res = await this.$http({
           method: 'GET',
@@ -696,8 +704,7 @@ export default {
           })
           this.getServerList()
           // this.allServerGroups.splice(this.groupIndex, 1)
-          this.deletetServerGroupDialog = false
-          await this.getServerList()
+          this.deleteServerGroupDialog = false
           // location.reload()
         } else {
           this.$message({

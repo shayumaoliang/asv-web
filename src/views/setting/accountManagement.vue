@@ -344,80 +344,90 @@ export default {
               }
             )
           } else {
-            let authority = []
-            let admin
-            let alarm
-            if (this.createAccountData.authority[0] === 'opration' && this.createAccountData.authority.length === 1) {
-              authority[0] = '操作权限'
-              admin = true
-              alarm = false
-            } else {
-              if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority.length === 1) {
-                authority[0] = '接收报警权限'
-                admin = false
-                alarm = true
-              } else {
-                if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority[1] === 'opration') {
-                  authority[0] = '接收报警权限'
-                  authority[1] = <br />
-                  authority[2] = '操作权限'
-                  admin = true
-                  alarm = true
-                } else {
-                  authority = ['无任何权限']
-                  admin = false
-                  alarm = false
-                }
-              }
-            }
-            const res = await this.$http({
-              method: 'POST',
-              url: this.$apiUrl + '/admin/createuser',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
-              data: qs.stringify(
-                {
-                  username: this.createAccountData.accountName,
-                  password: this.createAccountData.password,
-                  admin: admin,
-                  alarm: alarm
-                }
-              )
-            })
-            if (res.data.code === 0) {
-              this.addAccountDialog = false
-              this.showAllAcount()
+            if (this.createAccountData.password.length < 6) {
               this.$message(
                 {
                   showClose: true,
-                  type: 'success',
-                  message: '创建成功'
+                  type: 'error',
+                  message: '密码长度须大于六位数'
                 }
               )
-              // this.accountData.push({
-              //   accountName: this.createAccountData.accountName,
-              //   authority: authority,
-              //   name: this.createAccountData.name,
-              //   phone: this.createAccountData.phone,
-              //   email: this.createAccountData.email
-              // })
-              // location.reload()
             } else {
-              if (res.data.code === 504) {
-                this.$message(
-                  {
-                    showClose: true,
-                    type: 'error',
-                    message: '用户名已存在，请更换再尝试'
-                  }
-                )
+              let authority = []
+              let admin
+              let alarm
+              if (this.createAccountData.authority[0] === 'opration' && this.createAccountData.authority.length === 1) {
+                authority[0] = '操作权限'
+                admin = true
+                alarm = false
               } else {
+                if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority.length === 1) {
+                  authority[0] = '接收报警权限'
+                  admin = false
+                  alarm = true
+                } else {
+                  if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority[1] === 'opration') {
+                    authority[0] = '接收报警权限'
+                    authority[1] = <br />
+                    authority[2] = '操作权限'
+                    admin = true
+                    alarm = true
+                  } else {
+                    authority = ['无任何权限']
+                    admin = false
+                    alarm = false
+                  }
+                }
+              }
+              const res = await this.$http({
+                method: 'POST',
+                url: this.$apiUrl + '/admin/createuser',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
+                data: qs.stringify(
+                  {
+                    username: this.createAccountData.accountName,
+                    password: this.createAccountData.password,
+                    admin: admin,
+                    alarm: alarm
+                  }
+                )
+              })
+              if (res.data.code === 0) {
+                this.addAccountDialog = false
+                this.showAllAcount()
                 this.$message(
                   {
                     showClose: true,
-                    type: 'error',
-                    message: res.data.msg
+                    type: 'success',
+                    message: '创建成功'
                   }
                 )
+                // this.accountData.push({
+                //   accountName: this.createAccountData.accountName,
+                //   authority: authority,
+                //   name: this.createAccountData.name,
+                //   phone: this.createAccountData.phone,
+                //   email: this.createAccountData.email
+                // })
+                // location.reload()
+              } else {
+                if (res.data.code === 504) {
+                  this.$message(
+                    {
+                      showClose: true,
+                      type: 'error',
+                      message: '用户名已存在，请更换再尝试'
+                    }
+                  )
+                } else {
+                  this.$message(
+                    {
+                      showClose: true,
+                      type: 'error',
+                      message: res.data.msg
+                    }
+                  )
+                }
               }
             }
           }
@@ -452,7 +462,7 @@ export default {
         )
         if (res.data.code === 0) {
           this.showAllAcount()
-          this.deleteAccountDialog = false
+          this.deleteAccountConfirm = false
           this.$message({
             showClose: true,
             message: '成功删除',
@@ -470,38 +480,46 @@ export default {
       }
     },
     resetPassword(formName) {
-      this.$refs[formName].validate(async (valid) => {
-        if (valid) {
-          const res = await this.$http({
-            method: 'POST',
-            url: this.$apiUrl + '/admin/updateuserpassword',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
-            data: qs.stringify(
-              {
-                username: this.editAccountData.accountName,
-                password: this.password.checkPass
-              }
-            )
-          })
-          if (res.data.code === 0) {
-            this.resetPasswordConfirm = false
-            this.$message({
-              showClose: true,
-              message: '重设密码成功',
-              type: 'success'
+      if (this.password.pass.length < 6) {
+        this.$message({
+          showClose: true,
+          message: '密码长度须大于六',
+          type: 'error'
+        })
+      } else {
+        this.$refs[formName].validate(async (valid) => {
+          if (valid) {
+            const res = await this.$http({
+              method: 'POST',
+              url: this.$apiUrl + '/admin/updateuserpassword',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': this.token },
+              data: qs.stringify(
+                {
+                  username: this.editAccountData.accountName,
+                  password: this.password.checkPass
+                }
+              )
             })
+            if (res.data.code === 0) {
+              this.resetPasswordConfirm = false
+              this.$message({
+                showClose: true,
+                message: '重设密码成功',
+                type: 'success'
+              })
+            } else {
+              this.$message({
+                showClose: true,
+                message: res.data.msg,
+                type: 'error'
+              })
+            }
           } else {
-            this.$message({
-              showClose: true,
-              message: res.data.msg,
-              type: 'error'
-            })
+            console.log('error submit!!')
+            return false
           }
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
+        })
+      }
     }
   },
   async mounted() {
