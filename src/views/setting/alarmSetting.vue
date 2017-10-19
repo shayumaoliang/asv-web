@@ -58,7 +58,7 @@
                   </el-option>
                 </el-select>
                 <el-select class="rule-select" size="small" v-model="rule.alarmTimes" placeholder="请选择监测时间段">
-                  <el-option v-for="item in alarmTims" :key="item.value" :label="item.label" :value="item.value">
+                  <el-option v-for="item in alarmTimes" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
                 <el-select class="rule-select" size="small" v-model="rule.alarmExtremum" placeholder="请选择监测值">
@@ -120,7 +120,7 @@
                   </el-option>
                 </el-select>
                 <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTimes" placeholder="请选择监测周期">
-                  <el-option v-for="item in alarmTims" :key="item.value" :label="item.label" :value="item.value">
+                  <el-option v-for="item in alarmTimes" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
                 <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmExtremum" placeholder="请选择监测值">
@@ -307,17 +307,17 @@ export default {
           label: '内存使用率'
         }
       ],
-      alarmTims: [
+      alarmTimes: [
         {
-          value: '60',
+          value: 60,
           label: '一分钟'
         },
         {
-          value: '300',
+          value: 300,
           label: '五分钟'
         },
         {
-          value: '600',
+          value: 600,
           label: '十分钟'
         }
       ],
@@ -439,7 +439,6 @@ export default {
     },
     async showAllAlarmHistory() {
       try {
-        // const res = await this.$http.get('http://192.168.1.224:9090/api/allwarningnotes')
         const res = await this.$http.get(this.$apiUrl + '/api/allwarningnotes')
         if (res.data.code === 0) {
           const alarmRecords = res.data.warning_notes
@@ -594,28 +593,30 @@ export default {
     },
     editRuleConfirm(scope) {
       this.scope = scope
+      console.log(scope.row)
       this.editRuleData.ruleName = scope.row.ruleName
       if (scope.row.alarmTerm === 'CPU使用率') {
-        this.editRuleData.alarmTerm = 'memory'
+        this.editRuleData.alarmTerm = 'cpu'
       } else {
         if (scope.row.alarmTerm === '内存使用率') {
-          this.editRuleData.alarmTerm = 'cpu'
+          this.editRuleData.alarmTerm = 'memory'
         }
       }
       this.editRuleData.threshold = scope.row.threshold
       this.editRuleData.alarmContrast = scope.row.alarmContrast
       this.editRuleData.alarmExtremum = scope.row.alarmExtremum
-      if (scope.row.alarmTimes === 60) {
-        this.editRuleData.alarmTimes = '一分钟'
-      } else {
-        if (scope.row.alarmTimes === 300) {
-          this.editRuleData.alarmTimes = '五分钟'
-        } else {
-          if (scope.row.alarmTimes === 600) {
-            this.editRuleData.alarmTimes = '十分钟'
-          }
-        }
-      }
+      this.editRuleData.alarmTimes = scope.row.alarmTimes
+      // if (scope.row.alarmTimes === 60) {
+      //   this.editRuleData.alarmTimes = '一分钟'
+      // } else {
+      //   if (scope.row.alarmTimes === 300) {
+      //     this.editRuleData.alarmTimes = '五分钟'
+      //   } else {
+      //     if (scope.row.alarmTimes === 600) {
+      //       this.editRuleData.alarmTimes = '十分钟'
+      //     }
+      //   }
+      // }
       this.editRuleData.notifyWay[0] = scope.row.notifyWay
       this.editRuleData.notifyPerson = scope.row.notifyPerson
       this.editRuleData.maxAlarmNum = Number(scope.row.maxAlarmNum)
@@ -675,7 +676,8 @@ export default {
                   }
                 }
                 const alarmExtremum = this.editRuleData.alarmExtremum
-                let alarmTimes = this.editRuleData.alarmTimes
+                const alarmTimes = this.editRuleData.alarmTimes
+                // let alarmTimes
                 // if (this.editRuleData.alarmTimes === '一分钟') {
                 //   alarmTimes = 60
                 // } else {
@@ -687,7 +689,6 @@ export default {
                 //     }
                 //   }
                 // }
-                console.log(this.editRuleData.alarmTimes)
                 const alarmContrast = this.editRuleData.alarmContrast
                 const threshold = this.editRuleData.threshold
                 let notifyWay
