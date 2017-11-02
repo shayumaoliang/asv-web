@@ -592,8 +592,8 @@ export default {
         })
         if (res.data.code === 0) {
           this.getAllcompany()
-          // this.currentBusinessName = this.editBusinessData
-          this.companys[this.companyIndex].businesses[this.businessIndex].business_name = this.editBusinessData
+          this.currentBusinessName = this.editBusinessData
+          // this.companys[this.companyIndex].businesses[this.businessIndex].business_name = this.editBusinessData
           this.editBusinessDialog = false
           this.$message({
             showClose: true,
@@ -608,6 +608,11 @@ export default {
           })
         }
       } catch (e) {
+        this.$message({
+          showClose: true,
+          message: e,
+          type: 'error'
+        })
         console.log(e)
       }
     },
