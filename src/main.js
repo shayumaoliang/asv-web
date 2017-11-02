@@ -12,8 +12,6 @@ import axios from 'axios'
 import Iview from 'iview'
 import 'iview/dist/styles/iview.css'
 
-// import http from './api/http.js'
-// Vue.use(http)
 Vue.use(VueAxios, axios)
 Vue.component(IEcharts.name, IEcharts)
 

@@ -114,7 +114,7 @@
       </el-card>
       <el-form ref="serverStatus" :model="serverStatus" label-width="70px">
         <el-card v-if="showServerGroup === true">
-          <div slot="header" class="clearfix">
+          <div v-if="getRole()" slot="header" class="clearfix">
             <el-button size="small" type="primary" @click="addServerConfirm">{{ '添加服务器' }}</el-button>
             <el-button size="small" type="primary" @click="editServerGroupConfirm">{{ '修改服务器组名称' }}</el-button>
             <el-button size="small" type="primary" @click="deleteServerGroupConfirm">{{ '删除该服务器组' }}</el-button>
