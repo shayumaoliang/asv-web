@@ -2,7 +2,7 @@
   <div class="dashboard-container">
     <h4>
       <icon-svg icon-class="vertical"></icon-svg>参数配置</h4>
-    <el-form label-width="10px" label-position="left" :model="rpcServerData">
+    <el-form label-position="left" label-width="90px" :model="rpcServerData">
       <el-card class="view">
         <div slot="header" class="header-card">
           <span>asv-rpc 配置</span>
@@ -10,15 +10,19 @@
           <el-button v-if="getRole()" size="small" type="success" class="delete-icon" @click="pushRpcServerConfigConfirm()">提交配置</el-button>
         </div>
         <div v-for="(config, index) of allRpcServerConfig" :key="index">
-          <el-form-item class="item-form">
-            <el-input size="small" class="config-input" v-model="config.name">
-              <template slot="prepend"> 配置项名</template>
-            </el-input>
-            <el-input size="small" class="config-input" v-model="config.configValue">
-              <template slot="prepend"> 配置项值</template>
-            </el-input>
-            <el-button v-if="getRole()" size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteRpcServerConfig(index)">删除该配置项</el-button>
+          <el-form-item class="item-form" label="配置项名">
+            <el-input size="small" class="config-input" v-model="config.name"></el-input>
           </el-form-item>
+          <el-form-item class="item-form" label="配置项值">
+            <el-input size="small" class="config-input" v-model="config.configValue"></el-input>
+          </el-form-item>
+          <el-form-item class="item-form" label="配置项描述">
+            <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 5}" class="config-input" v-model="config.description"></el-input>
+          </el-form-item>
+          <el-form-item class="item-form">
+            <el-button v-if="getRole()" size="mini" type="danger" class="delete-icon el-icon-delete" @click="deleteRpcServerConfig(index)">删除该配置项</el-button>
+          </el-form-item>
+          <hr />
         </div>
       </el-card>
     </el-form>
@@ -29,7 +33,7 @@
         <el-button type="primary" @click="pushRpcServerConfig">确 定</el-button>
       </span>
     </el-dialog>
-    <el-form label-width="10px" label-position="left" :model="asvServerData">
+    <el-form label-width="90px" label-position="left" :model="asvServerData">
       <el-card class="view">
         <div slot="header" class="header-card">
           <span>asvServer 配置</span>
@@ -37,15 +41,19 @@
           <el-button v-if="getRole()" size="small" type="success" class="delete-icon" @click="pushAsvServerConfigConfirm()">提交配置</el-button>
         </div>
         <div v-for="(config, index) of allAsvServerConfig" :key="index">
-          <el-form-item class="item-form">
-            <el-input size="small" class="config-input" v-model="config.name">
-              <template slot="prepend"> 配置项名</template>
-            </el-input>
-            <el-input size="small" class="config-input" v-model="config.configValue">
-              <template slot="prepend"> 配置项值</template>
-            </el-input>
-            <el-button v-if="getRole()" size="mini" type="primary" class="delete-icon el-icon-delete" @click="deleteAsvServerConfig(index)">删除该配置项</el-button>
+          <el-form-item class="item-form" label="配置项名">
+            <el-input size="small" class="config-input" v-model="config.name"></el-input>
           </el-form-item>
+          <el-form-item class="item-form" label="配置项值">
+            <el-input size="small" class="config-input" v-model="config.configValue"></el-input>
+          </el-form-item>
+          <el-form-item class="item-form" label="配置项描述">
+            <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 5}" class="config-input" v-model="config.description"></el-input>
+          </el-form-item>
+          <el-form-item class="item-form">
+            <el-button v-if="getRole()" size="mini" type="danger" class="delete-icon el-icon-delete" @click="deleteAsvServerConfig(index)">删除该配置项</el-button>
+          </el-form-item>
+          <hr />
         </div>
       </el-card>
     </el-form>
@@ -91,27 +99,30 @@ export default {
     async showAllConfig() {
       try {
         this.allAsvServerConfig = []
+        this.allRpcServerConfig = []
         const res = await this.$http.get(this.$apiUrl + '/api/allconfigs')
         if (res.data.code === 0) {
           let rpcConfigData
           let asvServerData
           if (res.data.configs[0].config_name === 'asv-rpc') {
-            rpcConfigData = res.data.configs[0].conf_data
-            asvServerData = res.data.configs[1].conf_data
+            rpcConfigData = res.data.configs[0].config_data.configs
+            asvServerData = res.data.configs[1].config_data.configs
           } else {
-            rpcConfigData = res.data.configs[0].conf_data
-            asvServerData = res.data.configs[1].conf_data
+            rpcConfigData = res.data.configs[1].config_data.configs
+            asvServerData = res.data.configs[0].config_data.configs
           }
-          for (let i = 0; i < Object.keys(rpcConfigData).length; i++) {
+          for (let i = 0; i < rpcConfigData.length; i++) {
             const allRpcConfig = {}
-            allRpcConfig['name'] = Object.keys(rpcConfigData)[i]
-            allRpcConfig['configValue'] = Object.values(rpcConfigData)[i]
+            allRpcConfig['name'] = rpcConfigData[i].key
+            allRpcConfig['configValue'] = rpcConfigData[i].value
+            allRpcConfig['description'] = rpcConfigData[i].description
             this.allRpcServerConfig.push(allRpcConfig)
           }
-          for (let i = 0; i < Object.keys(asvServerData).length; i++) {
+          for (let i = 0; i < asvServerData.length; i++) {
             const allasvConfig = {}
-            allasvConfig['name'] = Object.keys(asvServerData)[i]
-            allasvConfig['configValue'] = Object.values(asvServerData)[i]
+            allasvConfig['name'] = asvServerData[i].key
+            allasvConfig['configValue'] = asvServerData[i].value
+            allasvConfig['description'] = asvServerData[i].description
             this.allAsvServerConfig.push(allasvConfig)
           }
         }
@@ -123,7 +134,8 @@ export default {
       this.allRpcServerConfig.push(
         {
           name: null,
-          configValue: null
+          configValue: null,
+          description: null
         }
       )
     },
@@ -156,6 +168,15 @@ export default {
               message: '提交配置成功'
             }
           )
+        } else {
+          this.pushRpcServerConfigDialog = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: '提交失败: ' + res.data.msg
+            }
+          )
         }
       } catch (e) {
         console.log(e)
@@ -165,7 +186,8 @@ export default {
       this.allAsvServerConfig.push(
         {
           name: null,
-          configValue: null
+          configValue: null,
+          description: null
         }
       )
     },
@@ -195,6 +217,15 @@ export default {
               showClose: true,
               type: 'success',
               message: '提交配置成功'
+            }
+          )
+        } else {
+          this.pushAsvServerConfigDialog = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: '提交失败: ' + res.data.msg
             }
           )
         }
@@ -240,6 +271,7 @@ export default {
 }
 
 .item-form {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+  margin-top: 5px;
 }
 </style>
