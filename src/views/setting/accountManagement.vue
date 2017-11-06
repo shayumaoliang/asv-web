@@ -312,18 +312,6 @@ export default {
           this.accountData[index].authority = authority
           this.showAllAcount()
           this.editContactConfirm = false
-          await this.$message(
-            {
-              showClose: true,
-              type: 'success',
-              message: '修改成功,一秒后将刷新页面'
-            }
-          )
-          setTimeout(function() {
-            location.reload()
-          }, 1000)
-          // this.$router.push({ path: '/login' })
-          // location.reload()
         } else {
           this.$message(
             {
@@ -369,6 +357,7 @@ export default {
                 }
               )
             } else {
+              console.log(this.createAccountData.authority)
               let authority = []
               let admin
               let alarm
@@ -382,7 +371,7 @@ export default {
                   admin = false
                   alarm = true
                 } else {
-                  if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority[1] === 'opration') {
+                  if (this.createAccountData.authority.length === 2) {
                     authority[0] = '接收报警权限'
                     authority[1] = <br />
                     authority[2] = '操作权限'
