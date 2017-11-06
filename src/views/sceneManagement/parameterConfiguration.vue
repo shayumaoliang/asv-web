@@ -203,7 +203,7 @@ export default {
       this.allAsvServerConfig.splice(index, 1)
     },
     pushAsvServerConfigConfirm() {
-      this.pushRpcServerConfigDialog = true
+      this.pushAsvServerConfigDialog = true
     },
     async pushAsvServerConfig() {
       try {
