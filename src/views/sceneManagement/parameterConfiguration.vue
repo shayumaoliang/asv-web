@@ -125,6 +125,14 @@ export default {
             allasvConfig['description'] = asvServerData[i].description
             this.allAsvServerConfig.push(allasvConfig)
           }
+        } else {
+          this.$message(
+            {
+              showClose: true,
+              type: 'error',
+              message: '信息获取失败: ' + res.data.msg
+            }
+          )
         }
       } catch (e) {
         console.log(e)
