@@ -156,9 +156,11 @@ export default {
     },
     async pushRpcServerConfig() {
       try {
-        const body = {}
+        const body = []
         for (let i = 0; i < this.allRpcServerConfig.length; i++) {
-          body[`${this.allRpcServerConfig[i].name}`] = `${this.allRpcServerConfig[i].configValue}`
+          body[i].key = this.allRpcServerConfig[i].name
+          body[i].value = this.allRpcServerConfig[i].configValue
+          body[i].description = this.allRpcServerConfig[i].description
         }
         const res = await this.$http({
           method: 'POST',
@@ -207,9 +209,11 @@ export default {
     },
     async pushAsvServerConfig() {
       try {
-        const body = {}
+        const body = []
         for (let i = 0; i < this.allAsvServerConfig.length; i++) {
-          body[`${this.allAsvServerConfig[i].name}`] = `${this.allAsvServerConfig[i].configValue}`
+          body[i].key = this.allAsvServerConfig[i].name
+          body[i].value = this.allAsvServerConfig[i].configValue
+          body[i].description = this.allAsvServerConfig[i].description
         }
         const res = await this.$http({
           method: 'POST',

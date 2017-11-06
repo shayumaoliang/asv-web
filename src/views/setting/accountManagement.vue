@@ -407,14 +407,6 @@ export default {
                     message: '创建成功'
                   }
                 )
-                // this.accountData.push({
-                //   accountName: this.createAccountData.accountName,
-                //   authority: authority,
-                //   name: this.createAccountData.name,
-                //   phone: this.createAccountData.phone,
-                //   email: this.createAccountData.email
-                // })
-                // location.reload()
               } else {
                 if (res.data.code === 504) {
                   this.$message(
