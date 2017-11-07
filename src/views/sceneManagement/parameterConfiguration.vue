@@ -156,11 +156,15 @@ export default {
     },
     async pushRpcServerConfig() {
       try {
-        const body = []
+        const body = {
+          configs: []
+        }
         for (let i = 0; i < this.allRpcServerConfig.length; i++) {
-          body[i].key = this.allRpcServerConfig[i].name
-          body[i].value = this.allRpcServerConfig[i].configValue
-          body[i].description = this.allRpcServerConfig[i].description
+          const config = {}
+          config['key'] = this.allRpcServerConfig[i].name
+          config['value'] = this.allRpcServerConfig[i].configValue
+          config['description'] = this.allRpcServerConfig[i].description
+          body.configs.push(config)
         }
         const res = await this.$http({
           method: 'POST',
@@ -170,7 +174,6 @@ export default {
         })
         if (res.data.code === 0) {
           this.pushRpcServerConfigDialog = false
-          this.showAllConfig()
           this.$message(
             {
               showClose: true,
@@ -178,6 +181,7 @@ export default {
               message: '提交配置成功'
             }
           )
+          this.showAllConfig()
         } else {
           this.pushRpcServerConfigDialog = false
           this.$message(
@@ -209,11 +213,15 @@ export default {
     },
     async pushAsvServerConfig() {
       try {
-        const body = []
+        const body = {
+          configs: []
+        }
         for (let i = 0; i < this.allAsvServerConfig.length; i++) {
-          body[i].key = this.allAsvServerConfig[i].name
-          body[i].value = this.allAsvServerConfig[i].configValue
-          body[i].description = this.allAsvServerConfig[i].description
+          const config = {}
+          config['key'] = this.allAsvServerConfig[i].name
+          config['value'] = this.allAsvServerConfig[i].configValue
+          config['description'] = this.allAsvServerConfig[i].description
+          body.configs.push(config)
         }
         const res = await this.$http({
           method: 'POST',
@@ -223,7 +231,6 @@ export default {
         })
         if (res.data.code === 0) {
           this.pushAsvServerConfigDialog = false
-          this.showAllConfig()
           this.$message(
             {
               showClose: true,
@@ -231,6 +238,7 @@ export default {
               message: '提交配置成功'
             }
           )
+          this.showAllConfig()
         } else {
           this.pushAsvServerConfigDialog = false
           this.$message(
