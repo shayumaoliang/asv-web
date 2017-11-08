@@ -10,7 +10,7 @@
           <el-table-column prop="voiceprintDataName" label="声纹库"></el-table-column>
           <el-table-column width="150" prop="backupName" label="备份名称"></el-table-column>
           <el-table-column width="100" prop="backupTime" label="备份时间"></el-table-column>
-          <el-table-column width="100" prop="backupDate" label="备份日期"></el-table-column>
+          <el-table-column width="110" prop="backupDate" label="备份日期"></el-table-column>
           <el-table-column width="150" prop="backupNum" label="备份最大副本数量"></el-table-column>
           <el-table-column width="150" prop="backupStatus" label="备份规则启用状态"></el-table-column>
           <el-table-column v-if="getRole()" label="操作">
@@ -47,12 +47,13 @@
         <el-table :data="allBackup" height="500">
           <el-table-column width="120" prop="company" label="公司"></el-table-column>
           <el-table-column width="120" prop="business" label="业务"></el-table-column>
-          <el-table-column width="120" prop="voiceprintDataName" label="声纹库"></el-table-column>
+          <el-table-column width="100" prop="voiceprintDataName" label="声纹库"></el-table-column>
           <el-table-column width="120" prop="backupName" label="备份名称"></el-table-column>
-          <el-table-column width="100" prop="backupType" label="备份类型"></el-table-column>
+          <el-table-column width="80" prop="backupType" label="备份类型"></el-table-column>
           <el-table-column width="180" prop="backupTime" label="备份时间"></el-table-column>
           <el-table-column width="180" prop="backupDir" label="备份储存位置"></el-table-column>
-          <el-table-column width="100" prop="backupStatus" label="备份状态"></el-table-column>
+          <el-table-column width="80" prop="backupStatus" label="备份状态"></el-table-column>
+          <el-table-column width="100" prop="backupFileNum" label="备份文件数"></el-table-column>
           <el-table-column v-if="getRole()" label="操作">
             <template scope="scope">
               <el-button type="text" size="small" @click="rollBackConfirm(scope)" v-loading.fullscreen.lock="rollBackLoading" element-loading-text="正在回滚，请勿进行其他操作">回滚</el-button>
@@ -73,14 +74,17 @@
           <el-input class="time-select" v-model="backupData.backupName"></el-input>
         </el-form-item>
         <el-form-item label="备份时间">
-          <el-time-select class="time-select" v-model="backupData.backupTime" :picker-options="{
-                                                                  start: '00:00',
-                                                                  step: '00:30',
-                                                                  end: '08:00'
-                                                                }" placeholder="请选择备份时间">
+          <el-time-select
+          class="time-select"
+          v-model="backupData.backupTime"
+          :picker-options="{
+            start: '00:00',
+            step: '00:30',
+            end: '08:00'
+          }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
-        <el-form-item label="备份日期">
+        <el-form-item label="每月备份日期">
           <el-select class="time-select" v-model="backupData.backupDate" placeholder="请选择备份日期">
             <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -108,14 +112,17 @@
           <el-input class="time-select" disabled v-model="editBackupData.backupName"></el-input>
         </el-form-item>
         <el-form-item label="备份时间">
-          <el-time-select class="time-select" v-model="editBackupData.backupTime" :picker-options="{
-                                                            start: '00:00',
-                                                            step: '00:30',
-                                                            end: '08:00'
-                                                          }" placeholder="请选择备份时间">
+          <el-time-select
+          class="time-select"
+          v-model="editBackupData.backupTime"
+          :picker-options="{
+            start: '00:00',
+            step: '00:30',
+            end: '08:00'
+          }" placeholder="请选择备份时间">
           </el-time-select>
         </el-form-item>
-        <el-form-item label="备份日期">
+        <el-form-item label="每月备份日期">
           <el-select class="time-select" v-model="editBackupData.backupDate" placeholder="请选择备份日期">
             <el-option v-for="item in dateOptions" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
@@ -183,31 +190,115 @@ export default {
       dateOptions: [
         {
           value: 1,
-          label: '周一'
+          label: '1 日'
         },
         {
           value: 2,
-          label: '周二'
+          label: '2 日'
         },
         {
           value: 3,
-          label: '周三'
+          label: '3 日'
         },
         {
           value: 4,
-          label: '周四'
+          label: '4 日'
         },
         {
           value: 5,
-          label: '周五'
+          label: '5 日'
         },
         {
           value: 6,
-          label: '周六'
+          label: '6 日'
         },
         {
           value: 7,
-          label: '周日'
+          label: '7 日'
+        },
+        {
+          value: 8,
+          label: '8 日'
+        },
+        {
+          value: 9,
+          label: '9 日'
+        },
+        {
+          value: 10,
+          label: '10 日'
+        },
+        {
+          value: 11,
+          label: '11 日'
+        },
+        {
+          value: 12,
+          label: '12 日'
+        },
+        {
+          value: 13,
+          label: '13 日'
+        },
+        {
+          value: 14,
+          label: '14 日'
+        },
+        {
+          value: 15,
+          label: '15 日'
+        },
+        {
+          value: 16,
+          label: '16 日'
+        },
+        {
+          value: 17,
+          label: '17 日'
+        },
+        {
+          value: 18,
+          label: '18 日'
+        },
+        {
+          value: 19,
+          label: '19 日'
+        },
+        {
+          value: 20,
+          label: '20 日'
+        },
+        {
+          value: 21,
+          label: '21 日'
+        },
+        {
+          value: 22,
+          label: '22 日'
+        },
+        {
+          value: 23,
+          label: '23 日'
+        },
+        {
+          value: 24,
+          label: '24 日'
+        },
+        {
+          value: 25,
+          label: '25 日'
+        },
+        {
+          value: 26,
+          label: '26 日'
+        },
+        {
+          value: 27,
+          label: '27 日'
+        },
+        {
+          value: 28,
+          label: '28 日'
         }
       ],
       copyOptions: [
@@ -357,7 +448,7 @@ export default {
           data: qs.stringify({
             auto_backup_rule_name: this.editBackupData.backupName,
             auto_backup_rule_start_time: this.editBackupData.backupTime,
-            auto_backup_rule_weekday: this.editBackupData.backupDate,
+            auto_backup_rule_day: this.editBackupData.backupDate,
             auto_backup_rule_duplicates: this.editBackupData.copyNum,
             lib_name: this.editBackupData.dbName,
             company_name: this.editBackupData.company,
@@ -497,7 +588,7 @@ export default {
         backupRule['voiceprintDataName'] = res.data.autoBackuprRuleInfos[i].lib_name
         backupRule['backupName'] = res.data.autoBackuprRuleInfos[i].auto_backup_rule_name
         backupRule['backupTime'] = res.data.autoBackuprRuleInfos[i].auto_backup_start_time
-        backupRule['backupDate'] = res.data.autoBackuprRuleInfos[i].auto_backup_repeat_weekday
+        backupRule['backupDate'] = res.data.autoBackuprRuleInfos[i].auto_backup_repeat_day
         backupRule['backupNum'] = res.data.autoBackuprRuleInfos[i].auto_backup_max_duplicates
         if (res.data.autoBackuprRuleInfos[i].auto_backup_run_status === '运行中') {
           backupRule['backupStatus'] = '运行中'
@@ -523,6 +614,7 @@ export default {
           backup['backupType'] = res.data.allbackups[i].backup_type
           backup['backupStatus'] = res.data.allbackups[i].backup_status
           backup['backupDir'] = res.data.allbackups[i].backup_dir
+          backup['backupFileNum'] = res.data.allbackups[i].backup_file_count
           this.allBackup.push(backup)
         }
       } else {
@@ -559,7 +651,7 @@ export default {
             data: qs.stringify({
               auto_backup_rule_name: this.backupData.backupName,
               auto_backup_rule_start_time: this.backupData.backupTime,
-              auto_backup_rule_weekday: this.backupData.backupDate,
+              auto_backup_rule_day: this.backupData.backupDate,
               auto_backup_rule_duplicates: this.backupData.copyNum,
               auto_backup_rule_lib_name: dbName
             })

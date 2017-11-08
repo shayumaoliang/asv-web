@@ -20,7 +20,7 @@
             </el-table-column>
           </el-table>
         </div>
-        <el-dialog title="删除提示" :visible.sync="deleteDialogConfirm" size="tiny">
+        <el-dialog title="删除提示" :visible.sync="deleteDialogConfirm">
           <span>是否删除该备份规则？</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteDialogConfirm = false">取 消</el-button>
@@ -172,7 +172,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-dialog title="添加联系人" :visible.sync="addContactDialog" size="tiny">
+        <el-dialog title="添加联系人" :visible.sync="addContactDialog">
           <el-form :model="createContactData" label-width="50px">
             <el-form-item label="姓名">
               <el-input v-model="createContactData.name"></el-input>
@@ -189,7 +189,7 @@
             <el-button type="primary" @click="addContact">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog title="编辑联系人信息" :visible.sync="editContactConfirm" size="tiny">
+        <el-dialog title="编辑联系人信息" :visible.sync="editContactConfirm">
           <el-form :model="editContactData" label-width="50px">
             <el-form-item label="姓名">
               <el-input disabled v-model="editContactData.name"></el-input>
@@ -206,7 +206,7 @@
             <el-button type="primary" @click="editContact()">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog title="删除联系人" :visible.sync="deleteContactConfirm" size="tiny">
+        <el-dialog title="删除联系人" :visible.sync="deleteContactConfirm">
           <span>删除后不可恢复，请谨慎操作。</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteContactConfirm = false">取 消</el-button>
@@ -1199,56 +1199,52 @@ export default {
       }
     },
     async checkDataRange(date) {
-      this.alarmHistory = []
-      const dates = date.split('-')
-      const startYear = dates[0]
-      const startMon = dates[1]
-      const startDay = dates[2]
-      const endYear = dates[3]
-      const endMon = dates[4]
-      const endDay = dates[5]
-      const beginTime = ((new Date(String(startYear) + '-' + String(startMon) + '-' + String(startDay) + ' 00:00:01')).getTime()) / 1000
-      const endTime = ((new Date(String(endYear) + '-' + String(endMon) + '-' + String(endDay) + ' 23:59:59')).getTime()) / 1000
       try {
-        // const res = await this.$http.get('http://192.168.1.224:9090' + '/api/warningnotes_between?begin_time=' + beginTime + '&end_time=' + endTime)
-        const res = await this.$http.get(this.$apiUrl + '/api/warningnotes_between?begin_time=' + beginTime + '&end_time=' + endTime)
-        if (res.data.code === 0) {
-          const alarmRecords = res.data.warning_notes
-          if (alarmRecords.length === 0) {
-            this.alarmHistory = []
-          } else {
-            for (let i = 0; i < alarmRecords.length; i++) {
-              const record = {}
-              record.alarmServer = alarmRecords[i].client_ip
-              record.alarmTime = this.timetrans(alarmRecords[i].notify_time)
-              // record.alarmDuration = alarmRecords[i].
-              record.alarmRuleName = alarmRecords[i].warning_name
-              record.notifyPerson = alarmRecords[i].notified_body
-              if (alarmRecords[i].notify_way === 'EMAIL') {
-                record.notifyWay = '邮箱'
-              } else {
-                if (alarmRecords[i].notify_way === 'MSM') {
-                  record.notifyWay = '短信'
+        this.alarmHistory = []
+        if (date.length !== 0) {
+          const beginTime = Date.parse(date[0]) / 1000
+          const endTime = Date.parse(date[1]) / 1000
+          const res = await this.$http.get(this.$apiUrl + '/api/warningnotes_between?begin_time=' + beginTime + '&end_time=' + endTime)
+          if (res.data.code === 0) {
+            const alarmRecords = res.data.warning_notes
+            if (alarmRecords.length === 0) {
+              this.alarmHistory = []
+            } else {
+              for (let i = 0; i < alarmRecords.length; i++) {
+                const record = {}
+                record.alarmServer = alarmRecords[i].client_ip
+                record.alarmTime = this.timetrans(alarmRecords[i].notify_time)
+                // record.alarmDuration = alarmRecords[i].
+                record.alarmRuleName = alarmRecords[i].warning_name
+                record.notifyPerson = alarmRecords[i].notified_body
+                if (alarmRecords[i].notify_way === 'EMAIL') {
+                  record.notifyWay = '邮箱'
+                } else {
+                  if (alarmRecords[i].notify_way === 'MSM') {
+                    record.notifyWay = '短信'
+                  }
                 }
-              }
-              if (alarmRecords[i].notify_status === true) {
-                record.status = '已通知'
-              } else {
-                if (alarmRecords[i].notify_status === false) {
-                  record.status = '未通知'
+                if (alarmRecords[i].notify_status === true) {
+                  record.status = '已通知'
+                } else {
+                  if (alarmRecords[i].notify_status === false) {
+                    record.status = '未通知'
+                  }
                 }
+                this.alarmHistory.push(record)
               }
-              this.alarmHistory.push(record)
             }
+          } else {
+            this.$message(
+              {
+                showClose: true,
+                type: 'error',
+                message: res.data.msg
+              }
+            )
           }
         } else {
-          this.$message(
-            {
-              showClose: true,
-              type: 'error',
-              message: res.data.msg
-            }
-          )
+          this.showAllAlarmHistory()
         }
       } catch (e) {
         console.log(e)

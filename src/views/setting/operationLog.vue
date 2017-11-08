@@ -117,44 +117,41 @@ export default {
       }
     },
     async checkDataRange(date) {
-      this.operationData = []
-      const dates = date.split('-')
-      const startYear = dates[0]
-      const startMon = dates[1]
-      const startDay = dates[2]
-      const endYear = dates[3]
-      const endMon = dates[4]
-      const endDay = dates[5]
-      const beginTime = ((new Date(String(startYear) + '-' + String(startMon) + '-' + String(startDay) + ' 00:00:01')).getTime()) / 1000
-      const endTime = ((new Date(String(endYear) + '-' + String(endMon) + '-' + String(endDay) + ' 23:59:59')).getTime()) / 1000
       try {
-        const res = await this.$http.get(this.$apiUrl + '/api/operationlogs_between?begin_time=' + beginTime + '&end_time=' + endTime)
-        if (res.data.code === 0) {
-          const logs = res.data.operation_logs
-          for (let i = 0; i < logs.length; i++) {
-            const log = {}
-            log.name = logs[i].operation_user_name
-            log.operation = logs[i].operation
-            log.operationTime = this.timetrans(logs[i].operation_time)
-            if (logs[i].result === true) {
-              log.result = '成功'
-            } else {
-              log.result = '失败'
+        this.operationData = []
+        if (date.length !== 0) {
+          const beginTime = Date.parse(date[0]) / 1000
+          const endTime = Date.parse(date[1]) / 1000
+          const res = await this.$http.get(this.$apiUrl + '/api/operationlogs_between?begin_time=' + beginTime + '&end_time=' + endTime)
+          if (res.data.code === 0) {
+            const logs = res.data.operation_logs
+            for (let i = 0; i < logs.length; i++) {
+              const log = {}
+              log.name = logs[i].operation_user_name
+              log.operation = logs[i].operation
+              log.operationTime = this.timetrans(logs[i].operation_time)
+              if (logs[i].result === true) {
+                log.result = '成功'
+              } else {
+                log.result = '失败'
+              }
+              this.operationData.push(log)
             }
-            this.operationData.push(log)
+          } else {
+            if (res.data.code === 1202) {
+              return
+            } else {
+              this.$message(
+                {
+                  showClose: true,
+                  type: 'error',
+                  message: res.data.msg
+                }
+              )
+            }
           }
         } else {
-          if (res.data.code === 1202) {
-            return
-          } else {
-            this.$message(
-              {
-                showClose: true,
-                type: 'error',
-                message: res.data.msg
-              }
-            )
-          }
+          this.getAllOperationLog()
         }
       } catch (e) {
         console.log(e)
