@@ -53,23 +53,23 @@
                 <el-button class="delete-button" size="small" type="danger" @click="deleteAlarmRule(index)">删除此条规则</el-button>
               </el-form-item>
               <el-form-item label="规则描述">
-                <el-select class="rule-select" size="small" v-model="rule.alarmTerm" placeholder="请选择监测项">
+                <el-select class="rule-select" size="small" v-model="rule.alarmTerm" placeholder="请选择监测项" @change="createAlarmChange(rule.alarmTerm, index)">
                   <el-option v-for="item in alarmTerms" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-select class="rule-select" size="small" v-model="rule.alarmTimes" placeholder="请选择监测时间段">
+                <el-select class="rule-select" size="small" :disabled="createAlarmDisabled" v-model="rule.alarmTimes" placeholder="请选择监测时间段">
                   <el-option v-for="item in alarmTimes" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-select class="rule-select" size="small" v-model="rule.alarmExtremum" placeholder="请选择监测值">
+                <el-select class="rule-select" size="small" :disabled="createAlarmDisabled" v-model="rule.alarmExtremum" placeholder="请选择监测值">
                   <el-option v-for="item in alarmExtremums" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled">
                   </el-option>
                 </el-select>
-                <el-select class="rule-select" size="small" v-model="rule.alarmContrast" placeholder="请选择对比方法">
+                <el-select class="rule-select" size="small" :disabled="createAlarmDisabled" v-model="rule.alarmContrast" placeholder="请选择对比方法">
                   <el-option v-for="item in alarmContrasts" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-input class="rule-input" size="small" v-model="rule.threshold" placeholder="阈值：0-100的数字">
+                <el-input class="rule-input" size="small" :disabled="createAlarmDisabled" v-model="rule.threshold" placeholder="阈值：0-100的数字">
                   <template slot="append">%</template>
                 </el-input>
               </el-form-item>
@@ -93,7 +93,7 @@
           </el-form-item>
         </el-form>
       </el-tab-pane>
-      <el-dialog title="编辑报警规则" :visible.sync="editRuleDialog">
+      <el-dialog title="编辑报警规则" :visible.sync="editRuleDialog" @close="cancelEditRule">
         <el-form :model="editRuleData" label-width="120px">
           <h4>①编辑报警规则</h4>
           <el-form-item label-width="20px">
@@ -115,23 +115,23 @@
                 <el-input disabled class="rule-edit-input" size="small" v-model="editRuleData.ruleName"></el-input>
               </el-form-item>
               <el-form-item label="规则描述">
-                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTerm" placeholder="请选择监测项">
+                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTerm" @change="editAlarmChange(editRuleData.alarmTerm)" placeholder="请选择监测项">
                   <el-option v-for="item in alarmTerms" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmTimes" placeholder="请选择监测周期">
+                <el-select class="rule-edit-select" size="small" :disabled="editAlarmDisabled" v-model="editRuleData.alarmTimes" placeholder="请选择监测周期">
                   <el-option v-for="item in alarmTimes" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmExtremum" placeholder="请选择监测值">
+                <el-select class="rule-edit-select" size="small" :disabled="editAlarmDisabled" v-model="editRuleData.alarmExtremum" placeholder="请选择监测值">
                   <el-option v-for="item in alarmExtremums" :key="item.value" :label="item.label" :value="item.value" :disabled="item.disabled">
                   </el-option>
                 </el-select>
-                <el-select class="rule-edit-select" size="small" v-model="editRuleData.alarmContrast" placeholder="请选择对比方法">
+                <el-select class="rule-edit-select" size="small" :disabled="editAlarmDisabled" v-model="editRuleData.alarmContrast" placeholder="请选择对比方法">
                   <el-option v-for="item in alarmContrasts" :key="item.value" :label="item.label" :value="item.value">
                   </el-option>
                 </el-select>
-                <el-input class="rule-edit-input" size="small" v-model="editRuleData.threshold" placeholder="阈值：0-100的数字">
+                <el-input class="rule-edit-input" size="small" :disabled="editAlarmDisabled" v-model="editRuleData.threshold" placeholder="阈值：0-100的数字">
                   <template slot="append">%</template>
                 </el-input>
               </el-form-item>
@@ -155,7 +155,7 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="editRuleDialog = false">取 消</el-button>
+          <el-button @click="cancelEditRule">取 消</el-button>
           <el-button type="primary" @click="editAlarmRule">确 定</el-button>
         </span>
       </el-dialog>
@@ -252,6 +252,8 @@ export default {
   },
   data() {
     return {
+      createAlarmDisabled: false,
+      editAlarmDisabled: false,
       editRuleDialog: false,
       editRuleData: {
         notifyWay: [],
@@ -305,6 +307,14 @@ export default {
         {
           value: 'memory',
           label: '内存使用率'
+        },
+        {
+          value: 'asvserver',
+          label: 'asvserver 活性检测'
+        },
+        {
+          value: 'asvrpc',
+          label: 'asvrpc 活性检测'
         }
       ],
       alarmTimes: [
@@ -420,6 +430,32 @@ export default {
     }
   },
   methods: {
+    cancelEditRule() {
+      this.editRuleDialog = false
+      this.editAlarmDisabled = false
+    },
+    createAlarmChange(value, index) {
+      if (value === 'asvserver' || value === 'asvrpc') {
+        this.createAlarmDisabled = true
+        this.rules[index].alarmTimes = 60
+        this.rules[index].alarmExtremum = 'min'
+        this.rules[index].alarmContrast = '<'
+        this.rules[index].threshold = 1
+      } else {
+        this.createAlarmDisabled = false
+      }
+    },
+    editAlarmChange(value) {
+      if (value === 'asvserver' || value === 'asvrpc') {
+        this.editAlarmDisabled = true
+        this.editRuleData.alarmTimes = 60
+        this.editRuleData.alarmExtremum = 'min'
+        this.editRuleData.alarmContrast = '<'
+        this.editRuleData.threshold = 1
+      } else {
+        this.editAlarmDisabled = false
+      }
+    },
     getRole() {
       if (this.roles === 'admin') {
         return true
@@ -554,6 +590,8 @@ export default {
             } else {
               if (rules[i].metrics === 'cpu.busy') {
                 rule.alarmTerm = 'CPU使用率'
+              } else {
+                rule.alarmTerm = rules[i].metrics
               }
             }
             rule.ruleDescription = rules[i].description
@@ -673,6 +711,8 @@ export default {
                 } else {
                   if (this.editRuleData.alarmTerm === 'cpu') {
                     alarmTerm = 'cpu.busy'
+                  } else {
+                    alarmTerm = this.editRuleData.alarmTerm
                   }
                 }
                 const alarmExtremum = this.editRuleData.alarmExtremum
@@ -743,7 +783,6 @@ export default {
       this.editContactData.email = scope.row.email
     },
     async editContact() {
-      const index = this.scope.$index
       if (this.editContactData.name) {
         if (this.editContactData.phone) {
           if (this.editContactData.email) {
