@@ -3,7 +3,7 @@
     <div class="overview">
       <h4>
         <icon-svg icon-class="vertical"></icon-svg>声纹库列表</h4>
-      <el-menu unique-opened mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentDb">
+      <el-menu unique-opened background-color="#ECF5FF" mode="vertical" @open="handleOpen" @close="handleClose" @select="getCurrentDb">
         <el-submenu index="0">
           <template slot="title">
             <i class="el-icon-menu"></i>&nbsp&nbsp&nbsp平安集团
@@ -734,6 +734,7 @@ export default {
           this.voiceprintData.scene = this.editVioceprintDbData.scene
           this.voiceprintData.uid = this.editVioceprintDbData.uid
           this.editVioceprintDbDialog = false
+          this.getAllcompany()
           this.$message({
             showClose: true,
             message: '修改成功',
