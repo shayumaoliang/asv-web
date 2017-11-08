@@ -21,7 +21,7 @@
         </el-menu>
       </el-card>
     </div>
-    <el-dialog size="tiny" title="添加服务器组" :visible.sync="addServerGroupDialog">
+    <el-dialog width="32%" title="添加服务器组" :visible.sync="addServerGroupDialog">
       <el-input v-model="addServerGroupData">
         <template slot="prepend">分组名称</template>
       </el-input>
@@ -37,18 +37,18 @@
         <el-form ref="serverStatus" :model="serverStatus" label-width="70px">
           <el-form-item label="状态">
             <icon-svg :icon-class="onOffIcon"></icon-svg>{{ status }}
-            <el-button v-if="getRole()" v-loading="onOffLoading" class="onOff-button" @click="onOffServer">
+            <el-button v-if="getRole()" v-loading="onOffLoading" class="onOff-button" size="small" @click="onOffServer">
               <icon-svg icon-class="onOff"></icon-svg> {{ onOff }}</el-button>
-            <el-button v-if="getRole()" class="drop-button" @click="editServerNameConfirm">修改服务器名称</el-button>
-            <el-button v-if="getRole()" class="drop-button" @click="dropOutOfGroupConfirm">从当前分组中移除此服务器</el-button>
-            <el-dialog size="tiny" title="移除" :visible.sync="dropOutOfGroupDialog">
+            <el-button v-if="getRole()" class="drop-button" size="small" @click="editServerNameConfirm">修改服务器</el-button>
+            <el-button v-if="getRole()" class="drop-button" type="danger" size="small" @click="dropOutOfGroupConfirm">从当前分组中移除此服务器</el-button>
+            <el-dialog width="32%" title="移除" :visible.sync="dropOutOfGroupDialog">
               <span>是否确定将此服务器从该服务器组中移除</span>
               <span slot="footer" class="dialog-footer">
                 <el-button @click="dropOutOfGroupDialog = false">取 消</el-button>
-                <el-button type="primary" @click="dropOutOfGroup">确 定</el-button>
+                <el-button type="danger" @click="dropOutOfGroup">确 定</el-button>
               </span>
             </el-dialog>
-            <el-dialog size="tiny" title="修改服务器名称" :visible.sync="editServerNameDialog">
+            <el-dialog width="32%" title="修改服务器名称" :visible.sync="editServerNameDialog">
               <el-input v-model="editServerNameData">
                 <template slot="prepend">服务器</template>
               </el-input>
@@ -117,7 +117,7 @@
           <div v-if="getRole()" slot="header" class="clearfix">
             <el-button size="small" type="primary" @click="addServerConfirm">{{ '添加服务器' }}</el-button>
             <el-button size="small" type="primary" @click="editServerGroupConfirm">{{ '修改服务器组名称' }}</el-button>
-            <el-button size="small" type="primary" @click="deleteServerGroupConfirm">{{ '删除该服务器组' }}</el-button>
+            <el-button size="small" type="danger" @click="deleteServerGroupConfirm">{{ '删除该服务器组' }}</el-button>
           </div>
           <span>当前分组下共有{{ numberOfServers }}个服务器</span>
         </el-card>
@@ -125,7 +125,7 @@
           <span>点击左侧服务器列表查看服务器详情</span>
         </el-card>
       </el-form>
-      <el-dialog size="tiny" title="添加服务器" :visible.sync="addServerDialog">
+      <el-dialog width="32%" title="添加服务器" :visible.sync="addServerDialog">
         <el-input v-model="addServerData">
           <template slot="prepend">服务器地址</template>
         </el-input>
@@ -134,7 +134,7 @@
           <el-button type="primary" @click="addServer">确 定</el-button>
         </span>
       </el-dialog>
-      <el-dialog size="tiny" title="修改服务器组" :visible.sync="editServerGroupDialog">
+      <el-dialog width="32%" title="修改服务器组" :visible.sync="editServerGroupDialog">
         <el-input v-model="editServerGroupData">
           <template slot="prepend">服务器组名称</template>
         </el-input>
@@ -143,7 +143,7 @@
           <el-button type="primary" @click="editServerGroup">确 定</el-button>
         </span>
       </el-dialog>
-      <el-dialog size="tiny" title="删除" :visible.sync="deleteServerGroupDialog">
+      <el-dialog width="32%" title="删除" :visible.sync="deleteServerGroupDialog">
         <span>是否删除该分组</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteServerGroupDialog = false">取 消</el-button>

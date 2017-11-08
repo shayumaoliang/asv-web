@@ -17,7 +17,7 @@
       </el-form>
     </el-card>
     <el-form :model="newSenceData" label-width="100px">
-      <el-dialog title="导入场景" :visible.sync="impirtSceneDialog" size="tiny">
+      <el-dialog title="导入场景" :visible.sync="impirtSceneDialog" width="30%">
         </el-form-item>
         <el-form-item label="场景名">
           <el-input v-model="newSenceData.name"></el-input>
@@ -34,11 +34,11 @@
         </span>
       </el-dialog>
     </el-form>
-    <el-dialog title="是否删除该场景？" :visible.sync="deleteSceneDialog" size="tiny">
+    <el-dialog title="是否删除该场景？" :visible.sync="deleteSceneDialog" width="30%">
       <span>删除后不可恢复，请谨慎操作。</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="deleteSceneDialog = false">取 消</el-button>
-        <el-button type="primary" @click="deleteScene">确 定</el-button>
+        <el-button type="danger" @click="deleteScene">确 定</el-button>
       </span>
     </el-dialog>
   </div>

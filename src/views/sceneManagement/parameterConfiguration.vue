@@ -26,7 +26,7 @@
         </div>
       </el-card>
     </el-form>
-    <el-dialog title="提交修改配置提醒" :visible.sync="pushRpcServerConfigDialog" size="tiny">
+    <el-dialog title="提交修改配置提醒" :visible.sync="pushRpcServerConfigDialog" width="31%">
       <span>请确认您的修改没有错误<br /><br />如果提交错误配置项将导致不可预估的后果</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="pushRpcServerConfigDialog = false">取 消</el-button>
@@ -57,7 +57,7 @@
         </div>
       </el-card>
     </el-form>
-    <el-dialog title="提交修改配置提醒" :visible.sync="pushAsvServerConfigDialog" size="tiny">
+    <el-dialog title="提交修改配置提醒" :visible.sync="pushAsvServerConfigDialog" width="31%">
       <span>请确认您的修改没有错误<br /><br />如果提交错误配置项将导致不可预估的后果</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="pushAsvServerConfigDialog = false">取 消</el-button>

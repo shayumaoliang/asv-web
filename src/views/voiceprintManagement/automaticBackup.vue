@@ -22,21 +22,21 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-dialog title="删除提示" :visible.sync="deleteBackupRuleConfirm" size="tiny">
+      <el-dialog title="删除提示" :visible.sync="deleteBackupRuleConfirm" width="32%">
         <span>是否删除该备份规则？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteBackupRuleConfirm = false">取 消</el-button>
           <el-button type="danger" @click="deleteBackupRule()" v-loading="NewBackUpLoading">确 定</el-button>
         </span>
       </el-dialog>
-      <el-dialog title="删除提示" :visible.sync="deleteBackupConfirm" size="tiny">
+      <el-dialog title="删除提示" :visible.sync="deleteBackupConfirm" width="32%">
         <span>是否删除该备份？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteBackupConfirm = false">取 消</el-button>
           <el-button type="danger" @click="handleDeleteBackup()" v-loading="NewBackUpLoading">确 定</el-button>
         </span>
       </el-dialog>
-      <el-dialog title="确认回滚到该备份点？" :visible.sync="rollBackDialog" size="tiny">
+      <el-dialog title="确认回滚到该备份点？" :visible.sync="rollBackDialog" width="32%">
         <span>此操作不可撤销，对应声纹库将恢复到此备份点状态，请谨慎！！！</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="rollBackDialog = false">取 消</el-button>
@@ -106,7 +106,7 @@
         <el-button type="primary" @click="createNewBackup" v-loading="NewBackUpLoading">确 定</el-button>
       </span>
     </Modal>
-    <el-dialog size="tiny" title="修改声纹库备份规则" :visible.sync="editBackupDialog">
+    <el-dialog width="32%" title="修改声纹库备份规则" :visible.sync="editBackupDialog">
       <el-form :model="editBackupData" label-width="130px">
         <el-form-item label="备份名称">
           <el-input class="time-select" disabled v-model="editBackupData.backupName"></el-input>

@@ -38,7 +38,7 @@
           <div v-if="getRole()" slot="header" class="clearfix">
             <el-button size="small" class="button-backpu" type="primary" @click="startBackup">备份</el-button>
             <el-button size="small" class="button-backpu" type="primary" @click="editVoiceprintDbConfirm">{{ '修改' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="deleteVoiceprintDbConfirm">{{ '删除' }}</el-button>
+            <el-button size="small" class="button-backpu" type="danger" @click="deleteVoiceprintDbConfirm">{{ '删除' }}</el-button>
           </div>
           <div class="form">
             <el-form-item label="子公司">
@@ -67,7 +67,7 @@
           <div v-if="getRole()" slot="header" class="clearfix">
             <el-button size="small" class="button-backpu" type="primary" @click="addBusinessConfirm">{{ '添加公司子项' }}</el-button>
             <el-button size="small" class="button-backpu" type="primary" @click="editCompanyConfirm">{{ '修改该项名称' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="deleteCompanyConfirm">{{ '删除该项' }}</el-button>
+            <el-button size="small" class="button-backpu" type="danger" @click="deleteCompanyConfirm">{{ '删除该项' }}</el-button>
           </div>
           <div class="form">
             <el-form-item label="公司">
@@ -86,7 +86,7 @@
           <div v-if="getRole()" slot="header" class="clearfix">
             <el-button size="small" class="button-backpu" type="primary" @click="addVioceprintDbConfirm">{{ '添加声纹库' }}</el-button>
             <el-button size="small" class="button-backpu" type="primary" @click="editBusinessConfirm">{{ '修改该项名称' }}</el-button>
-            <el-button size="small" class="button-backpu" type="primary" @click="deleteBusinessConfirm">{{ '删除该项' }}</el-button>
+            <el-button size="small" class="button-backpu" type="danger" @click="deleteBusinessConfirm">{{ '删除该项' }}</el-button>
 
           </div>
           <div class="form">
@@ -117,7 +117,7 @@
             </el-form-item>
           </div>
         </el-card>
-        <el-dialog size="tiny" title="添加集团子项" :visible.sync="addCompanyDialog">
+        <el-dialog width="32%" title="添加集团子项" :visible.sync="addCompanyDialog">
           <el-input v-model="addCompanyData">
             <template slot="prepend">公司名称</template>
           </el-input>
@@ -126,7 +126,7 @@
             <el-button type="primary" @click="addCompany">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog size="tiny" title="添加公司子项" :visible.sync="addBusinessDialog">
+        <el-dialog width="32%" title="添加公司子项" :visible.sync="addBusinessDialog">
           <el-input v-model="addBusinessData">
             <template slot="prepend">业务名称</template>
           </el-input>
@@ -136,7 +136,7 @@
           </span>
         </el-dialog>
         <el-form label-width="100px" :model="addVioceprintDbData">
-          <el-dialog size="tiny" title="添加声纹库" :visible.sync="addVioceprintDbDialog">
+          <el-dialog width="32%" title="添加声纹库" :visible.sync="addVioceprintDbDialog">
             <el-form-item label="声纹库名称">
               <el-input class="center-input" v-model="addVioceprintDbData.name">
               </el-input>
@@ -157,7 +157,7 @@
             </span>
           </el-dialog>
         </el-form>
-        <el-dialog size="tiny" title="修改" :visible.sync="editCompanyDialog">
+        <el-dialog width="32%" title="修改" :visible.sync="editCompanyDialog">
           <el-input v-model="editCompanyData">
             <template slot="prepend">公司名称</template>
           </el-input>
@@ -166,7 +166,7 @@
             <el-button type="primary" @click="editCompany">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog size="tiny" title="修改" :visible.sync="editBusinessDialog">
+        <el-dialog width="32%" title="修改" :visible.sync="editBusinessDialog">
           <el-input v-model="editBusinessData">
             <template slot="prepend">业务名称</template>
           </el-input>
@@ -176,7 +176,7 @@
           </span>
         </el-dialog>
         <el-form label-width="100px" :model="editVioceprintDbData">
-          <el-dialog size="tiny" title="修改声纹库" :visible.sync="editVioceprintDbDialog">
+          <el-dialog width="32%" title="修改声纹库" :visible.sync="editVioceprintDbDialog">
             <el-form-item label="声纹库名称">
               <el-input class="center-input" v-model="editVioceprintDbData.name">
               </el-input>
@@ -197,29 +197,29 @@
             </span>
           </el-dialog>
         </el-form>
-        <el-dialog size="tiny" title="删除" :visible.sync="deleteCompanyConDialog">
+        <el-dialog width="32%" title="删除" :visible.sync="deleteCompanyConDialog">
           <span>一旦删除，将无法恢复，请谨慎操作</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteCompanyConDialog = false">取 消</el-button>
-            <el-button type="primary" @click="deleteCompany">确 定</el-button>
+            <el-button type="danger" @click="deleteCompany">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog size="tiny" title="删除" :visible.sync="deleteBusinessDialog">
+        <el-dialog width="32%" title="删除" :visible.sync="deleteBusinessDialog">
           <span>一旦删除，将无法恢复，请谨慎操作</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteBusinessDialog = false">取 消</el-button>
-            <el-button type="primary" @click="deleteBusiness">确 定</el-button>
+            <el-button type="danger" @click="deleteBusiness">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog size="tiny" title="删除" :visible.sync="deleteVoiceprintDbDialog">
+        <el-dialog width="32%" title="删除" :visible.sync="deleteVoiceprintDbDialog">
           <span>一旦删除，将无法恢复，请谨慎操作</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteVoiceprintDbDialog = false">取 消</el-button>
-            <el-button type="primary" @click="deleteVoiceprintDb">确 定</el-button>
+            <el-button type="danger" @click="deleteVoiceprintDb">确 定</el-button>
           </span>
         </el-dialog>
       </el-form>
-      <el-dialog size="tiny" title="备份声纹库" :visible.sync="backup">
+      <el-dialog width="32%" title="备份声纹库" :visible.sync="backup">
         <el-input disabled v-model="voiceprintData.backupName">
           <template slot="prepend">备份名称</template>
         </el-input>
