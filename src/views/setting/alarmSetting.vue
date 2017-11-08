@@ -20,17 +20,17 @@
             </el-table-column>
           </el-table>
         </div>
-        <el-dialog title="删除提示" :visible.sync="deleteDialogConfirm">
+        <el-dialog width="30%" title="删除提示" :visible.sync="deleteDialogConfirm">
           <span>是否删除该备份规则？</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteDialogConfirm = false">取 消</el-button>
-            <el-button type="primary" @click="deletealarmRuleDone()">确 定</el-button>
+            <el-button type="danger" @click="deletealarmRuleDone()">确 定</el-button>
           </span>
         </el-dialog>
       </el-tab-pane>
       <el-tab-pane label="创建报警规则" v-if="createRuleStatus === 1" name="createAlarmRule">
         <el-form :model="alarmRuleData" label-width="120px">
-          <el-button class="title-button" type="primary" @click="createAlarmDone">填写完毕，创建报警规则</el-button>
+          <el-button class="title-button" type="success" @click="createAlarmDone" size="small">填写完毕，创建报警规则</el-button>
           <h3>①设置报警规则</h3>
           <el-button class="add-button" size="small" @click="createAlarmRule">添加监控规则</el-button>
           <el-form-item label-width="20px">
@@ -50,7 +50,7 @@
             <el-card class="card-list">
               <el-form-item label="规则名称">
                 <el-input class="rule-select" size="small" v-model="rule.name"></el-input>
-                <el-button class="delete-button" size="small" @click="deleteAlarmRule(index)">删除此条规则</el-button>
+                <el-button class="delete-button" size="small" type="danger" @click="deleteAlarmRule(index)">删除此条规则</el-button>
               </el-form-item>
               <el-form-item label="规则描述">
                 <el-select class="rule-select" size="small" v-model="rule.alarmTerm" placeholder="请选择监测项">
@@ -160,7 +160,7 @@
         </span>
       </el-dialog>
       <el-tab-pane label="联系人设置" name="contacts">
-        <el-button v-if="getRole()" class="add-button" type="primary" @click="createContactConfirm">新建联系人</el-button>
+        <el-button v-if="getRole()" class="add-button" type="primary" @click="createContactConfirm" size="small">新建联系人</el-button>
         <el-table :data="allContactData">
           <el-table-column width="300" prop="name" label="联系人姓名"></el-table-column>
           <el-table-column width="300" prop="phone" label="手机号码"></el-table-column>
@@ -172,7 +172,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-dialog title="添加联系人" :visible.sync="addContactDialog">
+        <el-dialog width="30%" title="添加联系人" :visible.sync="addContactDialog">
           <el-form :model="createContactData" label-width="50px">
             <el-form-item label="姓名">
               <el-input v-model="createContactData.name"></el-input>
@@ -189,7 +189,7 @@
             <el-button type="primary" @click="addContact">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog title="编辑联系人信息" :visible.sync="editContactConfirm">
+        <el-dialog width="30%" title="编辑联系人信息" :visible.sync="editContactConfirm">
           <el-form :model="editContactData" label-width="50px">
             <el-form-item label="姓名">
               <el-input disabled v-model="editContactData.name"></el-input>
@@ -206,7 +206,7 @@
             <el-button type="primary" @click="editContact()">确 定</el-button>
           </span>
         </el-dialog>
-        <el-dialog title="删除联系人" :visible.sync="deleteContactConfirm">
+        <el-dialog width="30%" title="删除联系人" :visible.sync="deleteContactConfirm">
           <span>删除后不可恢复，请谨慎操作。</span>
           <span slot="footer" class="dialog-footer">
             <el-button @click="deleteContactConfirm = false">取 消</el-button>
@@ -677,18 +677,6 @@ export default {
                 }
                 const alarmExtremum = this.editRuleData.alarmExtremum
                 const alarmTimes = this.editRuleData.alarmTimes
-                // let alarmTimes
-                // if (this.editRuleData.alarmTimes === '一分钟') {
-                //   alarmTimes = 60
-                // } else {
-                //   if (this.editRuleData.alarmTimes === '五分钟') {
-                //     alarmTimes = 300
-                //   } else {
-                //     if (this.editRuleData.alarmTimes === '十分钟') {
-                //       alarmTimes = 600
-                //     }
-                //   }
-                // }
                 const alarmContrast = this.editRuleData.alarmContrast
                 const threshold = this.editRuleData.threshold
                 let notifyWay

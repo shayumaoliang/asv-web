@@ -26,14 +26,14 @@
         <span>是否删除该备份规则？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteBackupRuleConfirm = false">取 消</el-button>
-          <el-button type="primary" @click="deleteBackupRule()" v-loading="NewBackUpLoading">确 定</el-button>
+          <el-button type="danger" @click="deleteBackupRule()" v-loading="NewBackUpLoading">确 定</el-button>
         </span>
       </el-dialog>
       <el-dialog title="删除提示" :visible.sync="deleteBackupConfirm" size="tiny">
         <span>是否删除该备份？</span>
         <span slot="footer" class="dialog-footer">
           <el-button @click="deleteBackupConfirm = false">取 消</el-button>
-          <el-button type="primary" @click="handleDeleteBackup()" v-loading="NewBackUpLoading">确 定</el-button>
+          <el-button type="danger" @click="handleDeleteBackup()" v-loading="NewBackUpLoading">确 定</el-button>
         </span>
       </el-dialog>
       <el-dialog title="确认回滚到该备份点？" :visible.sync="rollBackDialog" size="tiny">
@@ -456,39 +456,6 @@ export default {
           })
         })
         if (res.data.code === 0) {
-          // this.allBackupRules[this.scope.$index] = {
-          //   backupTime: this.editBackupData.backupTime,
-          //   backupDate: this.editBackupData.backupDate,
-          //   backupNum: this.editBackupData.copyNum
-          // }
-          // this.allBackupRules[this.scope.$index].backupTime = this.editBackupData.backupTime
-          // if (this.editBackupData.backupDate === 1) {
-          //   this.allBackupRules[this.scope.$index].backupDate = '周一'
-          // } else {
-          //   if (this.editBackupData.backupDate === 2) {
-          //     this.allBackupRules[this.scope.$index].backupDate = '周二'
-          //   } else {
-          //     if (this.editBackupData.backupDate === 3) {
-          //       this.allBackupRules[this.scope.$index].backupDate = '周三'
-          //     } else {
-          //       if (this.editBackupData.backupDate === 4) {
-          //         this.allBackupRules[this.scope.$index].backupDate = '周四'
-          //       } else {
-          //         if (this.editBackupData.backupDate === 5) {
-          //           this.allBackupRules[this.scope.$index].backupDate = '周五'
-          //         } else {
-          //           if (this.editBackupData.backupDate === 6) {
-          //             this.allBackupRules[this.scope.$index].backupDate = '周六'
-          //           } else {
-          //             this.allBackupRules[this.scope.$index].backupDate = '周日'
-          //           }
-          //         }
-          //       }
-          //     }
-          //   }
-          // }
-          // this.allBackupRules[this.scope.$index].backupDate = this.editBackupData.backupDate
-          // this.allBackupRules[this.scope.$index].backupNum = this.editBackupData.copyNum
           this.showAllBackupRule()
           this.editBackupDialog = false
           this.$message({
@@ -496,7 +463,6 @@ export default {
             showClose: true,
             message: '修改成功'
           })
-          // location.reload()
         } else {
           this.$message({
             type: 'error',

@@ -7,14 +7,14 @@
       </h4>
       <el-form class="view" label-width="120px" label-position="left">
         <el-table :data="accountData">
-          <el-table-column width="150" prop="accountName" label="账号"></el-table-column>
-          <el-table-column width="150" prop="authority" label="操作权限"></el-table-column>
-          <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
+          <el-table-column width="300" prop="accountName" label="账号"></el-table-column>
+          <el-table-column width="300" prop="authority" label="操作权限"></el-table-column>
+          <!-- <el-table-column width="150" prop="name" label="联系人姓名"></el-table-column>
           <el-table-column width="150" prop="phone" label="手机号码"></el-table-column>
-          <el-table-column prop="email" label="邮箱"></el-table-column>
+          <el-table-column prop="email" label="邮箱"></el-table-column> -->
           <el-table-column label="操作">
             <template scope="scope">
-              <el-button type="text" @click="editContactDialog(scope)">编辑</el-button>
+              <el-button type="text" @click="editContactDialog(scope)">编辑权限</el-button>
               <el-button type="text" @click="resetPasswordDialog(scope)">重设密码</el-button>
               <el-button type="text" @click="deleteAccountDialog(scope)">删除</el-button>
             </template>
@@ -29,21 +29,19 @@
           {{ userName }}
         </el-form-item>
         <el-form-item label="账号权限">
-          {{ '非管理员权限' }}
+          {{ '浏览权限' }}
         </el-form-item>
         <el-form-item label="权限描述">
           {{ '非管理员账号无法进行各项操作，只能查看各项服务状态等信息。' }}
         </el-form-item>
       </el-form>
     </div>
-    <el-dialog title="编辑账号信息" :visible.sync="editContactConfirm" size="tiny">
+    <el-dialog title="编辑账号信息" :visible.sync="editContactConfirm" width='30%'>
       <el-form :model="editAccountData" label-width="50px">
         <el-form-item label="权限">
-          <el-checkbox-group v-model="editAccountData.authority">
-            <el-checkbox v-for="(authority, index) of allAuthority" :label="authority.value" :key="index">{{ authority.label }}</el-checkbox>
-          </el-checkbox-group>
+          <el-checkbox v-model="editAccountData.authority"> 操作权限</el-checkbox>
         </el-form-item>
-        <el-form-item label="姓名">
+        <!-- <el-form-item label="姓名">
           <el-input disabled v-model="editAccountData.name"></el-input>
         </el-form-item>
         <el-form-item label="手机">
@@ -51,21 +49,21 @@
         </el-form-item>
         <el-form-item label="邮箱">
           <el-input disabled v-model="editAccountData.email"></el-input>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="editContactConfirm = false">取 消</el-button>
         <el-button type="primary" @click="editContact()">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="是否删除账号？" :visible.sync="deleteAccountConfirm" size="tiny">
+    <el-dialog title="是否删除账号？" :visible.sync="deleteAccountConfirm" width='30%'>
       <span>删除后不可恢复，请谨慎操作。</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="deleteAccountConfirm = false">取 消</el-button>
-        <el-button type="primary" @click="deleteAccount()">确 定</el-button>
+        <el-button type="danger" @click="deleteAccount()">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="创建账号" :visible.sync="addAccountDialog" size="tiny">
+    <el-dialog title="创建账号" :visible.sync="addAccountDialog" width='30%'>
       <el-form :model="createAccountData" label-width="50px">
         <el-form-item label="账号" prop="account">
           <el-input v-model="createAccountData.accountName" auto-complete="off"></el-input>
@@ -74,11 +72,9 @@
           <el-input type="password" v-model="createAccountData.password" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="权限">
-          <el-checkbox-group v-model="createAccountData.authority">
-            <el-checkbox v-for="(authority, index) of allAuthority" :label="authority.value" :key="index">{{ authority.label }}</el-checkbox>
-          </el-checkbox-group>
+          <el-checkbox v-model="createAccountData.authority"> 操作权限</el-checkbox>
         </el-form-item>
-        <el-form-item label="姓名">
+        <!-- <el-form-item label="姓名">
           <el-input disabled v-model="createAccountData.name"></el-input>
         </el-form-item>
         <el-form-item label="手机">
@@ -86,14 +82,14 @@
         </el-form-item>
         <el-form-item label="邮箱">
           <el-input disabled v-model="createAccountData.email"></el-input>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addAccountDialog = false">取 消</el-button>
         <el-button type="primary" @click="addAccount()">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="重设密码" :visible.sync="resetPasswordConfirm" size="tiny">
+    <el-dialog title="重设密码" :visible.sync="resetPasswordConfirm" width='30%'>
       <el-form :model="password" :rules="passwordRule" ref="password" label-width="100px">
         <el-form-item label="输入新密码" prop="pass">
           <el-input type="password" v-model="password.pass" auto-complete="off"></el-input>
@@ -147,13 +143,13 @@ export default {
       createAccountData: {
         accountName: null,
         password: null,
-        authority: [],
+        authority: false,
         name: null,
         phone: null,
         email: null
       },
       editAccountData: {
-        authority: [],
+        authority: null,
         name: null,
         phone: null,
         email: null
@@ -206,37 +202,22 @@ export default {
           for (let i = 0; i < users.length; i++) {
             const user = {
               accountName: null,
-              authority: []
+              authority: null
             }
             user.accountName = users[i].username
-            if (users[i].admin === true && users[i].alarm === true) {
-              user.authority[0] = '接收报警权限'
-              user.authority[1] = <br />
-              user.authority[2] = '操作权限'
+            if (users[i].admin === true) {
+              user.authority = '操作权限'
             } else {
-              if (users[i].admin === false && users[i].alarm === false) {
-                user.authority = ['无任何权限']
-              } else {
-                if (users[i].admin === true && users[i].alarm === false) {
-                  user.authority[0] = '操作权限'
-                } else {
-                  if (users[i].admin === false && users[i].alarm === true) {
-                    user.authority[0] = '接收报警权限'
-                  }
-                }
-              }
+              user.authority = '浏览权限'
             }
             this.accountData.push(user)
           }
           for (let i = 0; i < this.accountData.length; i++) {
             if (this.accountData[i].accountName === this.userName) {
-              if (this.accountData[i].authority === ['无任何权限'] || this.accountData[i].authority === ['接收报警权限']) {
+              if (this.accountData[i].authority === '浏览权限') {
                 return
               } else {
                 document.cookie = 'Authorization' + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;'
-                // this.$store.dispatch('LogOut').then(() => {
-                //   location.reload()
-                // })
               }
             }
           }
@@ -247,54 +228,19 @@ export default {
     },
     editContactDialog(scope) {
       this.scope = scope
-      this.editAccountData.authority = []
       this.editAccountData.name = scope.row.name
       this.editAccountData.accountName = scope.row.accountName
       this.editAccountData.phone = scope.row.phone
       this.editAccountData.email = scope.row.email
-      if (scope.row.authority[0] === '无任何权限') {
-        this.editAccountData.authority = []
+      if (scope.row.authority === '浏览权限') {
+        this.editAccountData.authority = false
       } else {
-        if (scope.row.authority.length === 3) {
-          this.editAccountData.authority[0] = 'alarm'
-          this.editAccountData.authority[1] = 'opration'
-        } else {
-          if (scope.row.authority[0] === '接收报警权限') {
-            this.editAccountData.authority[0] = 'alarm'
-          } else {
-            this.editAccountData.authority[0] = 'opration'
-          }
-        }
+        this.editAccountData.authority = true
       }
       this.editContactConfirm = true
     },
     async editContact() {
       try {
-        let admin
-        let alarm
-        const authority = []
-        if (this.editAccountData.authority[0] === 'opration' && this.editAccountData.authority.length === 1) {
-          admin = true
-          alarm = false
-          authority[0] = '操作权限'
-        } else {
-          if (this.editAccountData.authority[0] === 'alarm' && this.editAccountData.authority.length === 1) {
-            admin = false
-            alarm = true
-            authority[0] = '接收警报权限'
-          } else {
-            if (this.editAccountData.authority[0] === 'alarm' && this.editAccountData.authority[1] === 'opration') {
-              admin = true
-              alarm = true
-              authority[0] = '操作权限'
-              authority[1] = <br />
-              authority[2] = '接收警报权限'
-            } else {
-              admin = false
-              alarm = false
-            }
-          }
-        }
         const res = await this.$http({
           method: 'POST',
           url: this.$apiUrl + '/admin/updateuser',
@@ -302,16 +248,20 @@ export default {
           data: qs.stringify(
             {
               username: this.editAccountData.accountName,
-              admin: admin,
-              alarm: alarm
+              admin: this.editAccountData.authority
             }
           )
         })
         if (res.data.code === 0) {
-          const index = this.scope.$index
-          this.accountData[index].authority = authority
           this.showAllAcount()
           this.editContactConfirm = false
+          this.$message(
+            {
+              showClose: true,
+              type: 'success',
+              message: '修改成功'
+            }
+          )
         } else {
           this.$message(
             {
@@ -357,33 +307,6 @@ export default {
                 }
               )
             } else {
-              console.log(this.createAccountData.authority)
-              let authority = []
-              let admin
-              let alarm
-              if (this.createAccountData.authority[0] === 'opration' && this.createAccountData.authority.length === 1) {
-                authority[0] = '操作权限'
-                admin = true
-                alarm = false
-              } else {
-                if (this.createAccountData.authority[0] === 'alarm' && this.createAccountData.authority.length === 1) {
-                  authority[0] = '接收报警权限'
-                  admin = false
-                  alarm = true
-                } else {
-                  if (this.createAccountData.authority.length === 2) {
-                    authority[0] = '接收报警权限'
-                    authority[1] = <br />
-                    authority[2] = '操作权限'
-                    admin = true
-                    alarm = true
-                  } else {
-                    authority = ['无任何权限']
-                    admin = false
-                    alarm = false
-                  }
-                }
-              }
               const res = await this.$http({
                 method: 'POST',
                 url: this.$apiUrl + '/admin/createuser',
@@ -392,8 +315,7 @@ export default {
                   {
                     username: this.createAccountData.accountName,
                     password: this.createAccountData.password,
-                    admin: admin,
-                    alarm: alarm
+                    admin: this.createAccountData.authority
                   }
                 )
               })
@@ -430,11 +352,12 @@ export default {
           }
         }
       } catch (e) {
+        console.log(e)
         this.$message(
           {
             showClose: true,
             type: 'error',
-            message: '啥问题啊'
+            message: '发生错误，请查看日志'
           }
         )
       }
